@@ -6,52 +6,47 @@ import taf_database_program_functions as tdpf
 import json
 import colouring
 import sys
-
 settings = Settings()
-
-# Loading all airports in database
-avlb_apprs_data = pf.load_avlb_apprs_datra()
-all_avlb_apts =[]
-for appr_data in avlb_apprs_data:
-    all_avlb_apts.append(appr_data[0])
 
 
 ro=False
-refresh_all = False
-refresh_selected = False
 
 ### STARTS program for real_time TAFs
-if settings.real_time_taf_active:
-    #requested_airports_taf = tdpf.select_airports__use_apts_in_code().split() ## use this line to use code stored in code, not in json
+if settings.special_case_taf_active:
+    TAFs =fpf.dump_special_case_tafs()
+    pf.print_list(TAFs)
 
-    ## Refreshing TAFs for every airport
+elif settings.real_time_taf_active:
+    #requested_airports_taf = tdpf.select_airports__use_apts_in_code().split()
+        ### use this line to use code stored in code, not in json
+
+    ## Download latest AIRPORT database?
+    if input("Reload AIRPORT database? (press 'yy' for YES)") =='yy':
+        fpf.download_airports_database()
+
+    ## Download latest TAFs database?
     if input("Download latest TAFs database?") == 'y':
         fpf.download_taf_database()
 
 
-    ## DECIDING which apts TAFs to get.
-    if not fpf.check_if_last_requested_apts_avlb():
-        # No last requested airports -  prompt for new
-        print('\n\tNo reqested aiports stored. Write requested airports.')
+    ## LOADING last requested stations form JSON file
+    fpf.printing_last_requested_apts()
+
+    ## Use last requested stations?
+    answer = input('Continue(enter) or Write new airports\n')
+
+    if answer == '':
+        # Load last time requested stations
+        requested_airports_taf = fpf.load_last_requested_apts()
+        TAFs = fpf.airport_selection_and_TAF_download(requested_airports_taf)
+
     else:
-        # Last requested aiports AVLB - asks if use them or write new"""
-        answer = input('Continue(enter) or Write new airports\n')
-
-        if answer == '':
-            # Load last time requested airports
-            requested_airports_taf = fpf.load_last_requested_apts()
-            TAFs = fpf.airport_selection_and_TAF_download(requested_airports_taf)
-
-        else:
-            # Store new airports given
-            answer = fpf.store_an_answer(answer)
-            ro=True
+        # Store new airports given
+        answer = fpf.store_an_answer(answer)
+        ro=True
 
 
 # Running program for TAF special cases:
-elif settings.special_case_taf_active:
-    TAFs =fpf.dump_special_case_tafs()
-    pf.print_list(TAFs)
 
 #  significant_range_active becomes true or false based on input
 # switches:

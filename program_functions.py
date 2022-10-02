@@ -5,9 +5,8 @@ import json
 from colouring import prGreen, prYellow, prRed, prPurple
 from settings import Settings
 settings = Settings()
+import math
 
-
-from avwx import Station
 
 def print_list(lista):
     for i in lista:
@@ -408,46 +407,159 @@ def print_final_all_lines_data(all_lines,settings):
 # add new functions here
 def prLightGray(skk):
     return "\033[1;90;40m" + str(skk)
+#
+# def avaliable_rwys(apt_code):
+#     """ CORE FUNCTION - adds runway idents and runway length to the final data"""
+#     station = Station.from_icao(apt_code)
+#     #print(epwa.type, epwa.city,epwa.country, epwa.runways)
+#
+#     min_rwy_len = settings.short_runway
+#     min_rwy_width = settings.narrow_runway
+#
+#     runways =[]
+#     for runway in station.runways:
+#         r_length = round(runway.length_ft*0.3048)
+#         r_width = round(runway.width_ft*.3048)
+#         r_idents = [runway.ident1, runway.ident2]
+#         rwy_name = '|'.join(r_idents)
+#
+#         s_rwy = settings.short_runway
+#         m_rwy = settings.medium_runway
+#         l_rwy = settings.long_runway
+#         vl_rwy = settings.very_long_runway
+#
+#         # RUNWAY LENGHT COLOURING
+#         if r_length < s_rwy:
+#             rwy_len_str = prLightGray(str(r_length))
+#         elif r_length < m_rwy:
+#             rwy_len_str = prRed(str(r_length))
+#         elif r_length < l_rwy:
+#             rwy_len_str = prYellow(str(r_length))
+#         elif r_length >= l_rwy:
+#             rwy_len_str = prGreen(str(r_length))
+#
+#         # RUNWAY NAME COLOURIG
+#         if r_length < s_rwy:
+#             rwy_name = prLightGray(rwy_name)
+#
+#         runways.append(rwy_name + ' ' + str(rwy_len_str))
+#
+#
+#     runway_string = ' '.join(runways)
+#     return runway_string
+#
 
 def avaliable_rwys(apt_code):
     """ CORE FUNCTION - adds runway idents and runway length to the final data"""
-    station = Station.from_icao(apt_code)
-    #print(epwa.type, epwa.city,epwa.country, epwa.runways)
 
-    min_rwy_len = settings.short_runway
-    min_rwy_width = settings.narrow_runway
+    # Loading json object containing data regarding runways
+    path = "Data_new/airports_cleaned.json"
+    with open(path, 'r') as f_obj:
+        airport_cleaned = json.load(f_obj)
 
-    runways =[]
-    for runway in station.runways:
-        r_length = round(runway.length_ft*0.3048)
-        r_width = round(runway.width_ft*.3048)
-        r_idents = [runway.ident1, runway.ident2]
-        rwy_name = '|'.join(r_idents)
 
+    # Collecting all runway info in one list - each runway is in separate file in json file
+    runways=[]
+    for i in range(len(airport_cleaned["airport_ident"])):
+        # Searching for selected airport identification
+        if airport_cleaned["airport_ident"][i]==apt_code:
+
+            # Collecting runway low_end / high end runway data in one dictionary
+            runways.append({
+                "le_runway":{
+                    "length__meters": airport_cleaned["length__meters"][i] - airport_cleaned["le_displaced_threshold__meters"][i],
+                    "width__meters": airport_cleaned["width__meters"][i],
+                    "ident": airport_cleaned["le_ident"][i],
+                    "heading_degT": airport_cleaned["le_heading_degT"][i],
+                    "displaced_threshold__meters": airport_cleaned["le_displaced_threshold__meters"][i],
+                },
+
+                "he_runway":{
+                    "length__meters": airport_cleaned["length__meters"][i] - airport_cleaned["he_displaced_threshold__meters"][i],
+                    "width__meters": airport_cleaned["width__meters"][i],
+                    "ident":        airport_cleaned["he_ident"][i],
+                    "heading_degT": airport_cleaned["he_heading_degT"][i],
+                    "displaced_threshold__meters":   airport_cleaned["he_displaced_threshold__meters"][i],}
+                })
+
+    # Making runway information ready for display
+    runway_info_for_display=[]
+    for runway in runways:
+        # Extracting data from dictionary
+        le_len = runway["le_runway"]["length__meters"]
+        le_width = runway["le_runway"]["width__meters"]
+
+        he_len = runway["he_runway"]["length__meters"]
+        he_width = runway["he_runway"]["width__meters"]
+
+        le_name = runway["le_runway"]["ident"]
+        he_name = runway["he_runway"]["ident"]
+
+        # Rounding runway length
+        le_len = math.floor(le_len/ 100) * 100
+        he_len = math.floor(he_len / 100) * 100
+
+
+        # Getting color changeover thresholds from settings
         s_rwy = settings.short_runway
         m_rwy = settings.medium_runway
         l_rwy = settings.long_runway
         vl_rwy = settings.very_long_runway
 
-        # RUNWAY LENGHT COLOURING
-        if r_length < s_rwy:
-            rwy_len_str = prLightGray(str(r_length))
-        elif r_length < m_rwy:
-            rwy_len_str = prRed(str(r_length))
-        elif r_length < l_rwy:
-            rwy_len_str = prYellow(str(r_length))
-        elif r_length >= l_rwy:
-            rwy_len_str = prGreen(str(r_length))
-
-        # RUNWAY NAME COLOURIG
-        if r_length < s_rwy:
-            rwy_name = prLightGray(rwy_name)
-
-        runways.append(rwy_name + ' ' + str(rwy_len_str))
 
 
-    runway_string = ' '.join(runways)
-    return runway_string
+        # RUNWAY LENGTH string recolouring depending on its LENGTH
+           # Initializing variables
+        le_len_str = 'xx'
+        he_len_str = 'xx'
+
+          # recolouring LOW END threshold
+        if le_len < s_rwy:
+            le_len_str = prLightGray(str(le_len))
+        elif le_len < m_rwy:
+            le_len_str = prRed(str(le_len))
+        elif le_len < l_rwy:
+            le_len_str = prYellow(str(le_len))
+        elif le_len >= l_rwy:
+            le_len_str = prGreen(str(le_len))
+
+            # Recoloring of HI END threshold
+        if he_len < s_rwy:
+            he_len_str = prLightGray(str(he_len))
+        elif he_len < m_rwy:
+            he_len_str = prRed(str(he_len))
+        elif he_len < l_rwy:
+            he_len_str = prYellow(str(he_len))
+        elif he_len >= l_rwy:
+            he_len_str = prGreen(str(he_len))
+
+        # RUNWAY NAME recolouring - it becomes gray for VERY SHORT runway
+        if le_len < s_rwy:
+            le_name = prLightGray(le_name)
+        if he_len < s_rwy:
+            he_name = prLightGray(he_name)
+
+
+
+
+
+            # If runway is narrow then width becomes RED
+        if le_width<settings.normal_width_runway:
+            le_width = prRed(le_width)
+
+        # Concatenating single runway data into one string
+        if le_len == he_len:
+            # Runway is same length for both landing direction
+            runway_info_for_display.append(
+                f"{le_name}|{he_name} {le_len_str}({le_width})")
+        else:
+            # Different lengths for both ends
+            runway_info_for_display.append(
+                f"{le_name}|{he_name} {le_len_str}({le_width}){he_len_str}")
+
+    ## COMBINING RUNWAY INFO INTO ONE STRING
+    runways_info_for_display = '   '.join(runway_info_for_display)
+    return runways_info_for_display
 
 def load_avlb_apprs_datra():
     # Load the database containing all airports APPROACH DATA.

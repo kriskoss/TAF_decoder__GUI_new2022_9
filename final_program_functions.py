@@ -4,7 +4,6 @@ stgs = Settings()
 
 
 
-import avwx
 import taf_database_program_functions as tdpf
 import json
 import colouring
@@ -371,7 +370,7 @@ def answer_is_airports_only(answer_split):
     return requested_airports_taf
 
 
-def check_if_last_requested_apts_avlb():
+def printing_last_requested_apts():
     """Checks if file storing last airports requests exists"""
     filename = 'Data/last_requested_apts.json'
     try:
@@ -379,11 +378,13 @@ def check_if_last_requested_apts_avlb():
             last_requested_apts = json.load(f_obj)
 
     except FileNotFoundError:
+        # No last requested airports -  prompt for new
+        print('\n\tNo reqested aiports stored. Write requested airports.')
         return False
     else:
         s = ''
-        for i in last_requested_apts:
-            s += i + ' '
+        for item in last_requested_apts:
+            s += item.upper() + ' '
         print('Last request: ' + s)
         return [True, s]
 
@@ -423,6 +424,8 @@ def add_new_g_group(word):
                     error_switch = True
             return g_key
 
+
+
 def download_taf_database():
     # Downloading the file  - https://www.codingem.com/python-download-file-from-url/
     import requests
@@ -431,7 +434,7 @@ def download_taf_database():
     path__compresed = "Data_new/api__tafs_downloaded.csv.gz"
 
     ##  FOR DEVELOPMENT ONLY!! - -SWITCHED OFF TO AVOID LOADING from the Internet DATA EVERYTIME
-    # open(path__compresed, "wb").write(response.content)
+    open(path__compresed, "wb").write(response.content)
 
     # Extracting csv.gz to csv
     import gzip
@@ -461,7 +464,7 @@ def download_taf_database():
     # Parsing the data and converting some of it into a proper type
 
     from dateutil.parser import parse  # check https://stackabuse.com/converting-strings-to-datetime-in-python/
-    # module which automatically converts time string into the datetime format
+        # module which automatically converts time string into the datetime format
 
     data = []
     for row in reader:
@@ -510,3 +513,207 @@ def download_taf_database():
     with open(path, "w") as f_obj:
         json.dump(tafs_cleaned_dict, f_obj)
 
+    print('TAF DOWNLOAD COMPLETE - fpf')
+
+
+def download_airports_database():
+    """Function downloads all data related to the runways and makes it available for use"""
+    import csv
+    import requests
+
+    # Downloading data file from - https://davidmegginson.github.io/ourairports-data/runways.csv
+    url = 'https://davidmegginson.github.io/ourairports-data/runways.csv'
+    response = requests.get(url)
+    # Saving csv file
+    csv_path = "Data_new/runway_data_download.csv"
+    open(csv_path, "wb").write(response.content)
+
+    # Reading csv file
+
+    file = open(csv_path, newline='')  # newline='' -  depending on the system strings may end in differene t way - this prowides that all works correctly across all systems
+    reader = csv.reader(file)
+
+    # Getting header
+    header = (next(reader))
+    print(header)
+
+    # Extracting data from csv file
+    data = []
+    counter__all_apts = 0
+    counter__good_apts = 0
+
+    for row in reader:
+        # row = ['id', 'airport_ref', 'airport_ident', 'length_ft', 'width_ft', 'surface', 'lighted', 'closed', 'le_ident', 'le_latitude_deg', 'le_longitude_deg', 'le_elevation_ft', 'le_heading_degT', 'le_displaced_threshold_ft', 'he_ident', 'he_latitude_deg', 'he_longitude_deg', 'he_elevation_ft', 'he_heading_degT', 'he_displaced_threshold_ft']
+
+        counter__all_apts += 1
+        # if counter__good_apts >10:
+        #     break
+
+        for i in range(len(row)):
+            # Checking if node is empty
+            if row[i] == '':
+                row[i] = -1
+            # Assigning variables to each column of the row
+            if i == 0:
+                id = str(row[i])
+            elif i == 1:
+                airport_ref = str(row[i])
+            elif i == 2:
+                airport_ident = str(row[i])
+            elif i == 3:
+                length_ft = int(row[i])
+                # Skipping all airports which length is not sufficient
+                if length_ft < 1750 / 0.3048:
+                    break
+
+            elif i == 4:
+                width_ft = int(row[i])
+                if width_ft < 30 / 0.3048:
+                    break
+            elif i == 5:
+                # Skipping all airports which surface is improper
+                surface = str(row[i])
+                bad_surf = ["GRASS", "TURF", "DIRT", "WATER", "GRAVEL", "GRVL", "GVL"]
+                reject = False
+                for item in bad_surf:
+                    if item in surface.upper():
+                        reject = True
+                if reject:
+                    break
+
+            elif i == 6:
+                lighted = int(row[i])
+                # Skipping all airports which have no lightning
+                if lighted == 0:
+                    break
+            elif i == 7:
+                closed = int(row[i])
+                # Skipping all closed airports
+                if closed == 1:
+                    break
+            elif i == 8:
+                le_ident = str(row[i])
+            elif i == 9:
+                le_latitude_deg = float(row[i])
+            elif i == 10:
+                le_longitude_deg = float(row[i])
+            elif i == 11:
+                le_elevation_ft = int(row[i])
+            elif i == 12:
+                le_heading_degT = float(row[i])
+            elif i == 13:
+                le_displaced_threshold_ft = int(row[i])
+            elif i == 14:
+                he_ident = str(row[i])
+            elif i == 15:
+                he_latitude_deg = float(row[i])
+            elif i == 16:
+                he_longitude_deg = float(row[i])
+            elif i == 17:
+                he_elevation_ft = int(row[i])
+            elif i == 18:
+                he_heading_degT = float(row[i])
+            elif i == 19:
+                he_displaced_threshold_ft = str(row[i])
+
+                # Append data only if all items of a row are fulfill the conditions
+                counter__good_apts += 1
+                print(counter__good_apts, counter__all_apts, row)
+                data.append([
+                    id,
+                    airport_ref,
+                    airport_ident,
+                    length_ft,
+                    width_ft,
+                    surface,
+                    lighted,
+                    closed,
+                    le_ident,
+                    le_latitude_deg,
+                    le_longitude_deg,
+                    le_elevation_ft,
+                    le_heading_degT,
+                    le_displaced_threshold_ft,
+                    he_ident,
+                    he_latitude_deg,
+                    he_longitude_deg,
+                    he_elevation_ft,
+                    he_heading_degT,
+                    he_displaced_threshold_ft
+                ])
+
+    # Sorting RWY DATA based on the airport_ident
+    data__sorted = sorted(data, key=lambda x: x[2])
+
+    # Store parsed data in CSV file - just for reference
+    path__data_cleaned = "Data_new/airports_cleaned.csv"
+    file = open(path__data_cleaned, 'w', newline='', encoding='utf-8')
+    writer = csv.writer(file)
+    writer.writerow([
+        'airport_ident',
+        'length__meters',
+        'width__meters',
+        'le_ident',
+        'le_heading_degT',
+        'le_displaced_threshold__meters',
+        'he_ident',
+        'he_heading_degT',
+        'he_displaced_threshold__meters'
+    ])  # storing only selected columns
+
+    # Getting columns from sorted data list and conveting units
+    import math
+    for i in range(len(data__sorted)):
+        row = data__sorted[i]
+        airport_ident = row[2]
+        length__meters = round(float(row[3]) * 0.3048)
+        width__meters = round(float(row[4]) * 0.3048)
+        le_ident = row[8]
+        le_heading_degT = round(float(row[12]))
+        le_displaced_threshold__meters = round(float(row[13]) * 0.3048)
+        he_ident = row[14]
+        he_heading_degT = round(float(row[18]))
+        he_displaced_threshold__meters = round(float(row[19]) * 0.3048)
+
+        # Writing to csv file only selected columnss
+        writer.writerow([
+            airport_ident,
+            length__meters,
+            width__meters,
+            le_ident,
+            le_heading_degT,
+            le_displaced_threshold__meters,
+            he_ident,
+            he_heading_degT,
+            he_displaced_threshold__meters])
+
+    # Converting data_sorted into a dictionary
+    airports_dict = {
+        'airport_ident': [],
+        'length__meters': [],
+        'width__meters': [],
+        'le_ident': [],
+        'le_heading_degT': [],
+        'le_displaced_threshold__meters': [],
+        'he_ident': [],
+        'he_heading_degT': [],
+        'he_displaced_threshold__meters': [],
+    }
+    for i in range(len(data__sorted)):
+        airports_dict['airport_ident'].append(data__sorted[i][2])
+        airports_dict['length__meters'].append(round(float(data__sorted[i][3]) * 0.3048))
+        airports_dict['width__meters'].append(round(float(data__sorted[i][4]) * 0.3048))
+        airports_dict['le_ident'].append(data__sorted[i][8])
+        airports_dict['le_heading_degT'].append(round(float(data__sorted[i][12])))
+        airports_dict['le_displaced_threshold__meters'].append(round(float(data__sorted[i][13]) * 0.3048))
+        airports_dict['he_ident'].append(data__sorted[i][14])
+        airports_dict['he_heading_degT'].append(round(float(data__sorted[i][18])))
+        airports_dict['he_displaced_threshold__meters'].append(round(float(data__sorted[i][19]) * 0.3048))
+
+    # Store tafs_cleanded_dict as json
+    # Check this video: https://www.youtube.com/watch?v=pTT7HMqDnJw
+    import json
+
+    path = "Data_new/airports_cleaned.json"
+    with open(path, "w") as f_obj:
+        json.dump(airports_dict, f_obj)

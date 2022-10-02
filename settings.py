@@ -34,10 +34,16 @@ class Settings:
         self.significant_end_day = 1
         self.significant_end_hour = 18
 
+    #######
         # Selection if use real time TAF or special case TAFs (check Data_new/TAFs__special_cases.json)
-        self.real_time_taf_active = True # tafs are uploade real time
-        self.special_case_taf_active = not self.real_time_taf_active # tafs are being taken from taf_special_cases.py
+        self.real_time_taf_active = True
+            # tafs are uploade real time
 
+        self.special_case_taf_active = not self.real_time_taf_active
+            # tafs are being taken from taf_special_cases.py
+
+
+    ############
         # Flag used in some fucntion
         self.cancel_out_of_range_msg = False
 
