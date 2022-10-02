@@ -717,3 +717,43 @@ def download_airports_database():
     path = "Data_new/airports_cleaned.json"
     with open(path, "w") as f_obj:
         json.dump(airports_dict, f_obj)
+
+
+def add_new_group(answer_split):
+    """Adding new g_group or updating existing one in JSON database"""
+
+    import copy
+    filename = 'Data/g_groups_apts_db.json'
+    with open(filename) as f_obj:
+        g_groups_db = json.load(f_obj)
+
+        # Creating KEY form the first STATION ID to be stored in JSON
+        g_key = 'g' + str(answer_split[0])
+
+        # Checking if g_group exists in JSON database
+        g_group_found = False
+        for g_group in g_groups_db.keys():
+            if g_key.upper() == g_group.upper():
+                # Adding FOUND flag
+                g_group_found = True
+
+                # Making copy of the GROUP BEFORE update
+                g_group__before_update = copy.deepcopy(g_groups_db[g_group])
+
+                # UPDATING GROUP
+                g_groups_db[g_group] = answer_split
+
+        # Adding all XXXX STATIONS IDs into list to be stored in JSON
+        if not g_group_found:
+            g_groups_db[str(g_key)] = answer_split
+
+        # SAVING=DUMPING complete g_group
+        with open(filename, 'w') as f_obj:
+            json.dump(g_groups_db, f_obj, indent=2)
+
+        ### RETURNING MESSAGES to be used in the TERMINAL LABEL in the KIVY APP
+        if not g_group_found:
+            return f"Added group: {g_key} ({', '.join(answer_split)})."
+        else:
+            return f'{g_key} existed in the database!' \
+                   f'{g_group__before_update} replaced with: {answer_split}'

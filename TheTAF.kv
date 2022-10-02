@@ -1,8 +1,10 @@
 #Main_Box:
-PageLayoutExample
+#PageLayoutExample
+Add_Group
 <PageLayoutExample@PageLayout>
     Main_Box:
-    Page_2__Box:
+    Page2:
+    Page3:
 
 <Main_Box>
     orientation:"vertical"
@@ -50,26 +52,25 @@ PageLayoutExample
 
 ###END - Page 1
 
-### PAGE 2
-<Page_2__Box@BoxLayout>:
+### PAGE 2 -- coloured TAFs dispaly ###########
+<Page2@BoxLayout>:
     orientation: "vertical"
-    Page2__Time_Panel:
+    BoxLayout:
+        ## Page main layout
         size_hint:1,None
         height: "80dp"
+        Button:
+            text: "Day 1"
+        Button:
+            text: "Day 2"
+        Time_Sliders:
+            text: "Time slider place holder"
+            size_hint:3,1
 
     Button:
         text: "Label 1"
     Button:
         text: "Label 2"
-
-<Page2__Time_Panel@BoxLayout>
-    Button:
-        text: "Day 1"
-    Button:
-        text: "Day 2"
-    Time_Sliders:
-        text: "Time slider place holder"
-        size_hint:3,1
 
 <Time_Sliders@BoxLayout>:
     orientation:"vertical"
@@ -95,3 +96,32 @@ PageLayoutExample
     Label:
         text:str(int(time_end__slider.value))
         size_hint: 0.2,1
+
+
+##### PAGE 3 ---- Database Access
+<Page3@BoxLayout>
+    orientation: "vertical"
+    Add_Group:
+    Button:
+        text:  "nothing"
+
+
+<Add_Group>:
+    #Add_New_Airport
+
+    size_hint:1,None
+    height: "80dp"
+    orientation: "vertical"
+
+    TextInput:
+        id: my_g_group_input
+        multiline: False
+        on_text_validate: root.on_text_validate(self)
+
+    Button:
+        text: "Store: " +root.new_group_str
+        on_press: root.call_add_new_group()
+
+    Label:
+        color: (0.6,0.5,0,1)
+        text: root.terminal_answer
