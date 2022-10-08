@@ -1,109 +1,52 @@
-#Main_Box:
-#PageLayoutExample
-Add_Group
-<PageLayoutExample@PageLayout>
-    Main_Box:
-    Page2:
-    Page3:
+Layouts
 
-<Main_Box>
+<Layouts@PageLayout>
+    Page1:
+        id: id__Page1
+    Page2:
+        id: id__Page2
+
+<Page1@BoxLayout>
     orientation:"vertical"
-    Box_Top:
+    Top_Bar:
+        id: id__Top_Bar
         size_hint: 1, 0.2
     TAF_groups__scroll:
-    Box_Bottom:
+        id: id__TAF_groups__scroll
+    Add_Group:
+        id: id__Add_Group
+    Label:
+        id: label__test
+        text: app.label__test
+
 
 
 ####
-<Box_Top>
+<Top_Bar>
     Button:
         text: "Reload TAFs"
         on_release: root.call_TAFs_reload()
 
     Button:
-        text: "Reload AIRPORTS"
+        text: "Reload AIRPORTS?"
         on_release: root.call_AIRPORTS_reload()
     ToggleButton:
         text: "Add Time (t): OFF"
         on_state: root.show_T_time_toggle(self)
     Button:
-        text:"test"
+        text: "Test add TIME (t)"
         on_press: root.print_tt()
+
 
 ####
 <TAF_groups__scroll@ScrollView>:
     TAF_groups_Stack:
+        id: id__TAF_groups_Stack
         size_hint: 1, None
         height:  self.minimum_height
 
 <TAF_groups_Stack>
     orientation: "rl-tb"
-
-<Box_Bottom@BoxLayout>:
-    size_hint: 1, None
-    height: "40dp"
-
-    Button:
-        text: "Add Group"
-    Button:
-        text: "Edit Group"
-    Button:
-        text: "Remove Group"
-
-###END - Page 1
-
-### PAGE 2 -- coloured TAFs dispaly ###########
-<Page2@BoxLayout>:
-    orientation: "vertical"
-    BoxLayout:
-        ## Page main layout
-        size_hint:1,None
-        height: "80dp"
-        Button:
-            text: "Day 1"
-        Button:
-            text: "Day 2"
-        Time_Sliders:
-            text: "Time slider place holder"
-            size_hint:3,1
-
-    Button:
-        text: "Label 1"
-    Button:
-        text: "Label 2"
-
-<Time_Sliders@BoxLayout>:
-    orientation:"vertical"
-    Time_Start:
-    Time_End:
-
-<Time_Start@BoxLayout>:
-    Slider:
-        id: time_start__slider
-        min:0
-        max:48
-        value:24
-    Label:
-        text: str(int(time_start__slider.value))
-        size_hint: 0.2,1
-
-<Time_End@BoxLayout>:
-    Slider:
-        id: time_end__slider
-        min:0
-        max:48
-        value:24
-    Label:
-        text:str(int(time_end__slider.value))
-        size_hint: 0.2,1
-
-
-##### PAGE 3 ---- Database Access
-<Page3@BoxLayout>
-    orientation: "vertical"
-    Add_Group:
-    Button:
-        text:  "nothing"
 
 
 <Add_Group>:
@@ -125,3 +68,65 @@ Add_Group
     Label:
         color: (0.6,0.5,0,1)
         text: root.terminal_answer
+
+
+
+###END - Page 1
+
+### PAGE 2 -- coloured TAFs dispaly ###########
+<Page2@BoxLayout>:
+    id:Page2
+    orientation: "vertical"
+    Time_settings:
+
+    Label:
+        id: label__taf_display
+        text: app.label__taf_display
+
+<Time_settings@BoxLayout>:
+    size_hint:1,None
+    height: "80dp"
+
+    Button:
+        text: "Day 1"
+        size_hint:None,1
+        width: "80dp"
+
+    Button:
+        text: "Day 2"
+        size_hint:None,1
+        width: "80dp"
+
+
+    Time_Sliders:
+        size_hint: 4, 1
+
+<Time_Sliders@BoxLayout>:
+    orientation:"vertical"
+    Time_Start__container:
+    Time_End__container:
+
+<Time_Start__container@BoxLayout>:
+    Slider:
+        id: time_start__slider
+        min:0
+        max:48
+        value:0
+        on_value: app.on_slider_value__start(self)
+    Label:
+        #text: str(int(app.slider_value_txt__start))
+
+        size_hint: 0.2,1
+
+<Time_End__container@BoxLayout>:
+    Slider:
+        id: time_end__slider
+        min:0
+        max:48
+        value:48
+        on_value: app.on_slider_value__end(self)
+    Label:
+        #text:str(int(app.slider_value_txt__start))
+        size_hint: 0.2,1
+
+
