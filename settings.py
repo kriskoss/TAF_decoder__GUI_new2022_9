@@ -20,20 +20,6 @@ class Settings:
 
         self.gap_symbol = ' '
 
-        self.significant_range_active = True   # if True significatn range is based on plus/minus specific value
-                                                #  if False - beginning and end of significant period is manually selected
-        #if significant_range_active = True
-        self.day = 1
-        self.hour = 19
-        self.significant_range = 3  # hours before and after selected time where weather is
-
-        # if significant_range_active = False
-        self.significant_start_day = 1
-        self.significant_start_hour = 16
-
-        self.significant_end_day = 1
-        self.significant_end_hour = 18
-
     #######
         # Selection if use real time TAF or special case TAFs (check Data_new/TAFs__special_cases.json)
         self.real_time_taf_active = True

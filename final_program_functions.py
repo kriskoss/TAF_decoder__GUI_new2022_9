@@ -7,7 +7,7 @@ stgs = Settings()
 import taf_database_program_functions as tdpf
 import json
 import colouring
-import program_functions as pf
+import TAF_decoder__functions as pf
 
 
 no_station_msg = '- no such station'
@@ -68,47 +68,15 @@ def print_coloured_apt_list(apt_threat_level):
     for apt in apt_threat_level:
         print(apt)
 
-def append_threat_level(apt_threat_level, final_line, runway_string, end_string):
+def combine_data(station_threats, runways_length, appr_data):
+    station_threat_level=None
     if stgs.rwy_data == 0:
-        apt_threat_level.append(final_line) #+ '\t\t' + runway_string)
+        station_threat_level= station_threats
     elif stgs.rwy_data == 1:
-        apt_threat_level.append(final_line + '\t\t' + runway_string)
+        station_threat_level= station_threats + '\t\t' + runways_length
     elif stgs.rwy_data == 2:
-        apt_threat_level.append(final_line + '\n\n' + end_string + '\n')
-
-def print_weather_in_whole_range(cancel_out_of_range_msg, significant_range_active,settings):
-    """prints weather and ICAO apts list in whole time range of each airport"""
-    # when answer remain empty - whole validity of TAF will be diplayed
-    global significant_start_hour, significant_end_hour, significant_start_day, significant_end_day,apt_threat_level, TAFs
-
-    significant_start_hour = 1
-    significant_end_hour = 24
-    significant_start_day = 1
-    significant_end_day = 3
-    print_type = settings.print_type
-    print_time_group = settings.print_time_group
-    # list to store apt threat level and values of threats
-    apt_threat_level = []
-    TAFs = load_json_TAF()
-
-    for TAF in TAFs:
-        # running TAF decoder function - this prints decoded,coloured TAFs
-        # in the same time storing apt threat level in [] (from RETURN of TAF decoder)
-        final_coloured_taf_string,final_line, runway_string, end_string = TAF_decoder_function(TAF,
-                                                     significant_start_hour=significant_start_hour,
-                                                     significant_end_hour=significant_end_hour,
-                                                     significant_start_day=significant_start_day,
-                                                     significant_end_day=significant_end_day,
-                                                     cancel_out_of_range_msg=cancel_out_of_range_msg,
-                                                     significant_range_active=significant_range_active,
-                                                     print_type=print_type,
-                                                     print_time_group=print_time_group,
-                                                     )
-        append_threat_level(apt_threat_level, final_line, runway_string, end_string)
-    # printing list af apt data in condensed way (apt_thr_lvl + all threats gennerating weather
-
-    print_coloured_apt_list(apt_threat_level)
-
+        station_threat_level= station_threats + '\n\n' + appr_data + '\n'
+    return station_threat_level
 def save_last_requested_apts(requested_airports_taf):
     filename = 'DATA/last_requested_apts.json'
     with open(filename, 'w') as f_obj:

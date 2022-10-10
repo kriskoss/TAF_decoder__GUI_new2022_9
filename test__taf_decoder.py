@@ -7,59 +7,6 @@ import json
 
 my_group = "gTEST" ## just for DEVELOPMENTS
 
-def decode_TAFs(TAFs, start_time, end_time):
-
-
-    significant_range_active = False
-
-    # Converting START TIME in hours into days and hours
-    if start_time<24:
-        start_day = 1
-        start_hour = start_time
-    else:
-        """start_time>=24"""
-        start_day = 2
-        start_hour = start_time-24
-
-    # Converting END TIME in hours into days and hours
-    if end_time<24:
-        end_day = 1
-        end_hour = end_time
-    else:
-        """end_time>=24"""
-        end_day = 2
-        end_hour = end_time-24
-
-    apt_threat_level = []
-
-    # TAFs = fpf.load_json_TAF()
-    for TAF in TAFs:
-        # Checking for invalid station - if true then skip current iteration
-        if fpf.no_station_msg in TAF:
-            print(TAF)
-            continue
-
-        # Decoding TAF
-        final_coloured_taf_string,final_line,runway_string,end_string \
-            = TAF_decoder_function(TAF,
-               my_day=1,
-               my_time=12,
-               significant_start_day= start_day ,
-               significant_start_hour= start_hour,
-               significant_end_day= end_day,
-               significant_end_hour= end_hour,
-               significant_range_active = significant_range_active,
-               print_type=settings.print_type,
-               print_time_group=settings.print_time_group,
-        )
-
-        fpf.append_threat_level(
-            apt_threat_level,
-            final_line,
-            runway_string,
-            end_string)
-
-    fpf.print_coloured_apt_list(apt_threat_level)
 
 def extract_stations_from_g_group(selected_g_group):
     """Returns listo of stations related to selected g_group"""
@@ -80,6 +27,35 @@ def extract_stations_from_g_group(selected_g_group):
 
     return stations
 
+
+def decode_TAFs(TAFs, start_time, end_time):
+
+    stations__threat_level = []
+
+    # TAFs = fpf.load_json_TAF()
+    for TAF in TAFs:
+        # Checking for invalid station - if true then skip current iteration
+        if fpf.no_station_msg in TAF:
+            print(TAF)
+            continue
+
+        # Decoding TAF
+        decoded_TAF,\
+        station_threats,\
+        runways_length,\
+        appr_data \
+            = TAF_decoder_function(settings, TAF,start_time,end_time)
+
+        # print(final_line,'AAAAAAAAAAAA')
+
+        # Combining station data depending on the settings
+        combined_station_data = fpf.combine_data(station_threats, runways_length, appr_data)
+
+        stations__threat_level.append(combined_station_data)
+
+    # Printing list of stations threat level
+    fpf.print_coloured_apt_list(stations__threat_level)
+
 # Extracting stations for selected g_group
 requested_stations = extract_stations_from_g_group(my_group)
 
@@ -91,4 +67,4 @@ with open('Data/temp_TAFs.json', 'w') as f_obj:
     json.dump(TAFs, f_obj)
 
 
-decode_TAFs(TAFs,12,24)
+decode_TAFs(TAFs,12,18)

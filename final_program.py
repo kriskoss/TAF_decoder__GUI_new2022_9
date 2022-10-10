@@ -1,6 +1,6 @@
 from TAF_decoder import TAF_decoder_function
 from settings import Settings
-import program_functions as pf
+import TAF_decoder__functions as pf
 import final_program_functions as fpf
 import taf_database_program_functions as tdpf
 import json
@@ -140,95 +140,7 @@ while True:
     elif all(x.isdigit() or x.isspace() for x in answer):
         """ONLY NUMBERs and spaces
             **** TAF DECODER ***"""
-        if len(answer_split) == 1:
-            # if 1 or 2 or 3 selected than only that day is displayed
 
-            cancel_out_of_range_msg = True
-            significant_range_active = False
-
-            if int(answer_split[0]) == 1:
-                # if answer "1" - only day 1 weather will be displayed (1-24h)
-                fpf.print_weather_day1_only(cancel_out_of_range_msg, significant_range_active, settings)
-
-            elif int(answer_split[0]) == 2:
-                # if answer "2" - only day 2 weather will be displayed (25-48h)
-                fpf.print_weather_day2_only(cancel_out_of_range_msg, significant_range_active, settings)
-
-            elif int(answer_split[0]) == 3:
-                # if answer "3" - only day 3 weather will be displayed (49-72h)
-                fpf.print_weather_day3_only(cancel_out_of_range_msg, significant_range_active, settings)
-
-        elif len(answer_split) == 2 \
-            and (int(answer_split[0]) == 1 or int(answer_split[0]) == 2 or int(answer_split[0]) == 3) \
-            and 0<= int(answer_split[1])<=24:
-            significant_range_active = True
-            my_day =int(answer_split[0])
-            my_time = int(answer_split[1])
-
-            apt_threat_level = []
-
-            TAFs = fpf.load_json_TAF()
-            for TAF in TAFs:
-                final_coloured_taf_string,final_line, runway_string, end_string = TAF_decoder_function(TAF, my_day=my_day, my_time=my_time,
-                                 significant_range=settings.significant_range,
-                                 significant_range_active=significant_range_active,
-                                                             print_type=settings.print_type,
-                                                             print_time_group= settings.print_time_group,
-                                                             )
-                fpf.append_threat_level(apt_threat_level, final_line, runway_string, end_string)
-            fpf.print_coloured_apt_list(apt_threat_level)
-
-        elif len(answer_split) == 3\
-            and (int(answer_split[0]) == 1 or int(answer_split[0]) == 2 or int(answer_split[0]) == 3) \
-            and 0<= int(answer_split[1])<=24 \
-            and 0 < int(answer_split[2]) <20:
-            significant_range_active = True
-
-            my_day =int(answer_split[0])
-            my_time = int(answer_split[1])
-            significant_range = int(answer_split[2])
-
-            apt_threat_level = []
-
-            TAFs = fpf.load_json_TAF()
-            for TAF in TAFs:
-                final_line, runway_string, end_string = TAF_decoder_function(TAF, my_day=my_day, my_time=my_time,
-                                     significant_range=significant_range,
-                                     significant_range_active=significant_range_active,
-                                                             print_type=settings.print_type,
-                                                             print_time_group=settings.print_time_group,
-                                                             )
-                fpf.append_threat_level(apt_threat_level, final_line, runway_string, end_string)
-            fpf.print_coloured_apt_list(apt_threat_level)
-
-        elif answer.isdigit and len(answer_split) == 4 \
-            and (int(answer_split[0]) == 1 or int(answer_split[0]) == 2 or int(answer_split[0]) == 3) \
-            and 0<= int(answer_split[1])<=24 \
-            and (int(answer_split[2]) == 1 or int(answer_split[2]) == 2 or int(answer_split[2]) == 3) \
-            and 0 <= int(answer_split[3]) <= 24:
-                significant_range_active = False
-
-                significant_start_day = int(answer_split[0])
-                significant_start_hour = int(answer_split[1])
-
-                significant_end_day = int(answer_split[2])
-                significant_end_hour = int(answer_split[3])
-
-                apt_threat_level = []
-
-                TAFs = fpf.load_json_TAF()
-                for TAF in TAFs:
-                    final_coloured_taf_string,final_line, runway_string, end_string = TAF_decoder_function(TAF,my_day=1, my_time=12,
-                                     significant_start_day=significant_start_day ,
-                                     significant_start_hour=significant_start_hour,
-                                     significant_end_day=significant_end_day,
-                                     significant_end_hour=significant_end_hour,
-                                     significant_range_active = significant_range_active,
-                                                                 print_type=settings.print_type,
-                                                                 print_time_group=settings.print_time_group,
-                                                                 )
-                    fpf.append_threat_level(apt_threat_level, final_line, runway_string, end_string)
-                fpf.print_coloured_apt_list(apt_threat_level)
 
     else:
         print('error - wrong format')
