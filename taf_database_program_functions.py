@@ -29,33 +29,6 @@ def select_airports__use_apts_in_code():
     requested_airports_taf = 'gEPWAb LEBL'  # NO COMMAs !! - just SPACE
     print(requested_airports_taf)
     return requested_airports_taf
-
-def create_list_of_apts_to_get_TAF__convertg_group_into_list(apt_groups, requested_airports_taf):
-    """ - create list of apts of which TAF will be downloaded
-        - converts g_groups to list of apts"""
-
-    # make g_group_name recognizable as a group and not as an apt name
-    g_string_apts = []
-    for g_group_name in apt_groups.keys():
-        g_string_apts.append(g_group_name)
-
-    # combining g_grup airports and individual airports into one list
-    taf_list = []
-    for string in requested_airports_taf:
-        g_string_true_flag = False
-
-        for g_apt in g_string_apts:
-            if string == g_apt:
-                g_string_true_flag = True
-                taf_list.append(apt_groups[g_apt])
-
-                if not g_string_true_flag:
-                    taf_list.append(string)
-        if not g_string_true_flag:
-            taf_list.append(string)
-
-    return taf_list
-
 def load_and_dump_g_groups_apts_data_from_taf_database_program_functions():
     filename = 'data/g_groups_apts_db.json'
     with open(filename, 'w') as f_obj:

@@ -1,10 +1,29 @@
-Layouts
+WindowManager:
+    id: first
+        # https://www.youtube.com/watch?v=Prt_SKkZji8&list=WL&index=9
+    FirstWindow:
 
-<Layouts@PageLayout>
-    Page1:
-        id: id__Page1
-    Page2:
-        id: id__Page2
+        Page1:
+            id: id__Page1
+
+    SecondWindow:
+        id: second
+        Page2:
+            id: id__Page2
+
+
+<WindowManager@ScreenManager>
+<FirstWindow@Screen>
+<SecondWindow@Screen>
+
+<FirstWindow>:
+    name: "first"
+    
+
+<SecondWindow>:
+    name: "second" 
+
+#Layouts
 
 <Page1@BoxLayout>
     orientation:"vertical"
@@ -15,10 +34,6 @@ Layouts
         id: id__TAF_groups__scroll
     Add_Group:
         id: id__Add_Group
-    Label:
-        id: label__test
-        text: app.label__test
-
 
 
 ####
@@ -36,6 +51,11 @@ Layouts
     Button:
         text: "Test add TIME (t)"
         on_press: root.print_tt()
+    Button: 
+        text: "2nd screen"
+        on_press:
+            app.root.current="second"
+            app.root.transition.direction = "left"
 
 
 ####
@@ -77,10 +97,18 @@ Layouts
 <Page2@BoxLayout>:
     id:Page2
     orientation: "vertical"
+    Button:
+        text: "1st screen"
+        size_hint:1, None
+        height: "40dp"
+        on_release: 
+            app.root.current ="first"
+            app.root.transition.direction = "right"
+    
     Time_settings:
+        id: Time_settings
 
     Label:
-        id: label__taf_display
         text: app.label__taf_display
 
 <Time_settings@BoxLayout>:
@@ -91,15 +119,18 @@ Layouts
         text: "Day 1"
         size_hint:None,1
         width: "80dp"
+        on_release: app.day1__set_time_values()
 
     Button:
         text: "Day 2"
         size_hint:None,1
         width: "80dp"
+        on_release: app.day2__set_time_values()
 
 
     Time_Sliders:
-        size_hint: 4, 1
+        id: Time_sliders
+        size_hint: 1, 1
 
 <Time_Sliders@BoxLayout>:
     orientation:"vertical"
@@ -111,22 +142,22 @@ Layouts
         id: time_start__slider
         min:0
         max:48
-        value:0
+        value: app.value__start_slider
         on_value: app.on_slider_value__start(self)
     Label:
-        #text: str(int(app.slider_value_txt__start))
+        text: app.slider_value_txt__start
+        size_hint: 0.1,1
 
-        size_hint: 0.2,1
 
 <Time_End__container@BoxLayout>:
     Slider:
         id: time_end__slider
         min:0
         max:48
-        value:48
+        value: app.value__end_slider
         on_value: app.on_slider_value__end(self)
     Label:
-        #text:str(int(app.slider_value_txt__start))
-        size_hint: 0.2,1
+        text: app.slider_value_txt__end
+        size_hint: 0.1,1
 
 

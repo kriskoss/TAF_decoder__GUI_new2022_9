@@ -89,6 +89,14 @@ class TAF_groups_Stack(StackLayout):
         # Running app function on button press
         app.update_TAFs_display_labels()
 
+        # Moves to the 2nd screen
+        app.root.current = "second"
+        app.root.transition.direction = "left"
+
+        # Resetting sliders
+        app.value__start_slider = "0"
+        app.value__end_slider = "48"
+
 
 class Add_Group(BoxLayout):
     """ Methods used to Add and Edit new g_group"""
@@ -123,6 +131,22 @@ class Add_Group(BoxLayout):
 
 
 class TheTAFApp(App):
+    ### GLOBAL VARIABLES
+    time_start_str = "10"  # has to be string as it is StringProperty is being updated not the variable itself
+    time_end_str = "38"
+
+    # Sets the initial value of the time sliders
+    value__start_slider = StringProperty(time_start_str)
+    value__end_slider = StringProperty(time_end_str)
+
+    # Read value o the slider
+    slider_value_txt__start = StringProperty(time_start_str)
+    slider_value_txt__end = StringProperty(time_end_str)
+
+    # Lable which display the decoded TAF
+    label__taf_display = StringProperty('label__taf_display')
+
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -136,9 +160,6 @@ class TheTAFApp(App):
         app = self
                 ### END of youtube reference
 
-    slider_value_txt__start = StringProperty('slider value -- start')
-    slider_value_txt__end = StringProperty('slider value -- end')
-
     def on_slider_value__start(self, widget):
         print("Slider value START:" + str(int(widget.value)))
         self.slider_value_txt__start = str(int(widget.value))
@@ -149,9 +170,6 @@ class TheTAFApp(App):
         print("Slider value END:" + str(int(widget.value)))
         self.slider_value_txt__end = str(int(widget.value))
         self.label__taf_display = self.combine_data(self.selected_g_group,self.slider_value_txt__start,self.slider_value_txt__end)
-
-    label__test=StringProperty('label__test')
-    label__taf_display = StringProperty('label__taf_display')
 
     def update_TAFs_display_labels(self):
         """ Labels are updated on function activation - used to update TAF display (VERY IMPORTANT!!!)"""
@@ -165,12 +183,25 @@ class TheTAFApp(App):
         # Updating elements
         self.TAF_decoder__input_data = self.combine_data(self.selected_g_group,self.slider_value_txt__start,self.slider_value_txt__end)
         self.label__taf_display  = self.TAF_decoder__input_data
-        self.label__test = self.TAF_decoder__input_data
+
+    # def combine_data(self, data1, data2, data3):
+    #     """Just combines data into one element - to avoid repeating the code"""
+    #
+    #     return str([data1,data2, data3])
 
     def combine_data(self, data1, data2, data3):
-        return str([data1,data2, data3])
+        """Just combines data into one element - to avoid repeating the code"""
 
+        return str([data1, data2, data3])
 
+    def day1__set_time_values(self):
+        self.value__start_slider = "0"
+        self.value__end_slider = "24"
+
+    def day2__set_time_values(self):
+
+        self.value__start_slider = "24"
+        self.value__end_slider = "48"
 
 
 

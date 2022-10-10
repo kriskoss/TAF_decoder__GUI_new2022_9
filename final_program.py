@@ -38,7 +38,8 @@ elif settings.real_time_taf_active:
     if answer == '':
         # Load last time requested stations
         requested_airports_taf = fpf.load_last_requested_apts()
-        TAFs = fpf.airport_selection_and_TAF_download(requested_airports_taf)
+        # TAFs = fpf.airport_selection_and_TAF_download(requested_airports_taf) -
+        #   DELETED!!
 
     else:
         # Store new airports given
@@ -135,68 +136,6 @@ while True:
         """prints all airport groups stored"""
         for key,value in tdpf.apt_groups.items():
             print(key, value)
-
-    elif answer == 'a':
-        while True:
-            # Asks for requested airports
-            requested_airports_taf = fpf.promp_for_apt_selection()
-            fpf.save_last_requested_apts(requested_airports_taf)
-            TAFs = fpf.airport_selection_and_TAF_download(requested_airports_taf)
-            break
-
-    elif all(x.isalpha() or x.isspace() for x in answer):
-        """ONLY LETTERs and spaces"""
-        filename = 'Data/g_groups_apts_db.json'
-        with open(filename) as f_obj:
-            g_groups_db= json.load(f_obj)
-
-        switch = True
-        final_answer_split =[]
-        b_switch = False
-        while switch:
-
-            for word in answer_split:
-                #word = word.lower()
-                if len(word) == 5 and word[0] == 'g' :
-                    """g_group detected in answer"""
-                    count=[]
-                    for k in g_groups_db.keys():
-                        if k.lower() == word.lower():
-                            count.append(1)
-
-                    """g_group not in database - create new one ?"""
-                    if sum(count) == 0:
-                        g_key =fpf.add_new_g_group(word)
-                        answer_split = g_key.split()
-                        for i in answer_split:
-                            final_answer_split.append(i)
-                    # g_group detected - split into stations
-                    elif sum(count) == 1:
-                        for k,v in g_groups_db.items():
-                            if k.lower() == word.lower():
-                                for i in v:
-                                    final_answer_split.append(i)
-
-                    # more than one g_group detected - select which one to use
-                    elif sum(count) > 1:
-                        print('More than 1 groups stored')
-                        sys.exit()
-                    switch= False
-
-
-                elif len(word)==4:
-                    """ find a way to prevent BadStation error from crashing a program"""
-                    final_answer_split.append(word.lower())
-                    switch = False
-
-                else:
-                    print('\n' + colouring.prRed(str(word)) +': ERROR -> must start with "g" \n')
-
-
-
-        requested_airports_taf = fpf.answer_is_airports_only(final_answer_split)
-        fpf.save_last_requested_apts(requested_airports_taf)
-        fpf.airport_selection_and_TAF_download(requested_airports_taf)
 
     elif all(x.isdigit() or x.isspace() for x in answer):
         """ONLY NUMBERs and spaces

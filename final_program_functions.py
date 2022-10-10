@@ -17,20 +17,6 @@ prompt = """
 Write "1 12" or "1 12 1 20" or "1 12 3 or q to quit
 """
 
-def get_tafs_for_all_apts_in_db():
-    all_avlb_apts = []
-    avlb_apprs_data = pf.load_avlb_apprs_datra()
-    for appr_data in avlb_apprs_data:
-        all_avlb_apts.append(appr_data[0])
-    return all_avlb_apts
-
-def get_and_dump_real_time_tafs(all_airports,missing_apts, taf_update, filename):
-    """gets real time tafs for selected airports and dump them into a file"""
-    #global TAFs, filename, f_obj
-    TAFs = get_TAF_for_apt(all_airports,missing_apts, taf_update)
-    with open(filename, 'w') as f_obj:
-        json.dump(TAFs, f_obj)
-    return TAFs
 
 def dump_special_case_tafs():
     global TAFs
@@ -63,8 +49,6 @@ def load_json_TAF():
     else:
         return TAFs
 
-
-
 def store_an_answer(answer):
     """stores an answer given in final_program"""
     filename = 'Data_new/answer.json'
@@ -84,6 +68,7 @@ def print_coloured_apt_list(apt_threat_level):
     print('')
     for apt in apt_threat_level:
         print(apt)
+
 def append_threat_level(apt_threat_level, final_line, runway_string, end_string):
     if stgs.rwy_data == 0:
         apt_threat_level.append(final_line) #+ '\t\t' + runway_string)
@@ -183,165 +168,10 @@ def print_weather_day2_only(cancel_out_of_range_msg, significant_range_active, s
         append_threat_level(apt_threat_level, final_line, runway_string, end_string)
     print_coloured_apt_list(apt_threat_level)
 
-def print_weather_day3_only(cancel_out_of_range_msg, significant_range_active, settings):
-    """prints only day 3 weather (49-72h)"""
-    global significant_start_day, significant_start_hour, significant_end_day, significant_end_hour, apt_threat_level, TAFs, TAF
-    significant_start_day = 3
-    significant_start_hour = 1
-    significant_end_day = 3
-    significant_end_hour = 24
-    print_type = settings.print_type
-    print_time_group = settings.print_time_group
-
-    apt_threat_level = []
-    TAFs = load_json_TAF()
-    for TAF in TAFs:
-        final_coloured_taf_string,final_line, runway_string, end_string = TAF_decoder_function(TAF,
-                                                     significant_start_hour=significant_start_hour,
-                                                     significant_end_hour=significant_end_hour,
-                                                     significant_start_day=significant_start_day,
-                                                     significant_end_day=significant_end_day,
-                                                     cancel_out_of_range_msg=cancel_out_of_range_msg,
-                                                     significant_range_active=significant_range_active,
-                                                     print_type=print_type,
-                                                     print_time_group=print_time_group,
-                                                     )
-        append_threat_level(apt_threat_level, final_line, runway_string, end_string)
-    print_coloured_apt_list(apt_threat_level)
-
-
-def get_TAF_for_apt(all_airports, missing_apts, taf_update):
-    """downloads valid TAFs for airports in all_airport list"""
-
-    for apt in all_airports:
-        get_TAF_for_selected_apt(apt, missing_apts, taf_update)
-    print('\t *** LOADING COMPLETED *** (fpf)\n')
-    return  taf_update
-
-
-def get_TAF_for_selected_apt(apt, missing_apts, taf_update):
-
-    #loading json object conaining station_id and raw_text TAF
-    path= "Data_new/api__tafs_cleaned.json"
-    with open(path,'r') as f_obj:
-        tafs_cleaned_dict = json.load(f_obj)
-
-    # Case that station was not found
-    no_station_msg = apt + '- no such station'
-    apt_taf = no_station_msg
-
-    # Seatchig for the station_id in the taf json
-    for i in range(len(tafs_cleaned_dict['station_id'])):
-        if tafs_cleaned_dict['station_id'][i]==apt.upper():
-            apt_taf = tafs_cleaned_dict['raw_text'][i]
-            break
-    print(apt_taf, '(fpf--aa)')
-    """Getting taf for selected airport. """
-
-    # If TAF download successful:
-    if apt_taf != no_station_msg :
-        taf_update.append(apt_taf)
-
-
-def if_update_unsuccessful_try_again(apt_taf):
-    taf =''
-    n = 1
-    no_connection = False
-    while not apt_taf.raw:
-        if n == 10:
-            print('          -- error - 10x attempts unsuccessful')
-            no_connection = True
-            break
-
-        try:apt_taf.update(timeout=1000)
-        except:
-            pass
-        else:
-            if apt_taf.raw is None:
-                pass
-            else:
-                print('raw',apt_taf.raw)
-                taf = apt_taf.raw
-        n += 1
-    if no_connection:
-        filename= 'Data/all_tafs.json'
-        with open(filename) as f_obj:
-            all_tafs = json.load(f_obj)
-            print('          ... loaded stored TAF')
-            for loaded_taf in all_tafs:
-                if apt_taf.icao in loaded_taf:
-                    taf  =  loaded_taf
-    return taf
-
-def moving_all_airports_into_one_list_from__taf_list(taf_list):
-    """Moving all airports into one list."""
-    all_airports = []
-    taf_update = []
-    missing_apts = []
-    for item in taf_list:
-        if type(item) == list:
-            for apt in item:
-                all_airports.append(apt)
-        elif type(item) == str:
-            all_airports.append(item)
-        else:
-            print('error 1')
-    return all_airports, missing_apts, taf_update
-
-def load_all_saved_apt_groups_data_from_data_folder():
-    """load all saved apt_groups data from data folder"""
-    filename = 'data/g_groups_apts_db.json'
-    with open(filename) as f_obj:
-        apt_groups = json.load(f_obj)
-    return apt_groups
-
-def airport_selection_and_TAF_download(requested_airports_taf):
-    """Downloads TAFs for reqested airports and saves data in json"""
-    # Load database of airports groups.
-    apt_groups = load_all_saved_apt_groups_data_from_data_folder()
-
-    # Creating list of airports of which TAF will be downloaded.
-    taf_list = tdpf.create_list_of_apts_to_get_TAF__convertg_group_into_list \
-        (apt_groups, requested_airports_taf)
-
-    # Moving all airports into one list.
-    all_airports, missing_apts, taf_update = moving_all_airports_into_one_list_from__taf_list \
-        (taf_list)
-
-    # Printing list of airports which TAF download was not possible.
-    if missing_apts:
-        print('\nmissing_apts', missing_apts, '\n')
-
-    # Loading updated TAFs and storing json file
-    TAFs = get_and_dump_real_time_tafs(all_airports, missing_apts, taf_update , 'Data/temp_TAFs.json')
-
-    return TAFs
-
-def promp_for_apt_selection():
-    """Prompts user to write what airports TAFs should be taken"""
-    prompt = ' What airports you want?'
-    requested_airports_taf = input(prompt)
-    correct_apt =[]
-    incorrect_apt =[]
-    requested_airports_taf = requested_airports_taf.split()
-    for word in requested_airports_taf:
-        if word.isalpha() and len(word) == 4 or \
-            word.isalpha() and word.split()[0] == 'g' and (len(word) == 5 or len(word) == 5):
-            correct_apt.append(word)
-        else:
-            incorrect_apt.append(word)
-            print(colouring.prYellow('Incorrect apt name "') + colouring.prRed(word) + colouring.prYellow('" use: XXXX or gXXXX or gXXXXb'))
-    requested_airports_taf = correct_apt
-    print(correct_apt)
-
-    return requested_airports_taf
-
-
 def save_last_requested_apts(requested_airports_taf):
     filename = 'DATA/last_requested_apts.json'
     with open(filename, 'w') as f_obj:
         json.dump(requested_airports_taf, f_obj)
-
 
 def load_last_requested_apts():
     """Loads string of last requested airports. If no file, than prompts for airports"""
@@ -352,22 +182,6 @@ def load_last_requested_apts():
         return requested_airports_taf
     except FileNotFoundError:
         print('ff not f')
-
-
-
-
-        requested_airports_taf = promp_for_apt_selection()
-        return requested_airports_taf
-
-def answer_is_airports_only(answer_split):
-    requested_airports_taf = []
-    for word in answer_split:
-        if  (len(word) == 4) or \
-            (word[0] == 'g' and (len(word) == 5 or len(word) == 6)):
-            requested_airports_taf.append(word)
-        else:
-            print('fpf - else 1243')
-    return requested_airports_taf
 
 
 def printing_last_requested_apts():
@@ -389,43 +203,9 @@ def printing_last_requested_apts():
         return [True, s]
 
 
-def add_new_g_group(word):
-    prompt2 ='\n'+ str(word) +' NOT IN DATABASE --> Use template: XXXX XXXX XXXX ect.'
-    prompt2 += '\n\t( "n" to cancel):'
-    ans = input(prompt2)
-    if ans == 'n':
-        pass
-    else:# ans =='':
-        filename = 'Data/g_groups_apts_db.json'
-        with open(filename) as f_obj:
-            g_groups_db = json.load(f_obj)
-            error_switch= False
-            while True:
-                if not error_switch:
-                    new_key = ans#input('')
-                elif error_switch:
-                    new_key = input('Try again. Write only 4-letter code separated by SPACE and press ENTER:\n')
+######## 2022.09 ###############
 
-                new_key_split = new_key.split()
-                counter = []
-                for i in new_key_split:
-                    if len(i) == 4 and i.isalpha():
-                        counter.append(1)
-                print()
-                if sum(counter) == len(new_key_split):
-                    g_key = 'g' + str(new_key_split[0])
-                    g_groups_db[str(g_key)]=new_key_split
-                    with open(filename, 'w') as f_obj:
-                        json.dump(g_groups_db, f_obj, indent=2)
-                    print('Added: '+ g_key + ': ' + str(new_key_split) )
-                    break
-
-                else:
-                    error_switch = True
-            return g_key
-
-
-
+# BUTTON function - Update TAFs
 def download_taf_database():
     # Downloading the file  - https://www.codingem.com/python-download-file-from-url/
     import requests
@@ -515,7 +295,7 @@ def download_taf_database():
 
     print('TAF DOWNLOAD COMPLETE - fpf')
 
-
+# Button function - Update Airports
 def download_airports_database():
     """Function downloads all data related to the runways and makes it available for use"""
     import csv
@@ -718,7 +498,7 @@ def download_airports_database():
     with open(path, "w") as f_obj:
         json.dump(airports_dict, f_obj)
 
-
+# Button function - Add new group
 def add_new_group(answer_split):
     """Adding new g_group or updating existing one in JSON database"""
 
@@ -757,3 +537,46 @@ def add_new_group(answer_split):
         else:
             return f'{g_key} existed in the database!' \
                    f'{g_group__before_update} replaced with: {answer_split}'
+
+# Button functions - get decoded TAF for selected group
+def get_TAF_for_all_requested_stations(requested_stations):
+    """downloads valid TAFs for airports in all_airport list"""
+    # Initializing list of TAFs for requested stations
+    requested_stations_TAFs=[]
+
+    # Getting TAFs for each station and appending it to single list
+    for station in requested_stations:
+
+        # Getting TAF for the station
+        station_TAF = get_single_stations_TAF(station)
+
+        # Appending TAF
+        requested_stations_TAFs.append(station_TAF)
+
+    # Load complete message
+    print(f'   *** LOADING COMPLETED *** (fpf)  ')
+
+    return  requested_stations_TAFs
+
+def get_single_stations_TAF(station):
+    """Gets raw TAF string from TAFs json DATABASE for single station"""
+    #loading json object conaining station_id and raw_text TAF
+
+    path= "Data_new/api__tafs_cleaned.json"
+    with open(path,'r') as f_obj:
+        tafs_cleaned_dict = json.load(f_obj)
+
+    # Initial value that the station is not found.
+    station_TAF = station + '- no such station'
+
+    # Traversing TAFs database for station
+    for i in range(len(tafs_cleaned_dict['station_id'])):
+
+        # Station found in TAFs database - overrides initial station TAF value
+        if tafs_cleaned_dict['station_id'][i]== station.upper():
+            station_TAF = tafs_cleaned_dict['raw_text'][i]
+            break
+
+    return station_TAF
+
+#

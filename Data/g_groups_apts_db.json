@@ -1,12 +1,4 @@
 {
-  "gEPWAb": [
-    "EPWA",
-    "EPLL",
-    "EPKT",
-    "EPWR",
-    "EPPO",
-    "EPGD"
-  ],
   "gEPWA": [
     "EPWA",
     "EPLL",
@@ -393,15 +385,17 @@
     "LIEE",
     "LIRP"
   ],
-  "gTEST": [
-    "TEST",
-    "TEST"
-  ],
+
   "gZZZZ": [
     "ZZZZ"
   ],
   "gKFJD": [
     "KFJD",
     "AFFA"
+  ],
+  "gTEST": [
+    "EPWA",
+    "EPLL",
+    "TEST"
   ]
 }
