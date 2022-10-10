@@ -10,7 +10,7 @@ import colouring
 import program_functions as pf
 
 
-
+no_station_msg = '- no such station'
 #prompt at the beginning of a program
 prompt = """
 #####################################################
@@ -35,7 +35,6 @@ def dump_special_case_tafs():
     filename = 'Data/temp_TAFs.json'
     with open(filename, 'w') as f_obj:
         json.dump(TAFs, f_obj)
-
 
 def load_json_TAF():
     """load TAFs from JSON file created in first run"""
@@ -77,7 +76,6 @@ def append_threat_level(apt_threat_level, final_line, runway_string, end_string)
     elif stgs.rwy_data == 2:
         apt_threat_level.append(final_line + '\n\n' + end_string + '\n')
 
-
 def print_weather_in_whole_range(cancel_out_of_range_msg, significant_range_active,settings):
     """prints weather and ICAO apts list in whole time range of each airport"""
     # when answer remain empty - whole validity of TAF will be diplayed
@@ -109,63 +107,6 @@ def print_weather_in_whole_range(cancel_out_of_range_msg, significant_range_acti
         append_threat_level(apt_threat_level, final_line, runway_string, end_string)
     # printing list af apt data in condensed way (apt_thr_lvl + all threats gennerating weather
 
-    print_coloured_apt_list(apt_threat_level)
-
-def print_weather_day1_only(cancel_out_of_range_msg, significant_range_active, settings):
-    """prints only day 1 weather (1-24h)"""
-    # global significant_start_day, significant_start_hour, significant_end_day, significant_end_hour, apt_threat_level, TAFs, TAF
-    significant_start_day = 1
-    significant_start_hour = 1
-    significant_end_day = 1
-    significant_end_hour = 24
-    print('1day',settings.print_type, settings.print_time_group)
-    print_type = settings.print_type
-    print_time_group = settings.print_time_group
-
-    apt_threat_level = []
-    TAFs = load_json_TAF()
-
-    for TAF in TAFs:
-        final_coloured_taf_string,final_line, runway_string, end_string =TAF_decoder_function(TAF,
-                                                     significant_start_hour=significant_start_hour,
-                                                     significant_end_hour=significant_end_hour,
-                                                     significant_start_day=significant_start_day,
-                                                     significant_end_day=significant_end_day,
-                                                     cancel_out_of_range_msg=cancel_out_of_range_msg,
-                                                     significant_range_active=significant_range_active,
-                                                     print_type=print_type,
-                                                     print_time_group=print_time_group,)
-        append_threat_level(apt_threat_level, final_line, runway_string, end_string)
-
-    print_coloured_apt_list(apt_threat_level)
-
-
-def print_weather_day2_only(cancel_out_of_range_msg, significant_range_active, settings):
-    """prints only day 2 weather (25-48h)"""
-
-    global significant_start_day, significant_start_hour, significant_end_day, significant_end_hour, apt_threat_level, TAFs, TAF
-
-    significant_start_day = 2
-    significant_start_hour = 1
-    significant_end_day = 2
-    significant_end_hour = 24
-    print_type = settings.print_type
-    print_time_group = settings.print_time_group
-
-    apt_threat_level = []
-    TAFs = load_json_TAF()
-    for TAF in TAFs:
-        final_coloured_taf_string,final_line, runway_string, end_string = TAF_decoder_function(TAF,
-                                                     significant_start_hour=significant_start_hour,
-                                                     significant_end_hour=significant_end_hour,
-                                                     significant_start_day=significant_start_day,
-                                                     significant_end_day=significant_end_day,
-                                                     cancel_out_of_range_msg=cancel_out_of_range_msg,
-                                                     significant_range_active=significant_range_active,
-                                                     print_type=print_type,
-                                                     print_time_group=print_time_group,
-                                                     )
-        append_threat_level(apt_threat_level, final_line, runway_string, end_string)
     print_coloured_apt_list(apt_threat_level)
 
 def save_last_requested_apts(requested_airports_taf):
@@ -567,7 +508,7 @@ def get_single_stations_TAF(station):
         tafs_cleaned_dict = json.load(f_obj)
 
     # Initial value that the station is not found.
-    station_TAF = station + '- no such station'
+    station_TAF = colouring.prRed(station + no_station_msg)
 
     # Traversing TAFs database for station
     for i in range(len(tafs_cleaned_dict['station_id'])):
@@ -576,7 +517,7 @@ def get_single_stations_TAF(station):
         if tafs_cleaned_dict['station_id'][i]== station.upper():
             station_TAF = tafs_cleaned_dict['raw_text'][i]
             break
-
+    print(station_TAF, colouring.prYellow("(---source: (fpf.get_single_stations_TAF))\n"))
     return station_TAF
 
 #
