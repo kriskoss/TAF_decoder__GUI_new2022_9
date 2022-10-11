@@ -399,7 +399,8 @@ def get_single_stations_TAF(station):
         tafs_cleaned_dict = json.load(f_obj)
 
     # Initial value that the station is not found.
-    station_TAF = colouring.prRed(station + no_station_msg)
+
+    station_TAF = [False, station] # Station INVALID - unless OVERRIDEN
 
     # Traversing TAFs database for station
     for i in range(len(tafs_cleaned_dict['station_id'])):

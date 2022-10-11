@@ -581,6 +581,7 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
 
     # Generating data and adding it into the dictionary
     decoded_TAF_dict = {
+        "station_name": station_name[0],
         "selected_time_info":Tdf.generate_selected_time_info(significant_time, weather_data_copy, colored_station_name, start_hour, end_hour, TAF),
         "decoded_TAF":Tdf.generate_decoded_TAF(BECMG_color, error_added, error_found, grayed_area_right, weather_data, gr_data),
         "runways_length":Tdf.avaliable_rwys(apt_code),
