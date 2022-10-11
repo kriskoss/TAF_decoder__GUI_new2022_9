@@ -349,16 +349,16 @@ def adding_coloured_station_name(thr_lvl_data):
         print('error 5326 - check code here')
         quit()
 
-def print_final_all_lines_data(all_lines,settings):
-    final_line =''
+def     generate_station_threats(all_lines,settings):
+    station_threats =''
     if settings.print_in_one_line:
         s = ''
         for l in all_lines:
             for i in l:
                 s = s + ' ' + i
-        final_line += s
+        station_threats += s
     if settings.print_in_one_line and settings.print_in_multiple_lines:
-        final_line+= '\n\n'
+        station_threats+= '\n\n'
 
     if settings.print_in_multiple_lines:
         for l in all_lines:
@@ -366,9 +366,9 @@ def print_final_all_lines_data(all_lines,settings):
             if l != []:  # skip printing of line if line is empty
                 for i in l:
                     s = s + ' ' + i
-                final_line += s + '\n'
+                station_threats += s + '\n'
 
-    return final_line
+    return station_threats
 ###############################################################12end
 
 # add new functions here
@@ -494,45 +494,35 @@ def load_avlb_apprs_datra():
 
     return avlb_apprs_data
 
-def final_coloured_TAF_printout(BECMG_color, error_added, error_found, grayed_area_right, weather_data, gr_data):
+
+def generate_coloured(key, weather_data, n):
+    """internal fucntion"""
+    w = weather_data[n][key]
+    if w == []:
+        return ''
+
+    elif w != []:
+        string = ''
+        for i in w:
+            string += ' ' + str(i[1])
+        return string
+
+    else:
+        print('error - 352')
+        quit()
+
+def generate_decoded_TAF(BECMG_color, error_added, error_found, grayed_area_right, weather_data, gr_data):
     """Final print out of coloured TAF"""
     # IMPORTANT!!! first line of coloured TAF
     airport_time_line = gr_data[0]['groups_strings']
     final_coloured_taf_list = [BECMG_color(airport_time_line)]
 
-    # Printing out coloured TAF line by line
+    # Generating coloured TAF line by line
     for n in range(1, len(weather_data)):
-
-        def print_coloured(key):
-            """internal fucntion"""
-            w = weather_data[n][key]
-            if w == []:
-                return ''
-
-            elif w != []:
-                string = ''
-                for i in w:
-                    string += ' ' + str(i[1])
-                return string
-
-
-            else:
-                print('error - 352')
-                quit()
-
-            # for pair in w:
-            #     print('\tpair',pair)
-            #     ('pair',pair)
-            #     if type(pair) == list:
-            #         print('pair[1]', pair[1])
-            #         return pair[1]
-            #
-            #
-
-        vis = print_coloured('vis')
-        wind = print_coloured('wind')
-        clouds = print_coloured('clouds')
-        weather = print_coloured('weather')
+        vis = generate_coloured('vis', weather_data, n)
+        wind = generate_coloured('wind', weather_data, n)
+        clouds = generate_coloured('clouds', weather_data, n)
+        weather = generate_coloured('weather', weather_data, n)
 
         typ = weather_data[n]['group_type_long']
         gap = weather_data[n]['gap']
@@ -590,23 +580,20 @@ def final_coloured_TAF_printout(BECMG_color, error_added, error_found, grayed_ar
 
     # Converting list to string
     final_coloured_taf_string = '\n'.join(final_coloured_taf_list)
-    print('\nffff\n',final_coloured_taf_string)
+
     return  final_coloured_taf_string
 
-def runway_data_below_TAF_printout(TAF):
-    """Generating runway data below coloured TAF and printing out"""
+def generate_appr_info(TAF):
+    """Generating available approaches info and also LDAs """
     end_string = ''
     avlb_apprs_data = load_avlb_apprs_datra()
     for appr_data in avlb_apprs_data:
         if appr_data[0] in TAF:
             end_string = appr_data[1]
     if settings.print_all_rwys_data_below_taf:
-        print('              . . .')
-        if end_string:
-            print(end_string)
-        else:
+        if not end_string:
             end_string = '                   ---- no rwy data ---'
-            print(end_string)
+
     else:
         end_string = '-- RWY DATA OFF --'
     return end_string
@@ -905,7 +892,6 @@ def add_to_dict_weather_data(lista,key, weather_data):
         print('\nERROR\n(3)Lenght of list do not match. Difference: '
               + str(len(weather_data) - len(lista)))
         exit()
-
 
 def weather_for_selected_time_RIGHT(key_, weather_data, significant_time, tempo_line_n, wind_ranges, vis_ranges, weather_ranges, clouds_ranges, init_stack):
     wx_key_bcmg = []
@@ -1365,9 +1351,51 @@ def colouring_outside_sgignificant(key_4, list_4, key, becmg_time_group_coloring
             else:
                 pass
 
+def geting_day_start(significant_time, day_left, day_right):
+    if 0 < significant_time[0] < 24:
+        day_start = day_left
+        return day_start
+    elif 24 <= significant_time[0] < 48:
+        if day_right == 1:
+            day_start = day_left+1
+            return day_start
+        elif day_right == 2 and day_left != 1:
+            day_start = day_right - 1
+            return day_start
+        elif day_right >= 2 and day_left == day_right -1:
+            day_start = day_right
+            return day_start
+        elif day_right >= 3 and day_left == day_right - 2:
+            day_start = day_right -1
+            return day_start
+    elif 48 <= significant_time[0] < 72:
+        day_start = day_right
+        return day_start
 
-def priniting_significant_time_ranges(significant_time, weather_data_copy, colored_station_name, start_hour, end_hour, TAF) :
-    import math
+def getting_day_end(significant_time, day_left, day_right):
+    if 0 < significant_time[-1] < 24:
+        day_end = day_left
+        return day_end
+    elif 24 <= significant_time[-1] < 48:
+        if day_right == 1:
+            day_end = day_left + 1
+            return day_end
+        elif day_right == 2 and day_left != 1:
+            day_end = day_right - 1
+            return day_end
+        elif day_right >= 2 and day_left == day_right - 1:
+            day_end = day_right
+            return day_end
+        elif day_right >= 3 and day_left == day_right - 2:
+            day_end = day_right - 1
+            return day_end
+    elif 48 <= significant_time[-1] < 72:
+        day_end = day_right
+        return day_end
+
+
+def generate_selected_time_info(significant_time, weather_data_copy, colored_station_name, start_hour, end_hour, TAF) :
+    """Function that generates information line about selected start and end of the period"""
     try:
         s_from = [math.floor(significant_time[0] / 24) + 1,
                   significant_time[0] % 24]
@@ -1379,59 +1407,15 @@ def priniting_significant_time_ranges(significant_time, weather_data_copy, color
         day_left = int(weather_data_copy[1]['time_group'][0:2])
         day_right = int(weather_data_copy[1]['time_group'][5:7])
 
-        def geting_day_start(significant_time):
-            if 0 < significant_time[0] < 24:
-                day_start = day_left
-                return day_start
-            elif 24 <= significant_time[0] < 48:
-                if day_right == 1:
-                    day_start = day_left+1
-                    return day_start
-                elif day_right == 2 and day_left != 1:
-                    day_start = day_right - 1
-                    return day_start
-                elif day_right >= 2 and day_left == day_right -1:
-                    day_start = day_right
-                    return day_start
-                elif day_right >= 3 and day_left == day_right - 2:
-                    day_start = day_right -1
-                    return day_start
-            elif 48 <= significant_time[0] < 72:
-                day_start = day_right
-                return day_start
-        day_start=geting_day_start(significant_time)
+        day_start=geting_day_start(significant_time, day_left, day_right)
+        day_end = getting_day_end(significant_time, day_left, day_right)
 
-        def getting_day_end(significant_time):
-            if 0 < significant_time[-1] < 24:
-                day_end = day_left
-                return day_end
-            elif 24 <= significant_time[-1] < 48:
-                if day_right == 1:
-                    day_end = day_left + 1
-                    return day_end
-                elif day_right == 2 and day_left != 1:
-                    day_end = day_right - 1
-                    return day_end
-                elif day_right >= 2 and day_left == day_right - 1:
-                    day_end = day_right
-                    return day_end
-                elif day_right >= 3 and day_left == day_right - 2:
-                    day_end = day_right -1
-                    return day_end
-            elif 48 <= significant_time[-1] < 72:
-                    day_end = day_right
-                    return day_end
-        day_end = getting_day_end(significant_time)
+        # Generating ICAO station name in different colour depending what is the maximum threat level of wather at the airport
 
-
-        #Printing ICAO station name in different colour depending what is the maximum threat level of wather at the airport
-
-        print('- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -')
-        print('Taf_decoder.py r2')
-        print(f'{colored_station_name}\t\t /{day_start}/ {s_from[1]}:00  -> /{day_end}/ {s_to[1]+1}:00',
-            f'\t\t\t',start_hour, end_hour)
+        selected_period =f'{colored_station_name}     /{day_start}/ {s_from[1]}:00  -> /{day_end}/ {s_to[1]+1}:00   ({start_hour},{end_hour})'
 
     except IndexError:
-        print('\n\t\t\t',TAF)
-        print('')
+        selected_period ='\n\t\t\t'+ TAF +'(TDf. kkk)\n'
+
         pass
+    return selected_period

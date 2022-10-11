@@ -9,7 +9,7 @@ class Settings:
 
         self.fm_canceling = 'y'  # (y/n) if "y" than FM group is like new Initial - it cancels everything what was before
         # if "n" than it colours something more -- but this probably does not work correctly
-        self.print_ranges_legend = True  # prints significant hours near final TAF
+
         self.print_TAF_without_colouring = False  # prins raw TAF divided in lines
 
         self.printing_active = False      # all print comands becomes active

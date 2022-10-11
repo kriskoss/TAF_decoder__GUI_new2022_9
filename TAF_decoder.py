@@ -1,4 +1,5 @@
 import TAF_decoder__functions as Tdf
+import final_program_functions
 from TAF_decoder__helper_functions import ref, prBoxed,TEMPO_color,BECMG_color,BECMG_non_significant_color,grayed_area_left,grayed_area_right,error_added,add_to_dict_gr_data,print_dicts,add_to_dict_TIME_gr_data, print_keys, print_all_data, print_list
 import copy
 def TAF_decoder_function(settings, TAF, start_hour, end_hour):
@@ -432,13 +433,7 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
 
     ref('--- weather_for_selected_time function -----')
 
-    # ref('copy of weather data') # MOVED from earlier code position. Original remained with hashes '#'
-    #
-    # import copy
-    # weather_data_copy = copy.deepcopy(weather_data)
-    # if settings.printing_active:
-    #    print(prBoxed('weather_data_copy'))
-    #    pf.print_list(weather_data_copy)
+
     init_stack = []  # do not remove - in use
 
     wind_ranges = []
@@ -459,8 +454,6 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
     if settings.printing_active:
         print_list(weather_data)
 
-    print('\n')
-    # print('----------TAF string ---------')
     if settings.print_TAF_without_colouring:
         print(TAF)
 
@@ -561,24 +554,7 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
     # adding coloured station name - required for later printing of data
     colored_station_name = Tdf.adding_coloured_station_name(thr_lvl_data)
 
-    # printing all lines - END
-    final_line = Tdf.print_final_all_lines_data(all_lines, settings)
-    ###
-
-
-    if settings.print_ranges_legend:
-        Tdf.priniting_significant_time_ranges(significant_time, weather_data_copy, colored_station_name, start_hour, end_hour, TAF)
-
-    # below - line responsible for printing airport _publication time line
-
-
-    ###### PRINTING OUT COLOURED TAF ############
-    final_coloured_taf_string = Tdf.final_coloured_TAF_printout(BECMG_color, error_added, error_found, grayed_area_right, weather_data, gr_data)
-
-    #### RUNWAY DATA FINAL PRINT OUT BELOW TAF #####
-    # Printing rwy_data(end_string) below TAF
-    end_string = Tdf.runway_data_below_TAF_printout(TAF)
-    #####
+    # Suplementary print outs
     if not error_found == []:
         err_msg = error_added("Errors found:")
         print('\nLegend:' + "\033[94m {}\033[00m".format('TEMPO'),
@@ -587,9 +563,6 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
         print(error_type_of_group)
 
         print_dicts(gr_data, 'groups_strings')
-
-    # print_all_data(gr_data, time_gr_data, weather_data, weather_data_copy)
-
     if settings.print_colouring_logic:
         print('wind_ranges'), print_list(wind_ranges)
         print()
@@ -599,11 +572,22 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
         print('')
         print_list(clouds_ranges)
         print(becmg_time_group_coloring_list)
+    # print_all_data(gr_data, time_gr_data, weather_data, weather_data_copy)
+
+
+    ##### PRINTING FINAL ##########
 
     apt_code = weather_data_copy[0]['wind'][0]
-    runway_string = Tdf.avaliable_rwys(apt_code)
 
+    # Generating data and adding it into the dictionary
+    decoded_TAF_dict = {
+        "selected_time_info":Tdf.generate_selected_time_info(significant_time, weather_data_copy, colored_station_name, start_hour, end_hour, TAF),
+        "decoded_TAF":Tdf.generate_decoded_TAF(BECMG_color, error_added, error_found, grayed_area_right, weather_data, gr_data),
+        "runways_length":Tdf.avaliable_rwys(apt_code),
+        "station_threats":Tdf.generate_station_threats(all_lines, settings),
+        "appr_data":Tdf.generate_appr_info(TAF),
+    }
 
-    return [final_coloured_taf_string,final_line, runway_string, end_string]
+    return decoded_TAF_dict
 
 

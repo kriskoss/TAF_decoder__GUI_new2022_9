@@ -4,10 +4,7 @@ from settings import Settings
 settings = Settings()
 import json
 
-
-my_group = "gTEST" ## just for DEVELOPMENTS
-
-
+######################### FUNCTIONS ######################
 def extract_stations_from_g_group(selected_g_group):
     """Returns listo of stations related to selected g_group"""
 
@@ -28,43 +25,54 @@ def extract_stations_from_g_group(selected_g_group):
     return stations
 
 
-def decode_TAFs(TAFs, start_time, end_time):
+######################### PROGRAM ######################
+# INPUT data
+my_group = "gTEST" ## just for DEVELOPMENTS
+start_time = 12
+end_time = 18
 
-    stations__threat_level = []
-
-    # TAFs = fpf.load_json_TAF()
-    for TAF in TAFs:
-        # Checking for invalid station - if true then skip current iteration
-        if fpf.no_station_msg in TAF:
-            print(TAF)
-            continue
-
-        # Decoding TAF
-        decoded_TAF,\
-        station_threats,\
-        runways_length,\
-        appr_data \
-            = TAF_decoder_function(settings, TAF,start_time,end_time)
-
-        # print(final_line,'AAAAAAAAAAAA')
-
-        # Combining station data depending on the settings
-        combined_station_data = fpf.combine_data(station_threats, runways_length, appr_data)
-
-        stations__threat_level.append(combined_station_data)
-
-    # Printing list of stations threat level
-    fpf.print_coloured_apt_list(stations__threat_level)
-
-# Extracting stations for selected g_group
+# CODE
+# g_group key is used to extract stations in the value part
 requested_stations = extract_stations_from_g_group(my_group)
 
 # Getting TAFs for stations
 TAFs = fpf.get_TAF_for_all_requested_stations(requested_stations)
 
-# Dumping TAFs for requested stations  -- is it necessary??
-with open('Data/temp_TAFs.json', 'w') as f_obj:
-    json.dump(TAFs, f_obj)
+# FOR DEVELOPMNET ONLY - priniting TAFs
+# for TAF in TAFs:
+#     print(TAF)
+
+# Core of the app - TAF is being coloured
+stations__threat_level = []
+
+for TAF in TAFs:
+    # Checking for invalid station - if true then skip current iteration
+    if fpf.no_station_msg in TAF:
+        print(TAF, 'ref.yyy')
+        continue
+
+    # Decoding TAF
+    decoded_TAF_dict = TAF_decoder_function(settings, TAF,start_time,end_time)
+
+    # Extracting data from the dictionary
+    selected_time_info = decoded_TAF_dict["selected_time_info"]
+    decoded_TAF = decoded_TAF_dict["decoded_TAF"]
+    runways_length = decoded_TAF_dict["runways_length"]
+    station_threats = decoded_TAF_dict["station_threats"]
+    appr_data = decoded_TAF_dict["appr_data"]
 
 
-decode_TAFs(TAFs,12,18)
+    # print(selected_time_info)
+    # print(decoded_TAF)
+    # print(station_threats, runways_length)
+    # print(appr_data)
+
+
+    # Combining station data depending on the settings
+    combined_station_data = fpf.combine_data(station_threats, runways_length, appr_data)
+
+    stations__threat_level.append(combined_station_data)
+
+# Printing list of stations threat level
+combined_stations_threat_level = fpf.combine_all_stations_threat_level(stations__threat_level)
+

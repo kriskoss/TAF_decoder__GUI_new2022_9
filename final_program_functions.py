@@ -18,55 +18,14 @@ Write "1 12" or "1 12 1 20" or "1 12 3 or q to quit
 """
 
 
-def dump_special_case_tafs():
-    global TAFs
-    # Loading list of special TAFs from json file
-    json_file = open("Data_new/TAFs__special_cases.json","r")
-    TAFs__special_cases = json.load(json_file)
-    json_file.close()
-
-    TAFs = TAFs__special_cases["taf1"]
-
-    print("Printing each special TAF in the list (fpf)")
-    for TAF in TAFs:
-        print(TAF)
-
-    # Saving TAFs so they can be used in the main program
-    filename = 'Data/temp_TAFs.json'
-    with open(filename, 'w') as f_obj:
-        json.dump(TAFs, f_obj)
-
-def load_json_TAF():
-    """load TAFs from JSON file created in first run"""
-    filename = 'Data/temp_TAFs.json'
-    try:
-        with open(filename) as f_obj:
-            TAFs = json.load(f_obj)
-    except FileNotFoundError:
-        print('*** temp_TAFs.json file not found (fpf) ***')
-        print('*** Write any airport code next time you restart program ***')
-    else:
-        return TAFs
-
-def store_an_answer(answer):
-    """stores an answer given in final_program"""
-    filename = 'Data_new/answer.json'
-    with open(filename, 'w') as f_obj:
-        json.dump(answer, f_obj)
-
-def load_an_answer():
-    """loads an answer given in final_program"""
-    filename = 'Data_new/answer.json'
-    with open(filename) as f_obj:
-        loaded_answer = json.load(f_obj)
-    return loaded_answer
-
-def print_coloured_apt_list(apt_threat_level):
+def combine_all_stations_threat_level(apt_threat_level):
     """prints list of coloured airport ICAO code and threats - FINAL PROGRAM goal"""
-    global apt
-    print('')
+    combined_stations_threat_level = []
+
     for apt in apt_threat_level:
-        print(apt)
+        combined_stations_threat_level.append(apt)
+
+    return '\n'.join(combined_stations_threat_level)
 
 def combine_data(station_threats, runways_length, appr_data):
     station_threat_level=None
@@ -77,42 +36,6 @@ def combine_data(station_threats, runways_length, appr_data):
     elif stgs.rwy_data == 2:
         station_threat_level= station_threats + '\n\n' + appr_data + '\n'
     return station_threat_level
-def save_last_requested_apts(requested_airports_taf):
-    filename = 'DATA/last_requested_apts.json'
-    with open(filename, 'w') as f_obj:
-        json.dump(requested_airports_taf, f_obj)
-
-def load_last_requested_apts():
-    """Loads string of last requested airports. If no file, than prompts for airports"""
-    filename = 'DATA/last_requested_apts.json'
-    try:
-        with open(filename) as f_obj:
-            requested_airports_taf = json.load(f_obj)
-        return requested_airports_taf
-    except FileNotFoundError:
-        print('ff not f')
-
-
-def printing_last_requested_apts():
-    """Checks if file storing last airports requests exists"""
-    filename = 'Data/last_requested_apts.json'
-    try:
-        with open(filename) as f_obj:
-            last_requested_apts = json.load(f_obj)
-
-    except FileNotFoundError:
-        # No last requested airports -  prompt for new
-        print('\n\tNo reqested aiports stored. Write requested airports.')
-        return False
-    else:
-        s = ''
-        for item in last_requested_apts:
-            s += item.upper() + ' '
-        print('Last request: ' + s)
-        return [True, s]
-
-
-######## 2022.09 ###############
 
 # BUTTON function - Update TAFs
 def download_taf_database():
@@ -485,7 +408,7 @@ def get_single_stations_TAF(station):
         if tafs_cleaned_dict['station_id'][i]== station.upper():
             station_TAF = tafs_cleaned_dict['raw_text'][i]
             break
-    print(station_TAF, colouring.prYellow("(---source: (fpf.get_single_stations_TAF))\n"))
+    # print(station_TAF, colouring.prYellow("(---source: (fpf.get_single_stations_TAF))\n"))
     return station_TAF
 
 #
