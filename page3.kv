@@ -1,0 +1,16 @@
+<Page3@BoxLayout>
+    orientation:"vertical"
+    Button:
+        text: "1st screen"
+        on_press:
+            app.root.current="first"
+            app.root.transition.direction = "right"
+
+    Button:
+        text: "2nd screen"
+        on_press:
+            app.root.current="second"
+            app.root.transition.direction = "right"
+    Button:
+        text: "Reload AIRPORTS?"
+        on_release: app.call_AIRPORTS_reload()

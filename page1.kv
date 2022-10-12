@@ -1,0 +1,98 @@
+<Page1@BoxLayout>
+    orientation:"vertical"
+    Nav_page1:
+    Top_Bar:
+        id: id__Top_Bar
+        size_hint: 1, None
+        height: '30dp'
+    Search_textInput:
+
+    TAF_groups__scroll:
+        id: id__TAF_groups__scroll
+    Add_Group:
+        id: id__Add_Group
+
+
+####
+<Top_Bar@BoxLayout>
+    Button:
+        text: "Reload TAFs"
+        on_release: app.call_TAFs_reload(requests)
+        background_color: (1,0.5,1,1)
+
+
+<Nav_page1@BoxLayout>:
+    size_hint:1,None
+    height:'30dp'
+    Button:
+        text: "2nd screen"
+        size_hint:0.5,1
+        on_press:
+            app.root.current="second"
+            app.root.transition.direction = "left"
+    Button:
+        text: "3nd screen"
+        size_hint:0.5,1
+        on_press:
+            app.root.current="third"
+            app.root.transition.direction = "left"
+
+<Search_textInput@TextInput>:
+    size_hint: 1, None
+    height: '30dp'
+    hint_text: 'Search'
+    halign: "center"
+    multiline: False
+
+    on_text:
+        ## Introduces search functionality
+        # Pases the search inputText value
+        app.update_search_input(self)
+
+        # Apps root element - window manager
+        window_manager = app.root
+
+        # Finds the element storing g_group buttons
+        id__TAF_groups_Stack = (window_manager.ids.id__Page1.ids.id__TAF_groups__scroll.ids.id__TAF_groups_Stack)
+
+        # Removes all the g_group buttons
+        id__TAF_groups_Stack.clear_widgets()
+
+        # Creates new g_group buttons which met search criteria - search string has to be in g_group key
+        app.create_g_group_buttons(id__TAF_groups_Stack)
+
+
+####
+<TAF_groups__scroll@ScrollView>:
+    TAF_groups_Stack:
+        id: id__TAF_groups_Stack
+        size_hint: 1, None
+        height:  self.minimum_height
+
+<TAF_groups_Stack>
+    orientation: "rl-tb"
+
+
+<Add_Group>:
+    #Add_New_Airport
+
+    size_hint:1,None
+    height: "80dp"
+    orientation: "vertical"
+
+    TextInput:
+        id: my_g_group_input
+        multiline: False
+        on_text_validate: root.on_text_validate(self)
+
+    Button:
+        text: "Store: " +root.new_group_str
+        on_press: root.call_add_new_group()
+
+    Label:
+        color: (0.6,0.5,0,1)
+        text: root.terminal_answer
+
+
+
+###END - Page 1

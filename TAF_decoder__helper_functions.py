@@ -164,3 +164,9 @@ def print_all_data(gr_data, time_gr_data, weather_data, weather_data_copy):
     print_list(weather_data)
     ref('weather_data_copy')
     print_list(weather_data_copy)
+
+def hours_to_ddhh(hours):
+    if hours<24:
+        return f'day 1: [b]{hours}[/b] UTC'
+    else:
+        return f'day 2: [b]{hours-24}[/b] UTC'

@@ -1,8 +1,10 @@
 from TAF_decoder import TAF_decoder_function
 import TAF_decoder__helper_functions as Td_helpers
 import json
-
+# import requests
+import gzip
 from settings import Settings
+
 settings = Settings()
 
 
@@ -34,9 +36,9 @@ def combine_data(station_threats, runways_length, appr_data):
     return station_threat_level
 
 # BUTTON function - Update TAFs
-def download_taf_database():
+def download_taf_database(requests, parse):
     # Downloading the file  - https://www.codingem.com/python-download-file-from-url/
-    import requests
+
     url = 'https://www.aviationweather.gov/adds/dataserver_current/current/tafs.cache.csv.gz'
     response = requests.get(url)
     path__compresed = "Data_new/api__tafs_downloaded.csv.gz"
@@ -45,7 +47,7 @@ def download_taf_database():
     open(path__compresed, "wb").write(response.content)
 
     # Extracting csv.gz to csv
-    import gzip
+
 
     path__extracted = 'Data_new/api__tafs_extracted.csv'
     with gzip.open(path__compresed, 'rt', newline='', encoding='utf-8') as csv_file:
@@ -71,8 +73,6 @@ def download_taf_database():
 
     # Parsing the data and converting some of it into a proper type
 
-    from dateutil.parser import parse  # check https://stackabuse.com/converting-strings-to-datetime-in-python/
-        # module which automatically converts time string into the datetime format
 
     data = []
     for row in reader:

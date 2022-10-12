@@ -1,0 +1,126 @@
+### PAGE 2 -- coloured TAFs dispaly ##################################################
+<Page2@BoxLayout>:
+    orientation: "vertical"
+    Nav_page2:
+
+    Time_settings:
+        id: Time_settings
+
+    Time_Sliders:
+        id: Time_sliders
+
+
+    MyLabel__scroll:
+        id: MyLabel__scroll
+        MyLabel:
+            id: MyLabel
+
+
+<Nav_page2@BoxLayout>:
+    size_hint:1,None
+    height: '30dp'
+
+    Button:
+        text: "1st screen"
+
+        on_release:
+            app.root.current ="first"
+            app.root.transition.direction = "right"
+    Button:
+        text: "3nd screen"
+
+        on_press:
+            app.root.current="third"
+            app.root.transition.direction = "left"
+
+#<MyLabel@Label>:
+#
+#
+#
+#    font_size:   app.fontSize_slider_value
+#
+#    # https://kivy.org/doc/stable/api-kivy.uix.label.html
+#    text_size: self.size
+#    halign: 'left'
+#    valign: 'top'
+
+
+
+<MyLabel__scroll@ScrollView>:
+    do_scroll_x: True
+    do_scroll_y: True
+
+<MyLabel@Label>:
+    id: MyLabel
+    markup: True
+    font_name: "Resources/Fonts/JetBrainsMono-Regular.ttf"
+
+
+    size_hint_y: None
+    height: self.texture_size[1]
+    text_size: self.width, None
+    halign: 'left'
+
+    font_size:  app.font_size
+    text: app.label__decoded_TAFs
+
+<Font_button@Button>:
+    text:'FONT'
+    on_press: app.change_font_size()
+
+
+
+<Time_settings@BoxLayout>:
+    size_hint:1,None
+    height: "30dp"
+
+    Button:
+        text: "D1"
+        on_release: app.day1__set_time_values()
+
+    Button:
+        text: "D2"
+        on_release: app.day2__set_time_values()
+
+    ToggleButton:
+        text: "T"
+        on_state: app.show_T_time_toggle(self)
+    Button:
+        text: "tT"
+        on_press: app.print_tt()
+
+    Font_button:
+
+<Time_Sliders@BoxLayout>:
+    orientation:"vertical"
+    size_hint:1,None
+    height:'60dp'
+    Time_slider__slider:
+        # START TIME
+        value: app.value__start_slider
+        on_value: app.on_slider_value__start(self)
+
+    Time_slider__slider:
+        # END TIME
+        value: app.value__end_slider
+        on_value: app.on_slider_value__end(self)
+
+
+    BoxLayout:
+    # TIME LABEL
+        Time_slider__label:
+            text: "START: " +app.start_ddhh
+
+        Time_slider__label:
+            text: "END: " +app.end_ddhh
+
+<Time_slider__slider@Slider>:
+    min:0
+    max:48
+    step:1
+
+<Time_slider__label@Label>:
+    size_hint: 1,None
+    height: "25dp"
+    markup: True
+    font_size: "18dp"
