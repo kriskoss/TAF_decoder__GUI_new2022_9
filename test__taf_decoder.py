@@ -24,7 +24,7 @@ def extract_stations_from_g_group(selected_g_group):
                 stations.append(i)
 
     return stations
-
+print('USE USE TEST TAF DECODER.PY')
 
 ######################### PROGRAM ######################
 # INPUT data
@@ -46,8 +46,9 @@ TAFs = fpf.get_TAF_for_all_requested_stations(requested_stations)
 # Core of the app - TAF is being coloured
 
 invalid_stations =[]
-decoded_TAFs_data_list =[]
-stations__threat_level = []
+
+decoded_TAFs_data_list =[] # Stores all stations decoded_TAFs data
+stations__threat_level = [] # Stores line related to threat level and runway length for SINGLE station
 for TAF in TAFs:
     # Checking if station is valid
     if type(TAF) == list: # if it is a LIST then it is not valid, so it can be processed as INVALID STATION
@@ -75,6 +76,8 @@ for TAF in TAFs:
 combined_stations_threat_level = fpf.combine_all_stations_threat_level(stations__threat_level)
 
 
+
+# Extracting data from the the list of dictionaries
 for decoded_TAF_dict in decoded_TAFs_data_list:
     station_name = decoded_TAF_dict["station_name"]
     selected_time_info = decoded_TAF_dict["selected_time_info"]
@@ -85,8 +88,8 @@ for decoded_TAF_dict in decoded_TAFs_data_list:
 
     # print(station_name)
     # print(selected_time_info)
-    print(decoded_TAF)
-    print(station_threats, runways_length)
-    print(appr_data)
-
-print(combined_stations_threat_level)
+#     print(decoded_TAF)
+#     print(station_threats, runways_length)
+#     print(appr_data)
+#
+# print(combined_stations_threat_level)

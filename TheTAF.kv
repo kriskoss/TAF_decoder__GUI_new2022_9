@@ -1,8 +1,8 @@
 WindowManager:
-    id: first
+    id: window_manager
         # https://www.youtube.com/watch?v=Prt_SKkZji8&list=WL&index=9
     FirstWindow:
-
+        id: first
         Page1:
             id: id__Page1
 
@@ -95,7 +95,6 @@ WindowManager:
 
 ### PAGE 2 -- coloured TAFs dispaly ###########
 <Page2@BoxLayout>:
-    id:Page2
     orientation: "vertical"
     Button:
         text: "1st screen"
@@ -107,9 +106,39 @@ WindowManager:
     
     Time_settings:
         id: Time_settings
+    MyLabel__scroll:
+        id: MyLabel__scroll
+        MyLabel:
+            id: MyLabel
 
-    Label:
-        text: app.label__taf_display
+
+<MyLabel@Label>:
+    markup: True
+    font_name: "Resources/Fonts/JetBrainsMono-Regular.ttf"
+    font_size: 24
+
+    # https://kivy.org/doc/stable/api-kivy.uix.label.html
+    text_size: self.size
+    halign: 'left'
+    valign: 'top'
+
+<MyLabel__scroll@ScrollView>:
+    do_scroll_x: False
+    do_scroll_y: True
+
+<MyLabel>:
+    id: MyLabel
+    size_hint_y: None
+
+    height: self.texture_size[1]
+    text_size: self.width, None
+    halign: 'left'
+
+    font_size: 18
+    text: app.label__decoded_TAFs
+
+
+
 
 <Time_settings@BoxLayout>:
     size_hint:1,None
@@ -142,8 +171,11 @@ WindowManager:
         id: time_start__slider
         min:0
         max:48
+        step:1
         value: app.value__start_slider
-        on_value: app.on_slider_value__start(self)
+        on_value:
+            app.on_slider_value__start(self)
+#            MyLabel.height = MyLabel.texture_size[1]
     Label:
         text: app.slider_value_txt__start
         size_hint: 0.1,1
@@ -154,10 +186,14 @@ WindowManager:
         id: time_end__slider
         min:0
         max:48
+        step:1
         value: app.value__end_slider
-        on_value: app.on_slider_value__end(self)
+        on_value:
+            app.on_slider_value__end(self)
+
     Label:
         text: app.slider_value_txt__end
+
         size_hint: 0.1,1
 
 

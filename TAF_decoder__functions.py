@@ -12,9 +12,9 @@ import TAF_decoder__helper_functions as Td_helpers
 
 
 def out_of_validity_perriod_error_generator(initial_start, initial_end):
-    out_of_r_error_msg = '----------------------------------------------------\
-    \nOut of range. Try:'
-    ending='(:59)'
+
+    out_of_r_error_msg = 'Out of range. Try:'
+    ending=''
     if initial_end >= 72:
         print('\nERROR: TAF range too long - check if it is correct\n')
         pass

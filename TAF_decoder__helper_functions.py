@@ -7,23 +7,31 @@ def ref(i=''):
         print("\033[94m {}\033[00m".format(ref))
 
 
+# def prPurple(skk):
+#     return "\033[95m{}\033[00m".format(skk)
 def prPurple(skk):
-    return "\033[95m{}\033[00m".format(skk)
+    return f'[color=a825db]{skk}[/color]'
 
 
+# def prCyan(skk):
+#     return "\033[96m{}\033[00m".format(skk)
 def prCyan(skk):
     return "\033[96m{}\033[00m".format(skk)
 
 
+# def prGreen(skk):
+#     return "\033[92m{}\033[00m".format(skk)
 def prGreen(skk):
-    return "\033[92m{}\033[00m".format(skk)
+    return f'[color=117841]{skk}[/color]'
 
 
 # def prLightGray(skk):
 #     return "\033[57m{}\033[00m".format(skk)
 
+# def prLightGray(skk):
+#     return "\033[1;90;40m" + str(skk)
 def prLightGray(skk):
-    return "\033[1;90;40m" + str(skk)
+    return f'[color=4a494a]{skk}[/color]'
 
 
 def prYellow(skk):
@@ -34,9 +42,10 @@ def prUnderlined(skk):
     return ('\x1b[4;30;48m{}\x1b[0m'.format(skk))
 
 
+# def prBoxed(skk):
+#     return ('\x1b[52;30;48m{}\x1b[0m'.format(skk))
 def prBoxed(skk):
-    return ('\x1b[52;30;48m{}\x1b[0m'.format(skk))
-
+    return f'[color=c6bdff]{skk}[/color]'
 
 def TEMPO_color(string):
     # string = prCyan(string)

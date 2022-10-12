@@ -1,13 +1,9 @@
 from TAF_decoder import TAF_decoder_function
-from settings import Settings
-stgs = Settings()
-
-
-
-import taf_database_program_functions as tdpf
+import TAF_decoder__helper_functions as Td_helpers
 import json
-import colouring
-import TAF_decoder__functions as pf
+
+from settings import Settings
+settings = Settings()
 
 
 no_station_msg = '- no such station'
@@ -29,11 +25,11 @@ def combine_all_stations_threat_level(apt_threat_level):
 
 def combine_data(station_threats, runways_length, appr_data):
     station_threat_level=None
-    if stgs.rwy_data == 0:
+    if settings.rwy_data == 0:
         station_threat_level= station_threats
-    elif stgs.rwy_data == 1:
+    elif settings.rwy_data == 1:
         station_threat_level= station_threats + '\t\t' + runways_length
-    elif stgs.rwy_data == 2:
+    elif settings.rwy_data == 2:
         station_threat_level= station_threats + '\n\n' + appr_data + '\n'
     return station_threat_level
 
@@ -412,4 +408,73 @@ def get_single_stations_TAF(station):
     # print(station_TAF, colouring.prYellow("(---source: (fpf.get_single_stations_TAF))\n"))
     return station_TAF
 
-#
+### FUNCTIONS RELATED TO THE TAF DECODE
+
+
+
+######################### FUNCTIONS ######################
+def extract_stations_from_g_group(selected_g_group):
+    """Returns list of stations stored in to selected g_group"""
+
+    # Loading g_group database
+    filename = 'Data/g_groups_apts_db.json'
+    with open(filename) as f_obj:
+        g_groups_db= json.load(f_obj)
+
+
+    # Searching for selected g_group in the g_group database
+    stations = []
+    for k, v in g_groups_db.items():
+        # If g_group found, stations in that group are appended to the list
+        if k.lower() == selected_g_group.lower():
+            for i in v:
+                stations.append(i)
+
+    return stations
+
+def analise_stations(requested_stations, start_time, end_time):
+
+    # Getting TAFs for stations
+    TAFs = get_TAF_for_all_requested_stations(requested_stations)
+
+    # FOR DEVELOPMNET ONLY - priniting TAFs
+    # for TAF in TAFs:
+    #     print(TAF)
+
+    # Core of the app - TAF is being coloured
+
+    invalid_stations =[]
+
+    decoded_TAFs_data_list =[] # Stores all stations decoded_TAFs data
+    stations__threat_level = [] # Stores line related to threat level and runway length for SINGLE station
+    for TAF in TAFs:
+        # Checking if station is valid
+        if type(TAF) == list: # if it is a LIST then it is not valid, so it can be processed as INVALID STATION
+            valid_station = TAF[0]
+            station_id = TAF[1]
+            if not valid_station:
+                # NOT VALID station is added to the INVALID STATION list
+                print(Td_helpers.prYellow(station_id + " - invalid station"), 'ref.yyy')
+                invalid_stations.append(station_id)
+                continue
+
+        # Decoding TAF
+        decoded_TAF_dict = TAF_decoder_function(settings, TAF,start_time,end_time)
+        decoded_TAFs_data_list.append(decoded_TAF_dict)
+
+        # Combining station data depending on the settings
+        combined_station_data = combine_data(
+            decoded_TAF_dict["station_threats"],
+            decoded_TAF_dict["runways_length"],
+            decoded_TAF_dict["appr_data"])
+
+        stations__threat_level.append(combined_station_data)
+
+    # Combinig stations threat and runways into single list
+    combined_stations_threat_level = combine_all_stations_threat_level(stations__threat_level)
+
+    return [decoded_TAFs_data_list, combined_stations_threat_level]
+
+
+# Extracting data from the the list of dictionaries
+

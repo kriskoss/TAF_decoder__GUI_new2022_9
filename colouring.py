@@ -3,15 +3,27 @@ from settings import Settings
 settings = Settings()
 
 
-def prRed(skk):         return ("\033[91m{}\033[00m".format(skk))
-def prYellow(skk):      return ("\033[93m{}\033[00m".format(skk))
-def prLightPurple(skk): return ("\033[97m{}\033[00m".format(skk))
-def prPurple(skk):      return ("\033[95m{}\033[00m".format(skk))
-def prUnderlined(skk):  return ('\x1b[4;30;48m{}\x1b[0m'.format(skk))
-def prRedUnderlined(skk):  return ('\x1b[21;31;48m{}\x1b[0m'.format(skk))
-def prGreen(skk):         return ("\033[92m{}\033[00m".format(skk))
-def colour_Inverse(string):         return "\033[07m{}\033[00m".format(string)
-def bold_text(string):         return "\033[01m{}\033[00m".format(string)
+# def prRed(skk):         return ("\033[91m{}\033[00m".format(skk))
+# def prYellow(skk):      return ("\033[93m{}\033[00m".format(skk))
+# def prLightPurple(skk): return ("\033[97m{}\033[00m".format(skk))
+# def prPurple(skk):      return ("\033[95m{}\033[00m".format(skk))
+# def prUnderlined(skk):  return ('\x1b[4;30;48m{}\x1b[0m'.format(skk))
+# def prRedUnderlined(skk):  return ('\x1b[21;31;48m{}\x1b[0m'.format(skk))
+# def prGreen(skk):         return ("\033[92m{}\033[00m".format(skk))
+# def colour_Inverse(string):         return "\033[07m{}\033[00m".format(string)
+# def bold_text(string):         return "\033[01m{}\033[00m".format(string)
+
+def prRed(skk):         return f'[color=d6321c]{skk}[/color]'
+def prYellow(skk):      return f'[color=d9a930]{skk}[/color]'
+def prLightPurple(skk): return f'[color=ff75fd]{skk}[/color]'
+def prPurple(skk):      return f'[color=8f068d]{skk}[/color]'
+def prUnderlined(skk):  return f'[u]{skk}[/u]'
+def prRedUnderlined(skk):  return f'[u][color=d6321c]{skk}[/color][/u]'
+def prGreen(skk):         return f'[color=117841]{skk}[/color]'
+def colour_Inverse(string):         return f'[i][b]{string}[/b][/i]'
+def bold_text(string):         return f'[b]{string}[/b]'
+
+
 
 weather = ['+SHSNRA', '+TS', 'DD', '+TSGR', 'NSW']
 clouds = ['BN007', 'OVC004', 'OVC002', 'SCT003', 'VV001', "BKO002", 'BKN010CB',

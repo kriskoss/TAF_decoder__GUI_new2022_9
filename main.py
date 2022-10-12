@@ -3,6 +3,8 @@ import json
 import pprint
 
 ## My modules
+from kivy.core.window import Window
+
 import final_program_functions as fpf
 
 ## Kivy modules
@@ -59,7 +61,6 @@ class TAF_groups_Stack(StackLayout):
 
         # Creating g_groups buttons
         for g_group_key, v in g_groups_db.items():
-            print(g_group_key)
 
             btn = Button(
                 text=f'{g_group_key[1:]}:     {" ".join(v).upper()}',
@@ -81,13 +82,25 @@ class TAF_groups_Stack(StackLayout):
     def on_press_g_group(self, instance):
         # Updating app variable - VERY IMPORTANT!
         app.selected_g_group= "g"+instance.text[:4].upper()
-        print(app.selected_g_group)
+        app.requested_stations = fpf.extract_stations_from_g_group(app.selected_g_group)
+
+        print(app.selected_g_group, app.requested_stations)
+
+        # Updates decoded TAF on press
+        app.update_TAFs(
+            app.requested_stations,
+            app.slider_value_txt__start,
+            app.slider_value_txt__end)
+
+        #
 
         # TESTING - changing the colour of g_group buttin once pressed
         instance.background_color = "#FF00FF" # changes colour of the selected g_group button
 
         # Running app function on button press
         app.update_TAFs_display_labels()
+
+        app.update_scroll_height()
 
         # Moves to the 2nd screen
         app.root.current = "second"
@@ -135,6 +148,7 @@ class TheTAFApp(App):
     time_start_str = "10"  # has to be string as it is StringProperty is being updated not the variable itself
     time_end_str = "38"
 
+    requested_stations ='none'
     # Sets the initial value of the time sliders
     value__start_slider = StringProperty(time_start_str)
     value__end_slider = StringProperty(time_end_str)
@@ -144,7 +158,8 @@ class TheTAFApp(App):
     slider_value_txt__end = StringProperty(time_end_str)
 
     # Lable which display the decoded TAF
-    label__taf_display = StringProperty('label__taf_display')
+    label__stations_threat_levels = StringProperty('label__stations_threat_levels')
+    label__decoded_TAFs = StringProperty('label__decoded_TAFs')
 
 
     def __init__(self, **kwargs):
@@ -160,16 +175,68 @@ class TheTAFApp(App):
         app = self
                 ### END of youtube reference
 
+    def update_TAFs(self, stations, start, end):
+        print(stations, start, end)
+        decoded_TAFs_data_list, combined_stations_threat_level = fpf.analise_stations(
+            app.requested_stations,
+            int(start),
+            int(end))
+
+        # self.label__stations_threat_levels = combined_stations_threat_level
+
+        decoded_TAFs = []
+        for decoded_TAF_dict in decoded_TAFs_data_list:
+            station_name = decoded_TAF_dict["station_name"]
+            decoded_TAFs.append(station_name)
+            selected_time_info = decoded_TAF_dict["selected_time_info"]
+            decoded_TAF = decoded_TAF_dict["decoded_TAF"]
+            decoded_TAFs.append(decoded_TAF)
+            runways_length = decoded_TAF_dict["runways_length"]
+            station_threats = decoded_TAF_dict["station_threats"]
+            appr_data = decoded_TAF_dict["appr_data"]
+        # self.label__decoded_TAFs = '\n'.join(decoded_TAFs)
+        self.label__decoded_TAFs = combined_stations_threat_level + '\n-----------------------\n' +'\n\n'.join(decoded_TAFs) + "\n\n    -----------END -----------\n"
+
+            # print(station_name)
+            # print(selected_time_info)
+        #     print(decoded_TAF)
+        #     print(station_threats, runways_length)
+        #     print(appr_data)
+        #
+        # print(combined_stations_threat_level)
+
+
+
+
     def on_slider_value__start(self, widget):
         print("Slider value START:" + str(int(widget.value)))
         self.slider_value_txt__start = str(int(widget.value))
-        self.TAF_decoder__input_data = str([self.selected_g_group, "sss", self.slider_value_txt__start, self.slider_value_txt__end])
-        self.label__taf_display = self.combine_data(self.selected_g_group,self.slider_value_txt__start,self.slider_value_txt__end)
+        self.label__stations_threat_levels = self.combine_data(self.selected_g_group, self.slider_value_txt__start, self.slider_value_txt__end)
+
+        self.update_TAFs(
+            self.requested_stations,
+            self.slider_value_txt__start,
+            self.slider_value_txt__end)
 
     def on_slider_value__end(self, widget):
         print("Slider value END:" + str(int(widget.value)))
         self.slider_value_txt__end = str(int(widget.value))
-        self.label__taf_display = self.combine_data(self.selected_g_group,self.slider_value_txt__start,self.slider_value_txt__end)
+        self.label__stations_threat_levels = self.combine_data(self.selected_g_group, self.slider_value_txt__start, self.slider_value_txt__end)
+
+        self.update_TAFs(
+            self.requested_stations,
+            self.slider_value_txt__start,
+            self.slider_value_txt__end)
+
+    def update_scroll_height(self):
+
+        MyLabel = app.root.ids.id__Page2.ids.MyLabel
+
+        # Resizing window to make scroll size work correctly -- TO BE TESTED ON THE CELL PHONE
+        if Window.size[0]%2 == 0:
+            Window.size=(Window.size[0]+1,Window.size[1])
+        else:
+            Window.size=(Window.size[0]-1,Window.size[1])
 
     def update_TAFs_display_labels(self):
         """ Labels are updated on function activation - used to update TAF display (VERY IMPORTANT!!!)"""
@@ -180,14 +247,11 @@ class TheTAFApp(App):
         # label__taf_display = app.root.ids.id__Page2.ids.lebel__taf_display
 
 
+
         # Updating elements
         self.TAF_decoder__input_data = self.combine_data(self.selected_g_group,self.slider_value_txt__start,self.slider_value_txt__end)
-        self.label__taf_display  = self.TAF_decoder__input_data
+        self.label__stations_threat_levels  = self.TAF_decoder__input_data
 
-    # def combine_data(self, data1, data2, data3):
-    #     """Just combines data into one element - to avoid repeating the code"""
-    #
-    #     return str([data1,data2, data3])
 
     def combine_data(self, data1, data2, data3):
         """Just combines data into one element - to avoid repeating the code"""

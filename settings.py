@@ -31,7 +31,7 @@ class Settings:
 
     ############
         # Flag used in some fucntion
-        self.cancel_out_of_range_msg = False
+        self.cancel_out_of_range_msg = True
 
 
         ### Threat weather printing settings
@@ -108,7 +108,7 @@ class Settings:
 
         ### Runway data print out
         self.print_all_rwys_data_below_taf = True
-        self.rwy_data = 1
+        self.rwy_data = 0
                         # 0 = no rwy data
                         # 1 = simple rwy data
                         # 2 = all rwy data
