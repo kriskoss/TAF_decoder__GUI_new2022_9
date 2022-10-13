@@ -167,6 +167,6 @@ def print_all_data(gr_data, time_gr_data, weather_data, weather_data_copy):
 
 def hours_to_ddhh(hours):
     if hours<24:
-        return f'day 1: [b]{hours}[/b] UTC'
+        return f'[b]{hours}:00[/b]'
     else:
-        return f'day 2: [b]{hours-24}[/b] UTC'
+        return f'(+24) [b]{hours-24}:00[/b]'

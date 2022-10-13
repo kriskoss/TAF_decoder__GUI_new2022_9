@@ -191,6 +191,7 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
     station_name =[] # do not remove!
     Tdf.creating_type_of_group(settings, time_string_uncorrected, TAF_split, station_name, time_gr_data)
 
+
     ref('HHHH')
     if settings.printing_active:
         print(prBoxed('time_gr_data')), print_dicts(time_gr_data,
@@ -275,6 +276,8 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
                     range_start = tg_hl[1] + 24
             range_end = range_start + tg_hl[4]
             time_range.append([range_start, range_end])
+
+
 
     ### FUNCTION CALL ###
     Tdf.add_to_dict_weather_data(time_range, 'time_range', weather_data)
@@ -366,6 +369,7 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
     significant_time = significant_time_range_data[0]
     start_hour = significant_time_range_data[1]
     end_hour = significant_time_range_data[2]
+
 
 ##############
     ref('significant_time')
@@ -586,6 +590,7 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
         "runways_length":Tdf.avaliable_rwys(apt_code, settings),
         "station_threats":Tdf.generate_station_threats(all_lines, settings),
         "appr_data":Tdf.generate_appr_info(TAF, settings),
+        "time_range": time_range,
     }
 
     return decoded_TAF_dict

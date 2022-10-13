@@ -468,6 +468,8 @@ def analise_stations(settings, requested_stations, start_time, end_time):
 
         stations__threat_level.append(combined_station_data)
 
+
+
     # Combinig stations threat and runways into single list
     combined_stations_threat_level = combine_all_stations_threat_level(stations__threat_level)
 

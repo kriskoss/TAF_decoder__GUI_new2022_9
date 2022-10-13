@@ -2,6 +2,7 @@
 import json
 import requests
 import pprint
+
 import TAF_decoder__helper_functions as Td_helpers
 ## My modules
 from kivy.core.window import Window
@@ -9,7 +10,6 @@ from kivy.core.window import Window
 import final_program_functions as fpf
 from settings import Settings
 settings = Settings()
-
 from dateutil.parser import parse  # check https://stackabuse.com/converting-strings-to-datetime-in-python/
         # module which automatically converts time string into the datetime format
 
@@ -22,7 +22,7 @@ Builder.load_file('page3.kv')
 ## Kivy modules
 from kivy.app import App
 from kivy.metrics import dp
-from kivy.properties import StringProperty
+from kivy.properties import StringProperty, BooleanProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.stacklayout import StackLayout
@@ -41,7 +41,7 @@ class Add_Group(BoxLayout):
 
     # Adds new g-group in to the database
     new_group_str =StringProperty("")
-    terminal_answer=StringProperty("TERMINAL")
+    terminal_answer=StringProperty("")
 
     def on_text_validate(self,widget):
         # Storing ANY input as UPPERCASE string
@@ -70,18 +70,15 @@ class Add_Group(BoxLayout):
 
 class TheTAFApp(App):
     ### GLOBAL VARIABLES
-    time_start_str = "10"  # has to be string as it is StringProperty is being updated not the variable itself
-    time_end_str = "38"
+
 
     requested_stations ='none'
     # Sets the initial value of the time sliders
-    value__start_slider = StringProperty(time_start_str)
-    value__end_slider = StringProperty(time_end_str)
+    value__start_slider = StringProperty('131')
+    value__end_slider = StringProperty('132')
 
-    # Read value o the slider
-    slider_value_txt__start = StringProperty(time_start_str)
-    slider_value_txt__end = StringProperty(time_end_str)
 
+    # STRINGPROPERTY and BOOLEAN PROPERTY realtime update of the string!!
     start_ddhh = StringProperty('ccc')
     end_ddhh = StringProperty('dd')
 
@@ -94,6 +91,8 @@ class TheTAFApp(App):
 
     single_counter_txt = StringProperty('OFF')
 
+    TAFs_validity__earliers_start_txt = StringProperty('7') # Initial sting inside has to be number
+    TAFs_validity__latest_end_txt = StringProperty('12')    # Initial sting inside has to be number
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -113,16 +112,17 @@ class TheTAFApp(App):
         self.update_scroll_height()
 
     def update_TAFs(self, stations, start, end):
-        print(stations, start, end)
-        decoded_TAFs_data_list, combined_stations_threat_level = fpf.analise_stations(
-            settings,
-            app.requested_stations,
-            int(start),
-            int(end))
+        print(stations, start, end, 'update_Tafs.main')
+        decoded_TAFs_data_list, combined_stations_threat_level \
+            = fpf.analise_stations(settings, app.requested_stations,
+                                   int(start), int(end))
 
         # self.label__stations_threat_levels = combined_stations_threat_level
 
         decoded_TAFs = []
+        TAFs_validity_start_times =[]
+        TAFs_validity_end_times =[]
+
         for decoded_TAF_dict in decoded_TAFs_data_list:
             station_name = decoded_TAF_dict["station_name"]
             decoded_TAFs.append(station_name)
@@ -132,46 +132,55 @@ class TheTAFApp(App):
             runways_length = decoded_TAF_dict["runways_length"]
             station_threats = decoded_TAF_dict["station_threats"]
             appr_data = decoded_TAF_dict["appr_data"]
+
+
+            ### FINDING VALID TAFs range ###
+            # Selecting TAFs validity period among time ranges of TEMPO, PROB, etc
+            TAFs_validity_period = decoded_TAF_dict["time_range"]
+            TAFs_validity_start_times.append(TAFs_validity_period[1][0])
+            TAFs_validity_end_times.append(TAFs_validity_period[1][1])
+
+
+            # ADDING APPR DATA to the decoded TAF string
             if settings.print_appr_info:
-                decoded_TAFs.append('\n      ----------RWY & APPR------------\n'+ appr_data+ '\n      ----------RWY & APPR------------')
-        # self.label__decoded_TAFs = '\n'.join(decoded_TAFs)
+                decoded_TAFs.append('\n      ----------RWY & APPR------------\n'+
+                                    appr_data+
+                                    '\n      ----------RWY & APPR------------')
+
         self.label__decoded_TAFs = combined_stations_threat_level + '\n-----------------------\n' +'\n\n'.join(decoded_TAFs) + "\n\n    -----------END -----------\n"
 
-            # print(station_name)
-            # print(selected_time_info)
-        #     print(decoded_TAF)
-        #     print(station_threats, runways_length)
-        #     print(appr_data)
-        #
-        # print(combined_stations_threat_level)
-
-
+        # FINDING earliest TAF validity START hour and LATEST end HOUR
+        print(min(TAFs_validity_start_times),max(TAFs_validity_end_times),'main.ssss')
+        self.TAFs_validity__earliers_start_txt = str(min(TAFs_validity_start_times))
+        self.TAFs_validity__latest_end_txt = str(max(TAFs_validity_end_times))
 
 
     def on_slider_value__start(self, widget):
-        self.slider_value_txt__start = str(int(widget.value))
-        self.label__stations_threat_levels = self.combine_data(self.selected_g_group, self.slider_value_txt__start, self.slider_value_txt__end)
+        self.value__start_slider = str(int(widget.value))
+        self.label__stations_threat_levels = self.combine_data(self.selected_g_group, self.value__start_slider, self.value__end_slider)
 
-        if self.single_counter>3:
-            self.slider_value_txt__end = str(int(self.slider_value_txt__start) + self.single_counter)
+        if self.time_range>3:
+            self.value__end_slider = str(int(self.value__start_slider) + self.time_range)
 
         self.update_TAFs(
             self.requested_stations,
-            self.slider_value_txt__start,
-            self.slider_value_txt__end)
+            self.value__start_slider,
+            self.value__end_slider)
 
         # Just to make display of day:hh
         self.start_ddhh = Td_helpers.hours_to_ddhh(int(widget.value))
 
     def on_slider_value__end(self, widget):
-        self.slider_value_txt__end = str(int(widget.value))
+        self.value__end_slider = str(int(widget.value))
+        if self.time_range>3:
+            self.value__end_slider = str(int(self.value__start_slider) + self.time_range)
 
-        self.label__stations_threat_levels = self.combine_data(self.selected_g_group, self.slider_value_txt__start, self.slider_value_txt__end)
+        self.label__stations_threat_levels = self.combine_data(self.selected_g_group, self.value__start_slider, self.value__end_slider)
 
         self.update_TAFs(
             self.requested_stations,
-            self.slider_value_txt__start,
-            self.slider_value_txt__end)
+            self.value__start_slider,
+            self.value__end_slider)
 
         # Just to make display of day:hh
         self.end_ddhh = Td_helpers.hours_to_ddhh(int(widget.value))
@@ -197,7 +206,7 @@ class TheTAFApp(App):
 
 
         # Updating elements
-        self.TAF_decoder__input_data = self.combine_data(self.selected_g_group,self.slider_value_txt__start,self.slider_value_txt__end)
+        self.TAF_decoder__input_data = self.combine_data(self.selected_g_group,self.value__start_slider,self.value__end_slider)
         self.label__stations_threat_levels  = self.TAF_decoder__input_data
 
 
@@ -206,14 +215,27 @@ class TheTAFApp(App):
 
         return str([data1, data2, data3])
 
-    def day1__set_time_values(self):
-        self.value__start_slider = "0"
-        self.value__end_slider = "24"
 
-    def day2__set_time_values(self):
 
-        self.value__start_slider = "24"
-        self.value__end_slider = "48"
+    period_counter= 0
+    def update_range(self,direction):
+        """ Changes the value of the period that wil be selected at each BUTTON click"""
+
+        # Decrase/increase selected period
+        if direction == "increase":
+            self.period_counter += self.time_range
+        if direction == "decrease":
+            self.period_counter -= self.time_range
+
+
+        # Resets counter when the max value reached
+        if self.period_counter > int(self.TAFs_validity__latest_end_txt) - self.time_range:
+            self.period_counter = int(self.TAFs_validity__earliers_start_txt)
+        if self.period_counter < 0:
+            self.period_counter = int(self.TAFs_validity__latest_end_txt)
+        # Updates BUTTON description
+        self.value__start_slider = str(self.period_counter)
+        self.value__end_slider = str(self.period_counter + self.time_range)
 
     def call_AIRPORTS_reload(self):
         fpf.download_airports_database()
@@ -247,8 +269,8 @@ class TheTAFApp(App):
 
 
         self.update_TAFs(app.requested_stations,
-            app.slider_value_txt__start,
-            app.slider_value_txt__end)
+            app.value__start_slider,
+            app.value__end_slider)
         print(settings.print_type, settings.print_time_group, 'main')
         self.update_TAFs_display_labels()
         # self.label__decoded_TAFs = 'affafafa'
@@ -264,8 +286,8 @@ class TheTAFApp(App):
 
 
         self.update_TAFs(app.requested_stations,
-            app.slider_value_txt__start,
-            app.slider_value_txt__end)
+            app.value__start_slider,
+            app.value__end_slider)
         print(settings.print_type, settings.print_time_group, 'main')
         self.update_TAFs_display_labels()
     def update_search_input(self,widget):
@@ -311,15 +333,11 @@ class TheTAFApp(App):
 
         print(app.selected_g_group, app.requested_stations)
 
-        # for k,v in app.g_groups_db.items():
-        #     if app.selected_g_group.upper() == k.upper():
-        #         print('match aaaaaaaaa',k,v)
-
         # Updates decoded TAF on press
         app.update_TAFs(
             app.requested_stations,
-            app.slider_value_txt__start,
-            app.slider_value_txt__end)
+            app.value__start_slider,
+            app.value__end_slider)
 
         #
 
@@ -335,29 +353,35 @@ class TheTAFApp(App):
         app.root.current = "second"
         app.root.transition.direction = "left"
 
-        # Resetting sliders
-        app.value__start_slider = "0"
-        app.value__end_slider = "48"
+        # Resets parameters
+        app.time_range = 3 # Has to be 3 to show full period  - otherwise it is limited to time range
+        # app.single_counter= 0
+        # app.period_counter = 0
+        app.value__start_slider = app.TAFs_validity__earliers_start_txt
+        app.value__end_slider = app.TAFs_validity__latest_end_txt
 
-    single_counter= 3
+    time_range= 5
+    time_range_txt = StringProperty(time_range) # Enable realtime update of the string!!
     def single_slider(self, widget):
-        self.single_counter += 1
-        if self.single_counter > 6:
-            self.single_counter=3
-            self.single_counter_txt = "OFF"
-        elif self.single_counter > 3:
+        self.time_range += 1
 
-            self.slider_value_txt__end= str(int(self.slider_value_txt__start) + self.single_counter)
-            self.single_counter_txt = str(self.single_counter)
+        if self.time_range > 6:
+            self.time_range=3
+            self.single_counter_txt = "OFF"
+        elif self.time_range > 3:
+
+            self.value__end_slider= str(int(self.value__start_slider) + self.time_range)
+            self.single_counter_txt = str(self.time_range)
 
         # elif self.single_counter == 3:
         #     self.single_counter_txt = "OFF"
-        print(self.single_counter)
+        self.time_range_txt = str(self.time_range)
 
 
     font_counter = 0
 
     def change_font_size(self):
+        """Changes the decoded TAF font"""
         if self.font_counter ==0:
             f_size = "10sp"
         elif self.font_counter ==1:
@@ -369,4 +393,34 @@ class TheTAFApp(App):
             self.font_counter+=1
         else:
             self.font_counter=0
+
+    slider_variable_boolean = BooleanProperty(False)
+    def slider_disable(self):
+        # Disables the END TIME slider
+        if self.time_range == 3:
+            self.slider_variable_boolean = False
+        else:
+            self.slider_variable_boolean =True
+
+
+    hide_slider_value = StringProperty('1')
+    hide_switch=True
+    slider_height =StringProperty('30dp')
+    def hide_slider(self):
+        # Hides END TIME slider when TIME RANGE off
+        if  self.time_range == 3:
+            self.hide_switch = False
+
+            # INCREASES slider container HEIGHT
+            self.slider_height = '30dp'
+        else:
+            self.hide_switch =True
+
+            # REDUCES slider container HEIGHT
+            self.slider_height = '15dp'
+        if self.hide_switch:
+            self.hide_slider_value = "0"
+        else:
+            self.hide_slider_value ='1'
+
 TheTAFApp().run()  # RUNS THE KIVY!!

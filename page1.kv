@@ -5,13 +5,24 @@
         id: id__Top_Bar
         size_hint: 1, None
         height: '30dp'
-    Search_textInput:
+    Add_Group:
+        id: id__Add_Group
+    Search__container:
+        Search_textInput:
+            id:Search_textInput
+
+        Button:
+            on_release: Search_textInput.text=''
+            text: "CLR"
+            size_hint:None,1
+            width: '60dp'
 
     TAF_groups__scroll:
         id: id__TAF_groups__scroll
-    Add_Group:
-        id: id__Add_Group
 
+<Search__container@BoxLayout>:
+    size_hint: 1, None
+    height: '40dp'
 
 ####
 <Top_Bar@BoxLayout>
@@ -40,8 +51,9 @@
 
 <Search_textInput@TextInput>:
     size_hint: 1, None
-    height: '30dp'
+    height: '40dp'
     hint_text: 'Search'
+    font_size:"25dp"
     halign: "center"
     multiline: False
 
@@ -80,19 +92,24 @@
     size_hint:1,None
     height: "80dp"
     orientation: "vertical"
-
+    size_hint_x:0.9
+    pos_hint:{"center_x": 0.5}
     TextInput:
         id: my_g_group_input
         multiline: False
         on_text_validate: root.on_text_validate(self)
+        hint_text: "Write new group: XXXX XXXX XXXX"
+        halign:"center"
 
     Button:
         text: "Store: " +root.new_group_str
         on_press: root.call_add_new_group()
 
+
     Label:
         color: (0.6,0.5,0,1)
         text: root.terminal_answer
+
 
 
 
