@@ -812,7 +812,7 @@ def creating_weather_data_list(settings,gr_data, type_of_group, reference, score
                         print(p, 'wwwwwwwwwwwww')
                     weather_data_dict['wind'].append(p)
                     score.append([n, l])
-            clouds = ['SKC', 'NSC', 'VV', 'FEW', 'SCT', 'BKN', 'OVC']
+            clouds = ['SKC', 'NSC', 'VV', 'FEW', 'SCT', 'BKN', 'OVC', ]
 
             for c in clouds:
                 if c in p:

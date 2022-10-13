@@ -11,9 +11,48 @@
         MyLabel:
             id: MyLabel
 
-    Time_Sliders:
-        id: Time_sliders
+    StackLayout:
+        size_hint:1,None
+        height:'30dp'
+        orientation: "rl-bt"
 
+        StackButton:
+            text: 'next 12h'
+            on_press: app.next_12h(self)
+        StackButton:
+            text: 'Reset'
+            on_press: app.reset_time_all_day()
+        StackButton:
+            # INCREASE time
+            text: "+" + str(app.time_range_txt) +"h"
+            on_release: app.update_range("increase")
+
+        StackButton:
+            # REDUCE time
+            text: "-" + str(app.time_range_txt) +"h"
+            on_release: app.update_range("decrease")
+
+        StackButton:
+            # OFF, 4,5,6 time rage
+            text:app.single_counter_txt
+            on_release:
+                app.single_slider(self)
+                app.slider_disable()
+                app.hide_slider()
+        StackButton:
+            # FONT SIZE
+            text:'FONT'
+            on_press: app.change_font_size()
+
+        Time_Sliders:
+            opacity:0.4
+
+
+
+
+<StackButton@Button>:
+    size_hint:None,1
+    width: '60dp'
 
 <Nav_page2@BoxLayout>:
     size_hint:1,None
@@ -65,9 +104,8 @@
     font_size:  app.font_size
     text: app.label__decoded_TAFs
 
-<Font_button@Button>:
-    text:'FONT'
-    on_press: app.change_font_size()
+
+
 
 
 
@@ -75,28 +113,15 @@
     size_hint:1,None
     height: "30dp"
 
-    Button:
-        text: "+" + str(app.time_range_txt) +"h"
-        on_release: app.update_range("increase")
-
-    Button:
-        text: "-" + str(app.time_range_txt) +"h"
-        on_release: app.update_range("decrease")
 
     ToggleButton:
         text: "T"
         on_state:
             app.show_T_time_toggle(self)
     ToggleButton:
-        text:'rwy'
+        text:'RWY'
         on_state: app.print_appr_info__toggle(self)
-    Button:
-        text:app.single_counter_txt
-        on_release:
-            app.single_slider(self)
-            app.slider_disable()
-            app.hide_slider()
-    Font_button:
+
 
 <Time_Sliders@BoxLayout>:
     # SLIDERS CONTAINER
@@ -122,5 +147,11 @@
     step:1
     size_hint_y: None
     height: app.slider_height
+#    value_track: True
+    value_track_width:2
+    value_track_color: 1,0,0,1
+    sensitivity: "all"
+    cursor_size: '50dp','50dp'
+
 
 

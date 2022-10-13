@@ -25,7 +25,10 @@ class Settings:
         self.print_appr_info=False
 
         # SEARCH RESULTS
-        self.min_num_of_char =2 # minumum number of chaacters in SEARCH to activate search for max threat level
+        self.min_num_of_char =5
+            # minumum number of chaacters in SEARCH to activate search for max threat level
+            # 5 means OFF
+            # 2 is std
         self.max_num_of_colored =100 # max number of checked results for MAX THREAT LEVEL
         self.SINGLE_station_time_range=12
 

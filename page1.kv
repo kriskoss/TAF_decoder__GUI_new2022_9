@@ -5,6 +5,7 @@
         id: id__Top_Bar
         size_hint: 1, None
         height: '30dp'
+        font_size: "15dp"
     Add_Group:
         id: id__Add_Group
     Search__container:
@@ -51,9 +52,9 @@
 
 <Search_textInput@TextInput>:
     size_hint: 1, None
-    height: '40dp'
+    height: '30dp'
     hint_text: app.search_hint
-    font_size:"25dp"
+    font_size:"15dp"
     halign: "center"
     multiline: False
     on_text_validate: app.load_single_TAF(self)

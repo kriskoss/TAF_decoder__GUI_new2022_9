@@ -4,7 +4,7 @@ import requests
 import pprint
 import datetime
 
-import touch as touch
+
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 
@@ -440,8 +440,8 @@ class TheTAFApp(App):
         # Resets parameters
         self.time_range = 3  # Has to be 3 to show full period  - otherwise it is limited to time range
         # app.single_counter= 0
-        # app.period_counter = 0
-        self.value__start_slider = self.TAFs_validity__earliers_start_txt
+        app.period_counter = int(self.time_now.strftime("%H"))
+        self.value__start_slider = self.time_now.strftime("%H")
         self.value__end_slider = self.TAFs_validity__latest_end_txt
 
     time_range= 5
@@ -489,14 +489,14 @@ class TheTAFApp(App):
 
     hide_slider_value = StringProperty('1')
     hide_switch=True
-    slider_height =StringProperty('30dp')
+    slider_height =StringProperty('40dp')
     def hide_slider(self):
         # Hides END TIME slider when TIME RANGE off
         if  self.time_range == 3:
             self.hide_switch = False
 
             # INCREASES slider container HEIGHT
-            self.slider_height = '30dp'
+            self.slider_height = '40dp'
         else:
             self.hide_switch =True
 
@@ -529,6 +529,20 @@ class TheTAFApp(App):
                 widget.text = ''
                 self.search_hint= 'No TAF for such station'
 
+    def next_12h(self,widget):
+        self.value__start_slider = str(self.time_now.strftime("%H"))
+        self.value__end_slider = str(int(self.value__start_slider) + 12)
+
+    ### SETTINGS BINDING
+    def single_station_color_on(self, widget):
+        if widget.state == "normal":
+            settings.min_num_of_char = 5
+        else:
+            settings.min_num_of_char = 2
+    def reset_time_all_day(self):
+        app.period_counter = int(self.time_now.strftime("%H"))
+        self.value__start_slider = self.time_now.strftime("%H")
+        self.value__end_slider = self.TAFs_validity__latest_end_txt
 
 
 TheTAFApp().run()  # RUNS THE KIVY!!

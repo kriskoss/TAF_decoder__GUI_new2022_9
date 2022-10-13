@@ -1,16 +1,29 @@
-<Page3@BoxLayout>
-    orientation:"vertical"
-    Button:
-        text: "1st screen"
-        on_press:
-            app.root.current="first"
-            app.root.transition.direction = "right"
+<Page3@ScrollView>
+    StackLayout:
+        orientation:"lr-tb"
+        Button_1:
+            text: "1st screen"
+            on_press:
+                app.root.current="first"
+                app.root.transition.direction = "right"
 
-    Button:
-        text: "2nd screen"
-        on_press:
-            app.root.current="second"
-            app.root.transition.direction = "right"
-    Button:
-        text: "Reload AIRPORTS?"
-        on_release: app.call_AIRPORTS_reload()
+
+        Button_1:
+            text: "2nd screen"
+            on_press:
+                app.root.current="second"
+                app.root.transition.direction = "right"
+        Button_1:
+            text: "Reload AIRPORTS?"
+            on_release: app.call_AIRPORTS_reload()
+        Toggle_A:
+            text:'SINGLE STATION COLOR'
+            on_state: app.single_station_color_on(self)
+
+<Button_1@Button>:
+    size_hint:None,None
+    size: '150dp', '40dp'
+<Toggle_A@ToggleButton>:
+    size_hint:None,None
+    size: '150dp', '40dp'
+    background_color:'#1b5585'
