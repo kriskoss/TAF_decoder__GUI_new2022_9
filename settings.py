@@ -24,6 +24,12 @@ class Settings:
         #2022.10.12
         self.print_appr_info=False
 
+        # SEARCH RESULTS
+        self.min_num_of_char =2 # minumum number of chaacters in SEARCH to activate search for max threat level
+        self.max_num_of_colored =100 # max number of checked results for MAX THREAT LEVEL
+        self.SINGLE_station_time_range=12
+
+
     #######
         # Selection if use real time TAF or special case TAFs (check Data_new/TAFs__special_cases.json)
         self.real_time_taf_active = True

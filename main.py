@@ -2,6 +2,11 @@
 import json
 import requests
 import pprint
+import datetime
+
+import touch as touch
+from kivy.uix.label import Label
+from kivy.uix.widget import Widget
 
 import TAF_decoder__helper_functions as Td_helpers
 ## My modules
@@ -34,14 +39,17 @@ class TAF_groups_Stack(StackLayout):
 
         # Creates first set of g_group buttons
         app.create_g_group_buttons(self)
-
+        app.create_SINGLE_station_buttons(self)
 
 class Add_Group(BoxLayout):
     """ Methods used to Add and Edit new g_group"""
 
     # Adds new g-group in to the database
     new_group_str =StringProperty("")
-    terminal_answer=StringProperty("")
+
+    time_now = datetime.datetime.utcnow()
+
+    terminal_answer=StringProperty(time_now.strftime("%H:%M")+'UTC +' + str(settings.SINGLE_station_time_range) + 'h for THR LEVEL' )
 
     def on_text_validate(self,widget):
         # Storing ANY input as UPPERCASE string
@@ -74,8 +82,10 @@ class TheTAFApp(App):
 
     requested_stations ='none'
     # Sets the initial value of the time sliders
-    value__start_slider = StringProperty('131')
-    value__end_slider = StringProperty('132')
+
+    time_now =datetime.datetime.utcnow()
+    value__start_slider = StringProperty(str(time_now.strftime("%H")))
+    value__end_slider = StringProperty('48')
 
 
     # STRINGPROPERTY and BOOLEAN PROPERTY realtime update of the string!!
@@ -94,6 +104,7 @@ class TheTAFApp(App):
     TAFs_validity__earliers_start_txt = StringProperty('7') # Initial sting inside has to be number
     TAFs_validity__latest_end_txt = StringProperty('12')    # Initial sting inside has to be number
 
+    search_hint = StringProperty("Search")
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -111,10 +122,10 @@ class TheTAFApp(App):
         self.fontSize_slider_value = f'{int(widget.value/2)}sp'
         self.update_scroll_height()
 
-    def update_TAFs(self, stations, start, end):
-        print(stations, start, end, 'update_Tafs.main')
+    def update_TAFs(self, stations_, start, end):
+        print(stations_, start, end, 'main.update_Tafs')
         decoded_TAFs_data_list, combined_stations_threat_level \
-            = fpf.analise_stations(settings, app.requested_stations,
+            = fpf.analise_stations(settings, stations_,
                                    int(start), int(end))
 
         # self.label__stations_threat_levels = combined_stations_threat_level
@@ -122,7 +133,7 @@ class TheTAFApp(App):
         decoded_TAFs = []
         TAFs_validity_start_times =[]
         TAFs_validity_end_times =[]
-
+        max_threat_level_at_airports =[]
         for decoded_TAF_dict in decoded_TAFs_data_list:
             station_name = decoded_TAF_dict["station_name"]
             decoded_TAFs.append(station_name)
@@ -132,6 +143,9 @@ class TheTAFApp(App):
             runways_length = decoded_TAF_dict["runways_length"]
             station_threats = decoded_TAF_dict["station_threats"]
             appr_data = decoded_TAF_dict["appr_data"]
+            max_threat_level_at_airport =decoded_TAF_dict['max_threat_level_at_airport']
+            max_threat_level_at_airports.append((station_name,max_threat_level_at_airport))
+            ### Getting MAX THREAT LEVEL for the single station
 
 
             ### FINDING VALID TAFs range ###
@@ -154,6 +168,7 @@ class TheTAFApp(App):
         self.TAFs_validity__earliers_start_txt = str(min(TAFs_validity_start_times))
         self.TAFs_validity__latest_end_txt = str(max(TAFs_validity_end_times))
 
+        return max_threat_level_at_airports
 
     def on_slider_value__start(self, widget):
         self.value__start_slider = str(int(widget.value))
@@ -161,6 +176,7 @@ class TheTAFApp(App):
 
         if self.time_range>3:
             self.value__end_slider = str(int(self.value__start_slider) + self.time_range)
+        print('main.suspect0', self.value__start_slider, self.value__end_slider)
 
         self.update_TAFs(
             self.requested_stations,
@@ -176,7 +192,7 @@ class TheTAFApp(App):
             self.value__end_slider = str(int(self.value__start_slider) + self.time_range)
 
         self.label__stations_threat_levels = self.combine_data(self.selected_g_group, self.value__start_slider, self.value__end_slider)
-
+        print('main.suspect1',self.value__start_slider, self.value__end_slider)
         self.update_TAFs(
             self.requested_stations,
             self.value__start_slider,
@@ -217,7 +233,7 @@ class TheTAFApp(App):
 
 
 
-    period_counter= 0
+    period_counter= int(datetime.datetime.utcnow().strftime("%H"))
     def update_range(self,direction):
         """ Changes the value of the period that wil be selected at each BUTTON click"""
 
@@ -230,8 +246,8 @@ class TheTAFApp(App):
 
         # Resets counter when the max value reached
         if self.period_counter > int(self.TAFs_validity__latest_end_txt) - self.time_range:
-            self.period_counter = int(self.TAFs_validity__earliers_start_txt)
-        if self.period_counter < 0:
+            self.period_counter = int(datetime.datetime.utcnow().strftime("%H"))
+        if self.period_counter < int(datetime.datetime.utcnow().strftime("%H")):
             self.period_counter = int(self.TAFs_validity__latest_end_txt)
         # Updates BUTTON description
         self.value__start_slider = str(self.period_counter)
@@ -267,7 +283,7 @@ class TheTAFApp(App):
             settings.onoff_type_and_time_group()
             # settings.print_time_group = True
 
-
+        print('main.suspect2')
         self.update_TAFs(app.requested_stations,
             app.value__start_slider,
             app.value__end_slider)
@@ -284,7 +300,7 @@ class TheTAFApp(App):
             settings.print_appr_info = True
             # settings.print_time_group = True
 
-
+        print('main.suspect3')
         self.update_TAFs(app.requested_stations,
             app.value__start_slider,
             app.value__end_slider)
@@ -324,6 +340,75 @@ class TheTAFApp(App):
 
             # Adding buttons to the layout
             widget.add_widget(btn)
+    def create_SINGLE_station_buttons(self, widget):
+        search_input = app.search_input
+
+        # Opening TAF vs station database
+        path = "Data_new/api__tafs_cleaned.json"
+        with open(path, 'r') as f_obj:
+            tafs_cleaned_dict = json.load(f_obj)
+        stations_to_show=[]
+
+        # Look for stations in the database only if search input 2-4 letters long
+        if 1 < len(search_input) < 5:
+            for station in tafs_cleaned_dict['station_id']:
+
+                # Check if search input is in any station_id
+                if search_input.upper() in station.upper():
+
+                    # If search input in station_id, the store the station
+                    stations_to_show.append(station)
+
+        # Updating requested_stations so it is more efficient as UPDATE TAF runs 5x times
+        app.requested_stations = stations_to_show
+
+        #Minimum number of characters in search input to show THREAT LEVEL
+        max_threat_level_at_airports=[]
+        print(stations_to_show, 'main.stations_to_show')
+        if len(search_input)>=settings.min_num_of_char:
+            if len(stations_to_show)> 0:
+                # Has to callit self so sliders_values use the same value ()
+                app.requested_stations= app.requested_stations[:settings.max_num_of_colored]
+
+                max_threat_level_at_airports = self.update_TAFs(app.requested_stations, int(self.value__start_slider), int(self.value__start_slider) + settings.SINGLE_station_time_range)
+                print(max_threat_level_at_airports, 'main.EEEE')
+
+        if len(stations_to_show) > 0:
+            i=0
+            for station in stations_to_show:
+                b_colour = '#474747'    # GRAY-BLUE
+                if i<len(max_threat_level_at_airports):
+                    tl =max_threat_level_at_airports[i][1][0]
+                    print(tl, 'hhhhhhhhhhh')
+                    if tl =="severe":
+                        b_colour= '#750437'  # MAGENTA
+                    elif tl =="warning":
+                        b_colour = '#967a09' # RED
+                    elif tl == "caution":
+                        b_colour = '#967a09' # YELLOW
+                    elif tl=="green":
+                        b_colour = '#0a6932' # GREEN
+                i+=1
+                btn = Button(
+                    text=station.upper(),
+                    size_hint=(0.33, None),
+                    height=dp(40),
+                    # width=dp(100),
+                    font_name="Resources/Fonts/JetBrainsMono-Regular.ttf",
+                    font_size='20dp',
+
+                    background_color = b_colour,
+                    background_normal='' #MODIIES HOW COLOR ARE BEING DISPLAYED
+                )
+
+                widget.ids[station] = btn  # CORRECT WAY based on the above
+
+                # BINDING event with method - VERY IMPORTANT!
+                btn.bind(on_press=self.load_single_TAF)
+
+                # Adding buttons to the layout
+                widget.add_widget(btn)
+
 
     def on_press_g_group(self, instance):
         """Defines what happens when any g_group button is being pressed"""
@@ -333,32 +418,31 @@ class TheTAFApp(App):
 
         print(app.selected_g_group, app.requested_stations)
 
+        self.generate_TAFs_at_page2_and_show()
+
+
+    def generate_TAFs_at_page2_and_show(self):
         # Updates decoded TAF on press
-        app.update_TAFs(
-            app.requested_stations,
-            app.value__start_slider,
-            app.value__end_slider)
-
-        #
-
-        # TESTING - changing the colour of g_group buttin once pressed
-        instance.background_color = "#FF00FF"  # changes colour of the selected g_group button
+        self.update_TAFs(
+            self.requested_stations,
+            self.value__start_slider,
+            self.value__end_slider)
 
         # Running app function on button press
         # app.update_TAFs_display_labels()
 
-        app.update_scroll_height()
+        self.update_scroll_height()
 
         # Moves to the 2nd screen
-        app.root.current = "second"
-        app.root.transition.direction = "left"
+        self.root.current = "second"
+        self.root.transition.direction = "left"
 
         # Resets parameters
-        app.time_range = 3 # Has to be 3 to show full period  - otherwise it is limited to time range
+        self.time_range = 3  # Has to be 3 to show full period  - otherwise it is limited to time range
         # app.single_counter= 0
         # app.period_counter = 0
-        app.value__start_slider = app.TAFs_validity__earliers_start_txt
-        app.value__end_slider = app.TAFs_validity__latest_end_txt
+        self.value__start_slider = self.TAFs_validity__earliers_start_txt
+        self.value__end_slider = self.TAFs_validity__latest_end_txt
 
     time_range= 5
     time_range_txt = StringProperty(time_range) # Enable realtime update of the string!!
@@ -422,5 +506,29 @@ class TheTAFApp(App):
             self.hide_slider_value = "0"
         else:
             self.hide_slider_value ='1'
+
+
+    def load_single_TAF(self,widget):
+        input_text= str(widget.text)
+
+        # Opening TAF vs station database
+        path = "Data_new/api__tafs_cleaned.json"
+        with open(path, 'r') as f_obj:
+            tafs_cleaned_dict = json.load(f_obj)
+        # Checking if TAF in database
+        if input_text.upper() in tafs_cleaned_dict['station_id']:
+            self.requested_stations = [input_text]
+            self.generate_TAFs_at_page2_and_show()
+        else:
+
+            if not len(input_text) ==4:
+                print('main.saff')
+                widget.text = ''
+                self.search_hint ='Has to be 4 letter/numbers'
+            else:
+                widget.text = ''
+                self.search_hint= 'No TAF for such station'
+
+
 
 TheTAFApp().run()  # RUNS THE KIVY!!

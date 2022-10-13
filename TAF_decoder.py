@@ -591,6 +591,7 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
         "station_threats":Tdf.generate_station_threats(all_lines, settings),
         "appr_data":Tdf.generate_appr_info(TAF, settings),
         "time_range": time_range,
+        "max_threat_level_at_airport": max_threat_level_at_airport
     }
 
     return decoded_TAF_dict

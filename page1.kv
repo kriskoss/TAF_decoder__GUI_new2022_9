@@ -52,11 +52,11 @@
 <Search_textInput@TextInput>:
     size_hint: 1, None
     height: '40dp'
-    hint_text: 'Search'
+    hint_text: app.search_hint
     font_size:"25dp"
     halign: "center"
     multiline: False
-
+    on_text_validate: app.load_single_TAF(self)
     on_text:
         ## Introduces search functionality
         # Pases the search inputText value
@@ -73,6 +73,7 @@
 
         # Creates new g_group buttons which met search criteria - search string has to be in g_group key
         app.create_g_group_buttons(id__TAF_groups_Stack)
+        app.create_SINGLE_station_buttons(id__TAF_groups_Stack)
 
 
 ####
@@ -81,6 +82,10 @@
         id: id__TAF_groups_Stack
         size_hint: 1, None
         height:  self.minimum_height
+        # "left-right, right-left, top-bottom, bottom-top"
+        orientation: "lr-tb"
+        padding:"20dp",
+        spacing:"5dp",
 
 <TAF_groups_Stack>
     orientation: "rl-tb"

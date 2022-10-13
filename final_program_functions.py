@@ -365,6 +365,7 @@ def add_new_group(answer_split):
 
 # Button functions - get decoded TAF for selected group
 def get_TAF_for_all_requested_stations(requested_stations):
+
     """downloads valid TAFs for airports in all_airport list"""
     # Initializing list of TAFs for requested stations
     requested_stations_TAFs=[]
@@ -374,6 +375,7 @@ def get_TAF_for_all_requested_stations(requested_stations):
 
         # Getting TAF for the station
         station_TAF = get_single_stations_TAF(station)
+
 
         # Appending TAF
         requested_stations_TAFs.append(station_TAF)
@@ -402,7 +404,9 @@ def get_single_stations_TAF(station):
         if tafs_cleaned_dict['station_id'][i]== station.upper():
             station_TAF = tafs_cleaned_dict['raw_text'][i]
             break
-    # print(station_TAF, colouring.prYellow("(---source: (fpf.get_single_stations_TAF))\n"))
+    if type(station_TAF)==list:
+        print(station_TAF[1].upper(), " - station invalid", "(---source: (fpf.get_single_stations_TAF))\n")
+
     return station_TAF
 
 ### FUNCTIONS RELATED TO THE TAF DECODE
@@ -430,8 +434,9 @@ def extract_stations_from_g_group(selected_g_group):
     return stations
 
 def analise_stations(settings, requested_stations, start_time, end_time):
-
+    print(requested_stations, 'fpf.analise_stations')
     # Getting TAFs for stations
+
     TAFs = get_TAF_for_all_requested_stations(requested_stations)
 
     # FOR DEVELOPMNET ONLY - priniting TAFs
