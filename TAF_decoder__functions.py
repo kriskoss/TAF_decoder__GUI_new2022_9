@@ -3,8 +3,7 @@ from colouring import SignificantColouring
 import colouring
 import json
 from colouring import prGreen, prYellow, prRed, prPurple
-from settings import Settings
-settings = Settings()
+
 import math
 
 import TAF_decoder__helper_functions as Td_helpers
@@ -375,7 +374,7 @@ def     generate_station_threats(all_lines,settings):
 def prLightGray(skk):
     return "\033[1;90;40m" + str(skk)
 
-def avaliable_rwys(apt_code):
+def avaliable_rwys(apt_code, settings):
     """ CORE FUNCTION - adds runway idents and runway length to the final data"""
 
     # Loading json object containing data regarding runways
@@ -583,7 +582,7 @@ def generate_decoded_TAF(BECMG_color, error_added, error_found, grayed_area_righ
 
     return  final_coloured_taf_string
 
-def generate_appr_info(TAF):
+def generate_appr_info(TAF, settings):
     """Generating available approaches info and also LDAs """
     end_string = ''
     avlb_apprs_data = load_avlb_apprs_datra()
@@ -598,7 +597,7 @@ def generate_appr_info(TAF):
         end_string = '-- RWY DATA OFF --'
     return end_string
 
-def creating_start_end_times_dates(time_group_list, Tdf, time_gr_data):
+def creating_start_end_times_dates(settings,time_group_list, Tdf, time_gr_data):
     # ref('extracting time range in hours')
     # ref('[start_date, start_hour, end_date,end_hour, diff]')
     hours_list = []
@@ -643,8 +642,8 @@ def creating_start_end_times_dates(time_group_list, Tdf, time_gr_data):
             for dash_surround_symbol in check_if_numbers:
                 if not dash_surround_symbol.isdigit():
                     digit.append(1)
-            if settings.printing_active:
-                print('digit', sum(digit))
+            # if settings.printing_active:
+            #     print('digit', sum(digit))
             if sum(digit) == 0:
 
                 start = int(str(dash_word[dash_location - 2]) + str(
@@ -718,7 +717,7 @@ def creating_start_end_times_dates(time_group_list, Tdf, time_gr_data):
             print('search THTHTHTHT in code')
     Td_helpers.add_to_dict_TIME_gr_data(hours_list, 'hours_list', time_gr_data)
 
-def creating_type_of_group(time_string_uncorrected, TAF_split, station_name, time_gr_data):
+def creating_type_of_group(settings,time_string_uncorrected, TAF_split, station_name, time_gr_data):
     # storing data what type of weather group each string is
     # TEMPO or BECMG or PROB30/40
     type_of_group = []
@@ -761,7 +760,7 @@ def creating_type_of_group(time_string_uncorrected, TAF_split, station_name, tim
 
     Td_helpers.add_to_dict_TIME_gr_data(type_of_group, "type_of_group", time_gr_data)
 
-def creating_weather_data_list(gr_data, type_of_group, reference, score):
+def creating_weather_data_list(settings,gr_data, type_of_group, reference, score):
     # creating weather_data list - list which stores weather conditions
     weather_data = []
     Ts1 = gr_data[1]['TAF_slice']
@@ -893,7 +892,7 @@ def add_to_dict_weather_data(lista,key, weather_data):
               + str(len(weather_data) - len(lista)))
         exit()
 
-def weather_for_selected_time_RIGHT(key_, weather_data, significant_time, tempo_line_n, wind_ranges, vis_ranges, weather_ranges, clouds_ranges, init_stack):
+def weather_for_selected_time_RIGHT(key_,settings, weather_data, significant_time, tempo_line_n, wind_ranges, vis_ranges, weather_ranges, clouds_ranges, init_stack):
     wx_key_bcmg = []
     temp_wx_key = []
     temp_range = []
@@ -1112,7 +1111,7 @@ def weather_for_selected_time_RIGHT(key_, weather_data, significant_time, tempo_
                         if settings.printing_active:
                             print('vvvvvv', n, weather_data[n][key_])
 
-def weather_for_selected_time(key_, weather_data, significant_time, tempo_line_n, wind_ranges, vis_ranges, weather_ranges, clouds_ranges, init_stack):
+def weather_for_selected_time(key_, settings, weather_data, significant_time, tempo_line_n, wind_ranges, vis_ranges, weather_ranges, clouds_ranges, init_stack):
         wx_key_bcmg = []
         temp_wx_key = []
         temp_range = []

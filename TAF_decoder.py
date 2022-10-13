@@ -180,7 +180,7 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
     ### FUNCTION CALL ###
     ref(4)
     # Creating start and end time dates
-    Tdf.creating_start_end_times_dates(time_group_list, Tdf, time_gr_data)
+    Tdf.creating_start_end_times_dates(settings,time_group_list, Tdf, time_gr_data)
 
     ref('GGG')
     if settings.printing_active:
@@ -189,7 +189,7 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
 
     ### FUNCTION CALL ###
     station_name =[] # do not remove!
-    Tdf.creating_type_of_group(time_string_uncorrected, TAF_split, station_name, time_gr_data)
+    Tdf.creating_type_of_group(settings, time_string_uncorrected, TAF_split, station_name, time_gr_data)
 
     ref('HHHH')
     if settings.printing_active:
@@ -202,7 +202,7 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
 
 
     ### FUNCTION CALL ###
-    weather_data = Tdf.creating_weather_data_list(gr_data, type_of_group, reference, score)
+    weather_data = Tdf.creating_weather_data_list(settings,gr_data, type_of_group, reference, score)
 
     ref('III')
     if settings.printing_active:
@@ -443,12 +443,12 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
 
     tempo_line_n = []
 
-    Tdf.weather_for_selected_time_RIGHT('wind', weather_data, significant_time, tempo_line_n, wind_ranges, vis_ranges, weather_ranges, clouds_ranges, init_stack)
-    Tdf.weather_for_selected_time_RIGHT('vis', weather_data, significant_time, tempo_line_n, wind_ranges, vis_ranges, weather_ranges, clouds_ranges, init_stack)
-    Tdf.weather_for_selected_time_RIGHT('clouds', weather_data, significant_time, tempo_line_n, wind_ranges, vis_ranges, weather_ranges, clouds_ranges, init_stack)
-    Tdf.weather_for_selected_time_RIGHT('weather', weather_data, significant_time, tempo_line_n, wind_ranges, vis_ranges, weather_ranges, clouds_ranges, init_stack)
-    Tdf.weather_for_selected_time('time_group', weather_data, significant_time, tempo_line_n, wind_ranges, vis_ranges, weather_ranges, clouds_ranges, init_stack)
-    Tdf.weather_for_selected_time('group_type_long', weather_data, significant_time, tempo_line_n, wind_ranges, vis_ranges, weather_ranges, clouds_ranges, init_stack)
+    Tdf.weather_for_selected_time_RIGHT('wind',settings, weather_data, significant_time, tempo_line_n, wind_ranges, vis_ranges, weather_ranges, clouds_ranges, init_stack)
+    Tdf.weather_for_selected_time_RIGHT('vis',settings, weather_data, significant_time, tempo_line_n, wind_ranges, vis_ranges, weather_ranges, clouds_ranges, init_stack)
+    Tdf.weather_for_selected_time_RIGHT('clouds',settings, weather_data, significant_time, tempo_line_n, wind_ranges, vis_ranges, weather_ranges, clouds_ranges, init_stack)
+    Tdf.weather_for_selected_time_RIGHT('weather',settings, weather_data, significant_time, tempo_line_n, wind_ranges, vis_ranges, weather_ranges, clouds_ranges, init_stack)
+    Tdf.weather_for_selected_time('time_group',settings, weather_data, significant_time, tempo_line_n, wind_ranges, vis_ranges, weather_ranges, clouds_ranges, init_stack)
+    Tdf.weather_for_selected_time('group_type_long',settings, weather_data, significant_time, tempo_line_n, wind_ranges, vis_ranges, weather_ranges, clouds_ranges, init_stack)
 
     ref('Print weather again')
     if settings.printing_active:
@@ -550,7 +550,6 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
 
     # crating list of hazardpus weather- ready to print
     all_lines = Tdf.create_list_of_thr_lvl_weather(thr_lvl_data, settings, settings.print_type, settings.print_time_group)
-
     # adding coloured station name - required for later printing of data
     colored_station_name = Tdf.adding_coloured_station_name(thr_lvl_data)
 
@@ -584,9 +583,9 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
         "station_name": station_name[0],
         "selected_time_info":Tdf.generate_selected_time_info(significant_time, weather_data_copy, colored_station_name, start_hour, end_hour, TAF),
         "decoded_TAF":Tdf.generate_decoded_TAF(BECMG_color, error_added, error_found, grayed_area_right, weather_data, gr_data),
-        "runways_length":Tdf.avaliable_rwys(apt_code),
+        "runways_length":Tdf.avaliable_rwys(apt_code, settings),
         "station_threats":Tdf.generate_station_threats(all_lines, settings),
-        "appr_data":Tdf.generate_appr_info(TAF),
+        "appr_data":Tdf.generate_appr_info(TAF, settings),
     }
 
     return decoded_TAF_dict

@@ -17,7 +17,7 @@
 <Top_Bar@BoxLayout>
     Button:
         text: "Reload TAFs"
-        on_release: app.call_TAFs_reload(requests)
+        on_release: app.call_TAFs_reload()
         background_color: (1,0.5,1,1)
 
 
@@ -25,14 +25,15 @@
     size_hint:1,None
     height:'30dp'
     Button:
-        text: "2nd screen"
-        size_hint:0.5,1
+        text: "TAFs"
+
         on_press:
             app.root.current="second"
             app.root.transition.direction = "left"
     Button:
-        text: "3nd screen"
-        size_hint:0.5,1
+        text: "Settings"
+        size_hint:None,1
+        width: '80dp'
         on_press:
             app.root.current="third"
             app.root.transition.direction = "left"

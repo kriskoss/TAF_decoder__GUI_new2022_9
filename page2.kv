@@ -21,13 +21,15 @@
     height: '30dp'
 
     Button:
-        text: "1st screen"
-
+        text: "APTs"
         on_release:
             app.root.current ="first"
             app.root.transition.direction = "right"
     Button:
-        text: "3nd screen"
+        text: "Settings"
+
+        size_hint:None,1
+        width: '80dp'
 
         on_press:
             app.root.current="third"
@@ -84,11 +86,14 @@
 
     ToggleButton:
         text: "T"
-        on_state: app.show_T_time_toggle(self)
+        on_state:
+            app.show_T_time_toggle(self)
+    ToggleButton:
+        text:'rwy'
+        on_state: app.print_appr_info__toggle(self)
     Button:
-        text: "tT"
-        on_press: app.print_tt()
-
+        text:app.single_counter_txt
+        on_release: app.single_slider(self)
     Font_button:
 
 <Time_Sliders@BoxLayout>:
@@ -102,7 +107,8 @@
 
     Time_slider__slider:
         # END TIME
-        value: app.value__end_slider
+
+        value: app.slider_value_txt__end
         on_value: app.on_slider_value__end(self)
 
 

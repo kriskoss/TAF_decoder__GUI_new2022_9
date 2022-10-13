@@ -20,6 +20,10 @@ class Settings:
 
         self.gap_symbol = ' '
 
+
+        #2022.10.12
+        self.print_appr_info=False
+
     #######
         # Selection if use real time TAF or special case TAFs (check Data_new/TAFs__special_cases.json)
         self.real_time_taf_active = True

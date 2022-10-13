@@ -92,6 +92,8 @@ class TheTAFApp(App):
     font_size = StringProperty('12sp')
     search_input = StringProperty('')
 
+    single_counter_txt = StringProperty('OFF')
+
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -113,6 +115,7 @@ class TheTAFApp(App):
     def update_TAFs(self, stations, start, end):
         print(stations, start, end)
         decoded_TAFs_data_list, combined_stations_threat_level = fpf.analise_stations(
+            settings,
             app.requested_stations,
             int(start),
             int(end))
@@ -129,7 +132,8 @@ class TheTAFApp(App):
             runways_length = decoded_TAF_dict["runways_length"]
             station_threats = decoded_TAF_dict["station_threats"]
             appr_data = decoded_TAF_dict["appr_data"]
-            decoded_TAFs.append(appr_data)
+            if settings.print_appr_info:
+                decoded_TAFs.append('\n      ----------RWY & APPR------------\n'+ appr_data+ '\n      ----------RWY & APPR------------')
         # self.label__decoded_TAFs = '\n'.join(decoded_TAFs)
         self.label__decoded_TAFs = combined_stations_threat_level + '\n-----------------------\n' +'\n\n'.join(decoded_TAFs) + "\n\n    -----------END -----------\n"
 
@@ -147,6 +151,9 @@ class TheTAFApp(App):
     def on_slider_value__start(self, widget):
         self.slider_value_txt__start = str(int(widget.value))
         self.label__stations_threat_levels = self.combine_data(self.selected_g_group, self.slider_value_txt__start, self.slider_value_txt__end)
+
+        if self.single_counter>3:
+            self.slider_value_txt__end = str(int(self.slider_value_txt__start) + self.single_counter)
 
         self.update_TAFs(
             self.requested_stations,
@@ -221,10 +228,7 @@ class TheTAFApp(App):
 
 
     def call_TAFs_reload(self):
-        fpf.download_taf_database(requests, parse)
-
-    def print_tt(self):
-        print(settings.print_type, settings.print_time_group)
+        fpf.download_taf_database(parse)
 
     def show_T_time_toggle(self, widget):
         # Toggle to show TIME range of any wx at or above CAUTION level
@@ -240,14 +244,30 @@ class TheTAFApp(App):
 
             settings.onoff_type_and_time_group()
             # settings.print_time_group = True
-        self.label__stations_threat_levels = StringProperty('affafafa')
+
 
         self.update_TAFs(app.requested_stations,
             app.slider_value_txt__start,
             app.slider_value_txt__end)
-        print('daffa')
+        print(settings.print_type, settings.print_time_group, 'main')
         self.update_TAFs_display_labels()
+        # self.label__decoded_TAFs = 'affafafa'
 
+    def print_appr_info__toggle(self, widget):
+        if widget.state == "normal":
+            # OFF
+            settings.print_appr_info = False
+        else:
+            # ON
+            settings.print_appr_info = True
+            # settings.print_time_group = True
+
+
+        self.update_TAFs(app.requested_stations,
+            app.slider_value_txt__start,
+            app.slider_value_txt__end)
+        print(settings.print_type, settings.print_time_group, 'main')
+        self.update_TAFs_display_labels()
     def update_search_input(self,widget):
         self.search_input = widget.text
         print(self.search_input)
@@ -266,10 +286,11 @@ class TheTAFApp(App):
                 continue
 
             btn = Button(
-                text=f'{g_group_key[:]}',
+                text=f'{g_group_key[0].lower()+g_group_key[1:].upper()}',
                 size_hint=(1, None),
                 height=dp(40),
                 font_name="Resources/Fonts/JetBrainsMono-Regular.ttf",
+                font_size='20dp'
             )
 
             # ADDING buttons IDs dictionary
@@ -281,7 +302,6 @@ class TheTAFApp(App):
 
             # Adding buttons to the layout
             widget.add_widget(btn)
-
 
     def on_press_g_group(self, instance):
         """Defines what happens when any g_group button is being pressed"""
@@ -307,7 +327,7 @@ class TheTAFApp(App):
         instance.background_color = "#FF00FF"  # changes colour of the selected g_group button
 
         # Running app function on button press
-        app.update_TAFs_display_labels()
+        # app.update_TAFs_display_labels()
 
         app.update_scroll_height()
 
@@ -318,6 +338,22 @@ class TheTAFApp(App):
         # Resetting sliders
         app.value__start_slider = "0"
         app.value__end_slider = "48"
+
+    single_counter= 3
+    def single_slider(self, widget):
+        self.single_counter += 1
+        if self.single_counter > 6:
+            self.single_counter=3
+            self.single_counter_txt = "OFF"
+        elif self.single_counter > 3:
+
+            self.slider_value_txt__end= str(int(self.slider_value_txt__start) + self.single_counter)
+            self.single_counter_txt = str(self.single_counter)
+
+        # elif self.single_counter == 3:
+        #     self.single_counter_txt = "OFF"
+        print(self.single_counter)
+
 
     font_counter = 0
 

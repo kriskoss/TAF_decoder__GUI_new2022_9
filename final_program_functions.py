@@ -1,11 +1,8 @@
 from TAF_decoder import TAF_decoder_function
 import TAF_decoder__helper_functions as Td_helpers
 import json
-# import requests
+import requests
 import gzip
-from settings import Settings
-
-settings = Settings()
 
 
 no_station_msg = '- no such station'
@@ -25,7 +22,7 @@ def combine_all_stations_threat_level(apt_threat_level):
 
     return '\n'.join(combined_stations_threat_level)
 
-def combine_data(station_threats, runways_length, appr_data):
+def combine_data(settings,station_threats, runways_length, appr_data):
     station_threat_level=None
     if settings.rwy_data == 0:
         station_threat_level= station_threats
@@ -36,7 +33,7 @@ def combine_data(station_threats, runways_length, appr_data):
     return station_threat_level
 
 # BUTTON function - Update TAFs
-def download_taf_database(requests, parse):
+def download_taf_database(parse):
     # Downloading the file  - https://www.codingem.com/python-download-file-from-url/
 
     url = 'https://www.aviationweather.gov/adds/dataserver_current/current/tafs.cache.csv.gz'
@@ -432,7 +429,7 @@ def extract_stations_from_g_group(selected_g_group):
 
     return stations
 
-def analise_stations(requested_stations, start_time, end_time):
+def analise_stations(settings, requested_stations, start_time, end_time):
 
     # Getting TAFs for stations
     TAFs = get_TAF_for_all_requested_stations(requested_stations)
@@ -464,6 +461,7 @@ def analise_stations(requested_stations, start_time, end_time):
 
         # Combining station data depending on the settings
         combined_station_data = combine_data(
+            settings,
             decoded_TAF_dict["station_threats"],
             decoded_TAF_dict["runways_length"],
             decoded_TAF_dict["appr_data"])
