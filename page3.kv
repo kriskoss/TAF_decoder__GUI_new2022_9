@@ -1,6 +1,6 @@
 <Page3@ScrollView>
     StackLayout:
-        orientation:"lr-tb"
+        orientation:"lr-bt"
         Button_1:
             text: "1st screen"
             on_press:
@@ -17,13 +17,13 @@
             text: "Reload AIRPORTS?"
             on_release: app.call_AIRPORTS_reload()
         Toggle_A:
-            text:'SINGLE STATION COLOR'
+            text:'Search COLOR'
             on_state: app.single_station_color_on(self)
 
 <Button_1@Button>:
-    size_hint:None,None
-    size: '150dp', '40dp'
+    size_hint:1,None
+    height: '30dp'
 <Toggle_A@ToggleButton>:
-    size_hint:None,None
-    size: '150dp', '40dp'
+    size_hint:1,None
+    height: '30dp'
     background_color:'#1b5585'

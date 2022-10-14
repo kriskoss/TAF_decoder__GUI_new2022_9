@@ -381,7 +381,7 @@ def get_TAF_for_all_requested_stations(requested_stations):
         requested_stations_TAFs.append(station_TAF)
 
     # Load complete message
-    print(f'   *** LOADING COMPLETED *** (fpf)  ')
+    # print(f'   *** LOADING COMPLETED *** (fpf)  ')
 
     return  requested_stations_TAFs
 
@@ -434,7 +434,7 @@ def extract_stations_from_g_group(selected_g_group):
     return stations
 
 def analise_stations(settings, requested_stations, start_time, end_time):
-    print(requested_stations, 'fpf.analise_stations')
+
     # Getting TAFs for stations
 
     TAFs = get_TAF_for_all_requested_stations(requested_stations)

@@ -1,10 +1,22 @@
 ### PAGE 2 -- coloured TAFs dispaly ##################################################
 <Page2@BoxLayout>:
     orientation: "vertical"
-    Nav_page2:
+    TopPanel:
+        size_hint:1,None
+        height: '30dp'
 
-    Time_settings:
-        id: Time_settings
+        # TIME LABEL
+        Time_slider__label:
+            text: app.start_ddhh + ' <' + app.current_difference_str+'h> '+ app.end_ddhh
+        Button:
+            text: "Stgs"
+
+            size_hint:None,1
+            width: '60dp'
+
+            on_press:
+                app.root.current="third"
+                app.root.transition.direction = "left"
 
     MyLabel__scroll:
         id: MyLabel__scroll
@@ -12,16 +24,19 @@
             id: MyLabel
 
     StackLayout:
-        size_hint:1,None
-        height:'30dp'
         orientation: "rl-bt"
-
+        spacing: "10dp"
+        size_hint: 1, None,
+        height:'140dp'
         StackButton:
             text: 'next 12h'
-            on_press: app.next_12h(self)
+            on_release: app.next_12h(self)
         StackButton:
+            # RESET
             text: 'Reset'
-            on_press: app.reset_time_all_day()
+            on_release:
+                app.reset_time_all_day()
+
         StackButton:
             # INCREASE time
             text: "+" + str(app.time_range_txt) +"h"
@@ -33,51 +48,48 @@
             on_release: app.update_range("decrease")
 
         StackButton:
-            # OFF, 4,5,6 time rage
-            text:app.single_counter_txt
+            # 1 Slider
+            text:"1 Slider"
             on_release:
-                app.single_slider(self)
-                app.slider_disable()
-                app.hide_slider()
+                app.set_single_slider()
         StackButton:
             # FONT SIZE
             text:'FONT'
             on_press: app.change_font_size()
+        StackButton:
+            text: "APTs"
+            background_color: '#5232a8'
+            on_release:
+                app.root.current ="first"
+                app.root.transition.direction = "right"
+
+        My_ToggleButton:
+            text: "T"
+            on_state:
+                app.show_T_time_toggle(self)
+
+        My_ToggleButton:
+            text:'RWY'
+            on_state: app.print_appr_info__toggle(self)
+
 
         Time_Sliders:
-            opacity:0.4
+            opacity:0.2
 
 
 
 
 <StackButton@Button>:
-    size_hint:None,1
+    size_hint:None,None
     width: '60dp'
+    height:'40dp'
+<My_ToggleButton@ToggleButton>:
+    size_hint:None,None
+    width: '60dp'
+    height:'40dp'
 
-<Nav_page2@BoxLayout>:
-    size_hint:1,None
-    height: '30dp'
+<TopPanel@BoxLayout>:
 
-    Button:
-        text: "APTs"
-        size_hint:None,1
-        width: '120dp'
-        on_release:
-            app.root.current ="first"
-            app.root.transition.direction = "right"
-    # TIME LABEL
-    Time_slider__label:
-        text: app.start_ddhh + ' <-> '+ app.end_ddhh
-
-    Button:
-        text: "Stgs"
-
-        size_hint:None,1
-        width: '60dp'
-
-        on_press:
-            app.root.current="third"
-            app.root.transition.direction = "left"
 
 <Time_slider__label@Label>:
     size_hint: 1,None
@@ -87,14 +99,13 @@
 
 
 <MyLabel__scroll@ScrollView>:
-    do_scroll_x: True
+
     do_scroll_y: True
 
 <MyLabel@Label>:
     id: MyLabel
     markup: True
     font_name: "Resources/Fonts/JetBrainsMono-Regular.ttf"
-
 
     size_hint_y: None
     height: self.texture_size[1]
@@ -105,40 +116,27 @@
     text: app.label__decoded_TAFs
 
 
-
-
-
-
-<Time_settings@BoxLayout>:
-    size_hint:1,None
-    height: "30dp"
-
-
-    ToggleButton:
-        text: "T"
-        on_state:
-            app.show_T_time_toggle(self)
-    ToggleButton:
-        text:'RWY'
-        on_state: app.print_appr_info__toggle(self)
-
-
-<Time_Sliders@BoxLayout>:
+<Time_Sliders@StackLayout>:
+    orientation:"rl-bt"
+    padding:'15dp'
     # SLIDERS CONTAINER
-    orientation:"vertical"
-    size_hint:1,None
-    height:'40dp'
+
+    # START TIME SLIDER
     Time_slider__slider:
-        # START TIME SLIDER
         value: app.value__start_slider
+        on_touch_down: app.record_difference()
         on_value: app.on_slider_value__start(self)
 
+
+    # END TIME SLIDER
     Time_slider__slider:
-        # END TIME SLIDER
+
         value: app.value__end_slider
-        on_value: app.on_slider_value__end(self)
+        on_value:
+            app.on_slider_value__end(self)
+            app.calculating_current_difference()
         disabled: app.slider_variable_boolean
-        opacity:app.hide_slider_value
+        opacity:app.slider_opacity
 
 
 <Time_slider__slider@Slider>:
@@ -147,11 +145,12 @@
     step:1
     size_hint_y: None
     height: app.slider_height
-#    value_track: True
+
     value_track_width:2
     value_track_color: 1,0,0,1
     sensitivity: "all"
     cursor_size: '50dp','50dp'
+
 
 
 

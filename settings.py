@@ -23,13 +23,15 @@ class Settings:
 
         #2022.10.12
         self.print_appr_info=False
+        self.single_slider =False
+        self.single_slider_time_range =5
 
         # SEARCH RESULTS
         self.min_num_of_char =5
             # minumum number of chaacters in SEARCH to activate search for max threat level
             # 5 means OFF
             # 2 is std
-        self.max_num_of_colored =100 # max number of checked results for MAX THREAT LEVEL
+        self.max_num_of_colored =15 # max number of checked results for MAX THREAT LEVEL
         self.SINGLE_station_time_range=12
 
 
