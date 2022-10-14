@@ -18,14 +18,14 @@ class Settings:
         self.print_colouring_logic = False # prints final dictionary/list containing logic when specific wx part is significant in terms of time
         self.no_publication_time_not_an_error = True # If True than TAF pun;ished without publication time is does not generate an error
 
-        self.gap_symbol = ' '
 
 
-        #2022.10.12
+
+        #####2022.10.12
         self.print_appr_info=False
-        self.single_slider =False
-        self.single_slider_time_range =5
 
+        self.single_slider_time_range =5
+        self.on_click__time_jump = 1
         # SEARCH RESULTS
         self.min_num_of_char =5
             # minumum number of chaacters in SEARCH to activate search for max threat level
@@ -35,7 +35,13 @@ class Settings:
         self.SINGLE_station_time_range=12
 
 
-    #######
+        # The way TAFs are displayed
+        self.gap_active = False # Adjust TAF time groups by gap to have time segment in one line
+        self.gap_symbol = ' ' # Valid only if gap_active=True
+        self.time_group_type__symbol_BEFORE = "\n" # VALID ONLY when gap_active=False
+
+    ####### END 2022.10###################
+        ###########
         # Selection if use real time TAF or special case TAFs (check Data_new/TAFs__special_cases.json)
         self.real_time_taf_active = True
             # tafs are uploade real time

@@ -510,7 +510,7 @@ def generate_coloured(key, weather_data, n):
         print('error - 352')
         quit()
 
-def generate_decoded_TAF(BECMG_color, error_added, error_found, grayed_area_right, weather_data, gr_data):
+def generate_decoded_TAF(settings,BECMG_color, error_added, error_found, grayed_area_right, weather_data, gr_data):
     """Final print out of coloured TAF"""
     # IMPORTANT!!! first line of coloured TAF
     airport_time_line = gr_data[0]['groups_strings']
@@ -527,7 +527,12 @@ def generate_decoded_TAF(BECMG_color, error_added, error_found, grayed_area_righ
         gap = weather_data[n]['gap']
         time = weather_data[n]['time_group']
 
-        s = typ + ' ' + time
+        # Introduces line separation after type of the time group (2022.10)
+        if not settings.gap_active:
+            s = f'space.Tdf{typ} newlinee.Tdf{time}' # has to newlinee.Tdf - is a placeholder for new line symbol - it is being escaped otherwise. It is being replaced in the main.py file
+        else:
+            s = f'{typ} {time}'
+
         s = s.replace(grayed_area_right([]), '')
         s = ' '.join(s.split())
         s = gap + s
@@ -589,6 +594,7 @@ def generate_appr_info(TAF, settings):
     for appr_data in avlb_apprs_data:
         if appr_data[0] in TAF:
             end_string = appr_data[1]
+
     if settings.print_all_rwys_data_below_taf:
         if not end_string:
             end_string = '                   ---- no rwy data ---'

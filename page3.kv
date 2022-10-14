@@ -19,7 +19,9 @@
         Toggle_A:
             text:'Search COLOR'
             on_state: app.single_station_color_on(self)
-
+        Toggle_A:
+            text: "Gap active"
+            on_state: app.toggle_gap_active(self)
 <Button_1@Button>:
     size_hint:1,None
     height: '30dp'

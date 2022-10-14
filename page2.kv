@@ -29,52 +29,51 @@
         size_hint: 1, None,
         height:'140dp'
         StackButton:
-            text: '16h'
-            on_release: app.next_nh(16,self)
-
-
-        StackButton:
-            text: '12h'
-            on_release: app.next_nh(12,self)
-
-        StackButton:
-            text: '8h'
-            on_release: app.next_nh(8,self)
-        StackButton:
-            text: '4h'
-            on_release: app.next_nh(4,self)
-
-        StackButton:
-            # RESET
-            text: 'Reset'
-            on_release:
-                app.reset_time_all_day()
-
-        StackButton:
-            # INCREASE time
-            text: "+" + str(app.time_range_txt) +"h"
-            on_release: app.update_range("increase")
-
-        StackButton:
-            # REDUCE time
-            text: "-" + str(app.time_range_txt) +"h"
-            on_release: app.update_range("decrease")
-
-        StackButton:
-            # 1 Slider
-            text:"1 Slider"
-            on_release:
-                app.set_single_slider()
-        StackButton:
-            # FONT SIZE
-            text:'FONT'
-            on_press: app.change_font_size()
-        StackButton:
             text: "APTs"
             background_color: '#5232a8'
             on_release:
                 app.root.current ="first"
                 app.root.transition.direction = "right"
+
+        StackButton:
+            # FONT SIZE
+            text:'FONT'
+            on_press: app.change_font_size()
+
+        StackButton:
+            # RESET
+            text: 'All'
+            on_release:
+                app.reset_time_all_day()
+
+        StackButton:
+            text: '16h'
+            on_release: app.next_nh(16)
+
+
+        StackButton:
+            text: '12h'
+            on_release: app.next_nh(12)
+
+        StackButton:
+            text: '8h'
+            on_release: app.next_nh(8)
+        StackButton:
+            text: '4h'
+            on_release: app.next_nh(4)
+
+
+        StackButton:
+            # INCREASE time
+            text: "+"
+            on_release: app.update_range("increase")
+
+        StackButton:
+            # REDUCE time
+            text: "-"
+            on_release: app.update_range("decrease")
+
+
 
         My_ToggleButton:
             text: "T"

@@ -405,15 +405,17 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
         elif d == 'P40':
             weather_data[n]['group_type_long'] = 'PROB40'
         elif d == 'FM':
-            weather_data[n]['group_type_long'] = '_fm'
+            weather_data[n]['group_type_long'] = 'FM'
             weather_data[n]['time_group'] += ' '
             """ adding space at the end of time_group if group tyep is FM"""
         else:
             weather_data[n]['group_type_long'] = 'ukn_1'
 
-        weather_data[n]['gap'] = settings.gap_symbol * \
-                                 (13 - len(weather_data[n]['group_type_long']))
-
+        if settings.gap_active:
+            weather_data[n]['gap'] = settings.gap_symbol * \
+                                     (13 - len(weather_data[n]['group_type_long']))
+        else:
+            weather_data[n]['gap']= settings.time_group_type__symbol_BEFORE
     # printing weather for selected time
     # creating function based on above which creates
 
@@ -586,7 +588,7 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
     decoded_TAF_dict = {
         "station_name": station_name[0],
         "selected_time_info":Tdf.generate_selected_time_info(significant_time, weather_data_copy, colored_station_name, start_hour, end_hour, TAF),
-        "decoded_TAF":Tdf.generate_decoded_TAF(BECMG_color, error_added, error_found, grayed_area_right, weather_data, gr_data),
+        "decoded_TAF":Tdf.generate_decoded_TAF(settings,BECMG_color, error_added, error_found, grayed_area_right, weather_data, gr_data),
         "runways_length":Tdf.avaliable_rwys(apt_code, settings),
         "station_threats":Tdf.generate_station_threats(all_lines, settings),
         "appr_data":Tdf.generate_appr_info(TAF, settings),
