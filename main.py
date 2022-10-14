@@ -570,13 +570,15 @@ class TheTAFApp(App):
                 widget.text = ''
                 self.search_hint= 'No TAF for such station'
 
-    def next_12h(self,widget):
-
+    def next_nh(self, n, widget):
+        # 12h, 4h
         settings.single_slider = False
         self.set_single_slider()
 
         self.value__start_slider = str(self.time_now.strftime("%H"))
-        self.value__end_slider = str(int(self.value__start_slider) + 12)
+        self.value__end_slider = str(int(self.value__start_slider) + n)
+
+
 
     ### SETTINGS BINDING
     def single_station_color_on(self, widget):

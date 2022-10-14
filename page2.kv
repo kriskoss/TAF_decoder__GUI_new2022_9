@@ -29,8 +29,21 @@
         size_hint: 1, None,
         height:'140dp'
         StackButton:
-            text: 'next 12h'
-            on_release: app.next_12h(self)
+            text: '16h'
+            on_release: app.next_nh(16,self)
+
+
+        StackButton:
+            text: '12h'
+            on_release: app.next_nh(12,self)
+
+        StackButton:
+            text: '8h'
+            on_release: app.next_nh(8,self)
+        StackButton:
+            text: '4h'
+            on_release: app.next_nh(4,self)
+
         StackButton:
             # RESET
             text: 'Reset'
@@ -81,8 +94,9 @@
 
 <StackButton@Button>:
     size_hint:None,None
-    width: '60dp'
+    width: '50dp'
     height:'40dp'
+
 <My_ToggleButton@ToggleButton>:
     size_hint:None,None
     width: '60dp'
