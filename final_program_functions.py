@@ -27,7 +27,7 @@ def combine_data(settings,station_threats, runways_length, appr_data):
     if settings.rwy_data == 0:
         station_threat_level= station_threats
     elif settings.rwy_data == 1:
-        station_threat_level= station_threats + '\t\t' + runways_length
+        station_threat_level= station_threats + '\n   ' + runways_length +'\n'
     elif settings.rwy_data == 2:
         station_threat_level= station_threats + '\n\n' + appr_data + '\n'
     return station_threat_level

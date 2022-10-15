@@ -372,7 +372,7 @@ def     generate_station_threats(all_lines,settings):
 
 # add new functions here
 def prLightGray(skk):
-    return "\033[1;90;40m" + str(skk)
+    return f'[color=545454]{skk}[/color]'
 
 def avaliable_rwys(apt_code, settings):
     """ CORE FUNCTION - adds runway idents and runway length to the final data"""
@@ -479,7 +479,8 @@ def avaliable_rwys(apt_code, settings):
                 f"{le_name}|{he_name} {le_len_str}({le_width}){he_len_str}")
 
     ## COMBINING RUNWAY INFO INTO ONE STRING
-    runways_info_for_display = '   '.join(runway_info_for_display)
+    runways_info_for_display = '\n   '.join(runway_info_for_display)
+
     return runways_info_for_display
 
 def load_avlb_apprs_datra():
