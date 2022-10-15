@@ -358,8 +358,10 @@ def add_new_group(answer_split):
 
         ### RETURNING MESSAGES to be used in the TERMINAL LABEL in the KIVY APP
         if not g_group_found:
+
             return f"Added group: {g_key} ({', '.join(answer_split)})."
         else:
+
             return f'{g_key} existed in the database!' \
                    f'{g_group__before_update} replaced with: {answer_split}'
 
@@ -480,6 +482,28 @@ def analise_stations(settings, requested_stations, start_time, end_time):
 
     return [decoded_TAFs_data_list, combined_stations_threat_level]
 
+import datetime
+def store_reload_time():
+    reload_time = datetime.datetime.utcnow()
+    print("Not finished (fpf)", reload_time)
+    # path = "Data_new/last_reload_time.json"
+    # with open(path, "w") as f_obj:
+    #     json.dump(reload_time, f_obj)
+
+import pickle
+def store_requested_station_or_group(settings, request):
+    path = "Data_new/last_requested_station_or_group.json"
+
+    # https://stackoverflow.com/questions/27745500/how-to-save-a-list-to-a-file-and-read-it-as-a-list-type
+
+    # LOADS A LIST
+    with open(path, "rb") as fp:  # Unpickling
+        last_requests_list = pickle.load(fp)[0:settings.num_of_last_reqested_stations_or_groups]
+        last_requests_list.insert(0,request)
+
+    # STORES A LIST
+    with open(path, "wb") as fp:  # Pickling
+        pickle.dump(last_requests_list, fp)
 
 # Extracting data from the the list of dictionaries
 

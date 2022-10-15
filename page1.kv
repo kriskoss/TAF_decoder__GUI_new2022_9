@@ -6,20 +6,25 @@
         size_hint: 1, None
         height: '30dp'
         font_size: "15dp"
-    Add_Group:
-        id: id__Add_Group
+
     Search__container:
         Search_textInput:
             id:Search_textInput
 
         Button:
-            on_release: Search_textInput.text=''
+            on_release:
+                Search_textInput.text=''
+                app.search_hint="Search"
             text: "CLR"
             size_hint:None,1
             width: '60dp'
-
-    TAF_groups__scroll:
-        id: id__TAF_groups__scroll
+    BoxLayout:
+        Last_requests__scroll:
+            size_hint:None,1
+            width: '90dp'
+            id:id__Last_requests__scroll
+        TAF_groups__scroll:
+            id: id__TAF_groups__scroll
 
 <Search__container@BoxLayout>:
     size_hint: 1, None
@@ -31,13 +36,14 @@
         text: "Reload TAFs"
         on_release: app.call_TAFs_reload()
         background_color: (1,0.5,1,1)
+        font_size:"20dp"
 
 
 <Nav_page1@BoxLayout>:
     size_hint:1,None
     height:'30dp'
     Button:
-        text: "TAFs"
+        text: "Go to TAFs page"
 
         on_press:
             app.root.current="second"
@@ -50,11 +56,18 @@
             app.root.current="third"
             app.root.transition.direction = "left"
 
+    Button:
+        text: "Add group"
+        size_hint:None,1
+        width: '80dp'
+        on_press:
+            app.root.current="fourth"
+            app.root.transition.direction = "left"
+
+
 <Search_textInput@TextInput>:
-    size_hint: 1, None
-    height: '30dp'
     hint_text: app.search_hint
-    font_size:"15dp"
+    font_size:"25dp"
     halign: "center"
     multiline: False
     on_text_validate: app.load_single_TAF(self)
@@ -85,36 +98,22 @@
         height:  self.minimum_height
         # "left-right, right-left, top-bottom, bottom-top"
         orientation: "lr-tb"
-        padding:"20dp",
+        spacing:"5dp",
+
+<Last_requests__scroll@ScrollView>
+    Last_requests:
+        id: id__Last_requests
+        size_hint: 1, None
+        height:  self.minimum_height
+        # "left-right, right-left, top-bottom, bottom-top"
+        orientation: "lr-tb"
         spacing:"5dp",
 
 <TAF_groups_Stack>
     orientation: "rl-tb"
 
 
-<Add_Group>:
-    #Add_New_Airport
 
-    size_hint:1,None
-    height: "80dp"
-    orientation: "vertical"
-    size_hint_x:0.9
-    pos_hint:{"center_x": 0.5}
-    TextInput:
-        id: my_g_group_input
-        multiline: False
-        on_text_validate: root.on_text_validate(self)
-        hint_text: "Write new group: XXXX XXXX XXXX"
-        halign:"center"
-
-    Button:
-        text: "Store: " +root.new_group_str
-        on_press: root.call_add_new_group()
-
-
-    Label:
-        color: (0.6,0.5,0,1)
-        text: root.terminal_answer
 
 
 

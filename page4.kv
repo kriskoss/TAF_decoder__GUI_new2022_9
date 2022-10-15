@@ -1,0 +1,53 @@
+### ADD NEW AIRPORT page
+<Page4@StackLayout>
+#    orientation: "vertical"
+    Button:
+        size_hint:1,None
+        height: "40dp"
+
+        text: "Go to APTs page "
+        background_color: '#5232a8'
+        on_release:
+            app.root.current ="first"
+            app.root.transition.direction = "right"
+    Add_Group:
+        id: id__Add_Group
+
+
+
+<Add_Group>:
+    #Add_New_Airport
+
+    size_hint:1,None
+    height: "160dp"
+    orientation: "vertical"
+    size_hint_x:0.9
+#    pos_hint:{"center_x": 0.5}
+    TextInput:
+        size_hint:1,None
+        height: "100dp"
+        id: my_g_group_input
+        multiline: True
+        do_wrap:True
+        on_text: root.on_text_validate(self)
+        hint_text: "Write new group: XXXX XXXX XXXX"
+        font_size: "20dp"
+        halign:"center"
+
+
+    Button:
+        text: "Store"
+        on_press: root.call_add_new_group()
+        size_hint:1,None
+        height: "40dp"
+        font_size: "25dp"
+
+
+    Label:
+        color: (0.6,0.5,0,1)
+        text: root.terminal_answer
+        size_hint_y: None
+        text_size: self.width, None
+        height: self.texture_size[1]
+        halign: "center"
+        font_size: "25dp"

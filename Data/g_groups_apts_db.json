@@ -7,21 +7,7 @@
     "EPPO",
     "EPGD"
   ],
-  "gEPWAf": [
-    "EPWA",
-    "EPLL",
-    "EPKT",
-    "EPWR",
-    "EPPO",
-    "EPGD",
-    "eplb",
-    "epkk",
-    "eprz",
-    "lkpr",
-    "epsc",
-    "epby",
-    "epmo"
-  ],
+
   "gEGGW": [
     "eggw",
     "egss",
@@ -162,9 +148,9 @@
     "dddd"
   ],
   "gdddd": [
-    "dddd",
-    "ffff",
-    "gggg"
+    "DDDD",
+    "DDDD",
+    "DDDD"
   ],
   "gepsc": [
     "epsc",
@@ -385,7 +371,6 @@
     "LIEE",
     "LIRP"
   ],
-
   "gZZZZ": [
     "ZZZZ"
   ],

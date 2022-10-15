@@ -32,8 +32,9 @@ class Settings:
             # 5 means OFF
             # 2 is std
         self.max_num_of_colored =15 # max number of checked results for MAX THREAT LEVEL
-        self.SINGLE_station_time_range=12
+        self.SINGLE_station_time_range=12 # relevant time (hours) of SIGLE STATION in search resuls colouring
 
+        self.num_of_last_reqested_stations_or_groups = 10
 
         # The way TAFs are displayed
         self.gap_active = False # Adjust TAF time groups by gap to have time segment in one line

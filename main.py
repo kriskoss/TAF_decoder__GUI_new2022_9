@@ -3,7 +3,7 @@ import json
 import requests
 import pprint
 import datetime
-
+import pickle
 
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
@@ -22,6 +22,7 @@ from kivy.lang import Builder
 Builder.load_file('page1.kv')
 Builder.load_file('page2.kv')
 Builder.load_file('page3.kv')
+Builder.load_file('page4.kv')
 # Builder.load_file('TheTAF.kv')
 
 ## Kivy modules
@@ -32,6 +33,8 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.stacklayout import StackLayout
 
+
+
 class TAF_groups_Stack(StackLayout):
 
     def __init__(self, **kwargs):  # __init__ is the constructor, ** kwargs is required for internal working of KIVY
@@ -41,6 +44,11 @@ class TAF_groups_Stack(StackLayout):
         app.create_g_group_buttons(self)
         app.create_SINGLE_station_buttons(self)
 
+class Last_requests(StackLayout):
+    def __init__(self, **kwargs):
+        super(Last_requests, self).__init__(**kwargs)
+        app.create_last_requests_buttons(self)
+
 class Add_Group(BoxLayout):
     """ Methods used to Add and Edit new g_group"""
 
@@ -49,11 +57,12 @@ class Add_Group(BoxLayout):
 
     time_now = datetime.datetime.utcnow()
 
-    terminal_answer=StringProperty(time_now.strftime("%H:%M")+'UTC +' + str(settings.SINGLE_station_time_range) + 'h for THR LEVEL' )
+    terminal_answer=StringProperty('')
 
     def on_text_validate(self,widget):
         # Storing ANY input as UPPERCASE string
         self.new_group_str = widget.text.upper()
+
 
     def call_add_new_group(self):
         answer_split = self.new_group_str.split()
@@ -103,10 +112,11 @@ class TheTAFApp(App):
     TAFs_validity__earliers_start_txt = StringProperty('7') # Initial sting inside has to be number
     TAFs_validity__latest_end_txt = StringProperty('12')    # Initial sting inside has to be number
 
+    time_label_txt = terminal_answer=StringProperty(time_now.strftime("%H:%M")+'UTC +' + str(settings.SINGLE_station_time_range) + 'h for THR LEVEL' )
+
     search_hint = StringProperty("Search")
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
 
         # YouTube reference:  https://stackoverflow.com/questions/73079260/kivy-how-to-access-global-variables-in-kv-file
         # Initializing global variables --- (__init__ above required!!)
@@ -122,6 +132,17 @@ class TheTAFApp(App):
         self.update_scroll_height()
 
     def update_TAFs(self, stations_, start, end):
+
+        ### RECREATING LAST REQUESTED airports list
+        # GETTING AN ITEM by ID!!!
+        id__Last_requests = app.root.ids.id__Page1.ids.id__Last_requests__scroll.ids.id__Last_requests  #### DIRECT PATH!!!!!
+
+        # CLEAR LAST REQUESTED buttons
+        id__Last_requests.clear_widgets()
+
+        # RECREATING the LAST REQUESTED buttons
+        app.create_last_requests_buttons(id__Last_requests)
+        ### END
 
         decoded_TAFs_data_list, combined_stations_threat_level \
             = fpf.analise_stations(settings, stations_,
@@ -179,7 +200,12 @@ class TheTAFApp(App):
         self.TAFs_validity__earliers_start_txt = str(min(TAFs_validity_start_times))
         self.TAFs_validity__latest_end_txt = str(max(TAFs_validity_end_times))
 
+
+
+
         return max_threat_level_at_airports
+
+
     initial_difference_str = StringProperty("0")
     current_difference_str = StringProperty("993")
     def record_difference(self):
@@ -321,6 +347,7 @@ class TheTAFApp(App):
 
     def call_TAFs_reload(self):
         fpf.download_taf_database(parse)
+        fpf.store_reload_time()
 
     def show_T_time_toggle(self, widget):
         # Toggle to show TIME range of any wx at or above CAUTION level
@@ -343,7 +370,7 @@ class TheTAFApp(App):
             app.value__end_slider)
         print(settings.print_type, settings.print_time_group, 'main')
         self.update_TAFs_display_labels()
-        # self.label__decoded_TAFs = 'affafafa'
+
 
     def print_appr_info__toggle(self, widget):
         if widget.state == "normal":
@@ -463,11 +490,65 @@ class TheTAFApp(App):
                 # Adding buttons to the layout
                 widget.add_widget(btn)
 
+    def create_last_requests_buttons(self,widget):
+        path = "Data_new/last_requested_station_or_group.json"
+        with open(path, "rb") as fp:  # Unpickling
+            last_requests_list = pickle.load(fp)[0:settings.num_of_last_reqested_stations_or_groups]
+
+            # Spliting into SINGLE STATION and g_group
+            print(last_requests_list, 'main.ffff')
+            for item in last_requests_list:
+                print(item, 'main.ffff')
+                if len(item) == 4:
+                    # SINGLE STATION
+                    btn = Button(
+                        text=item.upper(),
+                        size_hint=(1, None),
+                        height=dp(40),
+                        # width=dp(100),
+                        font_name="Resources/Fonts/JetBrainsMono-Regular.ttf",
+                        font_size='20dp',
+                        background_color="#7ca000"
+
+                    )
+
+                    widget.ids[item] = btn  # CORRECT WAY based on the above
+
+                    # BINDING event with method - VERY IMPORTANT!
+                    btn.bind(on_press=self.load_single_TAF)
+
+                    # Adding buttons to the layout
+                    widget.add_widget(btn)
+
+                else:
+                    # g_group
+                    btn = Button(
+                        text=f'{item[0].lower() + item[1:].upper()}',
+                        size_hint=(1, None),
+                        height=dp(40),
+                        font_name="Resources/Fonts/JetBrainsMono-Regular.ttf",
+                        font_size='20dp',
+                        background_color = "#7ca4e6"
+                    )
+
+                    # ADDING buttons IDs dictionary
+                    # https://stackoverflow.com/questions/50099151/python-how-to-set-id-of-button
+                    widget.ids[item] = btn  # CORRECT WAY based on the above
+
+                    # BINDING event with method - VERY IMPORTANT!
+                    btn.bind(on_press=self.on_press_g_group)
+
+                    # Adding buttons to the layout
+                    widget.add_widget(btn)
 
     def on_press_g_group(self, instance):
         """Defines what happens when any g_group button is being pressed"""
         # Updating app variable - VERY IMPORTANT!
         app.selected_g_group = instance.text
+
+        # Storing selected g_group key
+        fpf.store_requested_station_or_group(settings, app.selected_g_group)
+
         app.requested_stations = fpf.extract_stations_from_g_group(app.selected_g_group)
 
         print(app.selected_g_group, app.requested_stations)
@@ -532,12 +613,19 @@ class TheTAFApp(App):
             tafs_cleaned_dict = json.load(f_obj)
         # Checking if TAF in database
         if input_text.upper() in tafs_cleaned_dict['station_id']:
-            self.requested_stations = [input_text]
+            self.requested_stations = [input_text] ### AAA in
+
+            # STORING LAST REQUESTED AIRPORT
+            fpf.store_requested_station_or_group(settings, self.requested_stations[0])  # AAA out  - convertis list into string
+
+            # UPDATING TAFs DISPLAY
             self.generate_TAFs_at_page2_and_show()
+
+            #Stores the lase SINGLE STATION selected
+
         else:
 
             if not len(input_text) ==4:
-                print('main.saff')
                 widget.text = ''
                 self.search_hint ='Has to be 4 letter/numbers'
             else:
