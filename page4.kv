@@ -1,6 +1,9 @@
 ### ADD NEW AIRPORT page
 <Page4@StackLayout>
 #    orientation: "vertical"
+
+    Add_Group:
+        id: id__Add_Group
     Button:
         size_hint:1,None
         height: "40dp"
@@ -10,9 +13,6 @@
         on_release:
             app.root.current ="first"
             app.root.transition.direction = "right"
-    Add_Group:
-        id: id__Add_Group
-
 
 
 <Add_Group>:
@@ -21,8 +21,18 @@
     size_hint:1,None
     height: "160dp"
     orientation: "vertical"
-    size_hint_x:0.9
+
 #    pos_hint:{"center_x": 0.5}
+    Label:
+        color: (0.6,0.5,0,1)
+        text: root.terminal_answer
+#        size_hint_y: None
+#        text_size: self.width, None
+        height: '200dp'
+        halign: "center"
+        font_size: "20dp"
+
+
     TextInput:
         size_hint:1,None
         height: "100dp"
@@ -43,11 +53,3 @@
         font_size: "25dp"
 
 
-    Label:
-        color: (0.6,0.5,0,1)
-        text: root.terminal_answer
-        size_hint_y: None
-        text_size: self.width, None
-        height: self.texture_size[1]
-        halign: "center"
-        font_size: "25dp"

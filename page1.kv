@@ -4,8 +4,8 @@
     Top_Bar:
         id: id__Top_Bar
         size_hint: 1, None
-        height: '30dp'
-        font_size: "15dp"
+        height: '40dp'
+        font_size: "20dp"
 
     Search__container:
         Search_textInput:
@@ -50,16 +50,12 @@
             app.root.transition.direction = "left"
     Button:
         text: "Settings"
-        size_hint:None,1
-        width: '80dp'
         on_press:
             app.root.current="third"
             app.root.transition.direction = "left"
 
     Button:
         text: "Add group"
-        size_hint:None,1
-        width: '80dp'
         on_press:
             app.root.current="fourth"
             app.root.transition.direction = "left"

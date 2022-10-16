@@ -127,6 +127,8 @@ class TheTAFApp(App):
         app = self
                 ### END of youtube reference
         self.g_groups_db = self.load_g_groups_db()
+        self.call_TAFs_reload()
+
     def update_FontSize_slider_value(self,widget):
         self.fontSize_slider_value = f'{int(widget.value/2)}sp'
         self.update_scroll_height()
@@ -572,11 +574,16 @@ class TheTAFApp(App):
         self.root.current = "second"
         self.root.transition.direction = "left"
 
-        # Resets parameters
+        # Resets parameters - setting inital START and END times
         self.single_counter= 0
         self.period_counter = int(self.time_now.strftime("%H"))
         self.value__start_slider = self.time_now.strftime("%H")
-        self.value__end_slider = self.TAFs_validity__latest_end_txt
+
+        # If time now exeeds validity end time then we set the end period as the current time
+        if int(self.time_now.strftime("%H")) > int(self.TAFs_validity__latest_end_txt):
+            self.value__end_slider = self.time_now.strftime("%H")
+        else:
+            self.value__end_slider = self.TAFs_validity__latest_end_txt
 
 
     slider_variable_boolean = BooleanProperty(False)
