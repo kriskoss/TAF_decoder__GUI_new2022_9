@@ -1,8 +1,13 @@
 ## General use modules
 import json
+import math
+
 import requests
 import pprint
 import datetime
+# For live clock
+from kivy.clock import Clock
+
 import pickle
 
 from kivy.uix.label import Label
@@ -115,6 +120,38 @@ class TheTAFApp(App):
     time_label_txt = terminal_answer=StringProperty(time_now.strftime("%H:%M")+'UTC +' + str(settings.SINGLE_station_time_range) + 'h for THR LEVEL' )
 
     search_hint = StringProperty("Search")
+
+    current_time_str = StringProperty("current_time_str")
+    # Initializng datetime
+    utc_now = datetime.datetime.utcnow()
+    def build(self):
+        # Schedule the self.update_clock function to be called once a second
+            # REFERENCE: https://stackoverflow.com/questions/54426193/how-to-have-an-updating-time-in-kivy
+        Clock.schedule_interval(self.update_clock, 1)
+
+    # Initializig
+    time_delta_minutes = StringProperty('-1')
+    reload_TAFs_msg = StringProperty('reload_TAFs_msg')
+    last_reload_failed = False
+    def update_clock(self, *args):
+        # Called once a second using the kivy.clock module
+        self.utc_now = datetime.datetime.utcnow()
+        self.current_time_str = self.utc_now.strftime('%H:%M:%S')
+
+        # Loading LAST UPDATE TIME
+        path = "Data_new/last_reload_time.json"
+        with open(path) as f_obj:
+            last_update_time = json.load(f_obj)
+            # create DATETIME object from STRING of the following format
+            last_update__object = datetime.datetime.strptime(last_update_time, "%H:%M'%S UTC  %d-%m-%Y")
+
+            time_delta__object = self.utc_now - last_update__object
+
+            self.time_delta_minutes = str(math.floor(time_delta__object.total_seconds() / 60))
+
+            self.reload_TAFs_msg = f'Last reload  {last_update__object.strftime("%H:%M UTC ,%d-%m-%Y ")},  {fpf.min_to_hours_and_days(self.time_delta_minutes)} ago'
+            if self.last_reload_failed:
+                self.reload_TAFs_msg = f'Reload FAILED. Last reload {fpf.min_to_hours_and_days(self.time_delta_minutes)} ago'
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -127,10 +164,13 @@ class TheTAFApp(App):
         app = self
                 ### END of youtube reference
         self.g_groups_db = self.load_g_groups_db()
+
         self.call_TAFs_reload()
+
 
     def update_FontSize_slider_value(self,widget):
         self.fontSize_slider_value = f'{int(widget.value/2)}sp'
+
         self.update_scroll_height()
 
     def update_TAFs(self, stations_, start, end):
@@ -314,7 +354,7 @@ class TheTAFApp(App):
 
 
 
-    period_counter= int(datetime.datetime.utcnow().strftime("%H"))
+    period_counter= int(utc_now.strftime("%H"))
     def update_range(self,direction):
         """ Changes the value of the period that wil be selected at each BUTTON click"""
         self.record_difference()
@@ -327,8 +367,8 @@ class TheTAFApp(App):
 
         # Resets counter when the max value reached
         if self.period_counter > int(self.TAFs_validity__latest_end_txt) - int(self.initial_difference_str):
-            self.period_counter = int(datetime.datetime.utcnow().strftime("%H"))
-        if self.period_counter < int(datetime.datetime.utcnow().strftime("%H")):
+            self.period_counter = int(self.utc_now.strftime("%H"))
+        if self.period_counter < int(self.utc_now.strftime("%H")):
             self.period_counter = int(self.TAFs_validity__latest_end_txt)-int(self.initial_difference_str)
         # Updates BUTTON description
         self.value__start_slider = str(self.period_counter)
@@ -348,8 +388,34 @@ class TheTAFApp(App):
 
 
     def call_TAFs_reload(self):
-        fpf.download_taf_database(parse)
-        fpf.store_reload_time()
+
+        # TRYING to UPDATE TAFs
+        try:
+            fpf.download_taf_database(parse)
+
+        # UPDATE FAILED
+        except:
+            # set FLAG to TRUE
+            self.last_reload_failed = True
+            print(" ########## UPDATE FAILED ############")
+
+        # UPDATE SUCCESSFUL
+        else:
+            # set FLAG to FALSE
+            self.last_reload_failed =False
+
+            # create STRING from DATETIME object using the following format
+            utc_now = datetime.datetime.utcnow()
+            reload_time = utc_now.strftime("%H:%M'%S UTC  %d-%m-%Y")
+
+            # Saving last update time
+            path = "Data_new/last_reload_time.json"
+            with open(path, "w") as f_obj:
+                json.dump(reload_time, f_obj)
+
+
+
+
 
     def show_T_time_toggle(self, widget):
         # Toggle to show TIME range of any wx at or above CAUTION level
@@ -584,6 +650,7 @@ class TheTAFApp(App):
             self.value__end_slider = self.time_now.strftime("%H")
         else:
             self.value__end_slider = self.TAFs_validity__latest_end_txt
+
 
 
     slider_variable_boolean = BooleanProperty(False)

@@ -4,7 +4,7 @@
     Top_Bar:
         id: id__Top_Bar
         size_hint: 1, None
-        height: '40dp'
+        height: '60dp'
         font_size: "20dp"
 
     Search__container:
@@ -18,6 +18,11 @@
             text: "CLR"
             size_hint:None,1
             width: '60dp'
+        ToggleButton:
+            text:'COLOR ON'
+            on_state: app.single_station_color_on(self)
+            size_hint:None,1
+            width: '100dp'
     BoxLayout:
         Last_requests__scroll:
             size_hint:None,1
@@ -32,12 +37,17 @@
 
 ####
 <Top_Bar@BoxLayout>
+    orientation:'vertical'
     Button:
         text: "Reload TAFs"
+
         on_release: app.call_TAFs_reload()
         background_color: (1,0.5,1,1)
         font_size:"20dp"
 
+    Label:
+        text: app.reload_TAFs_msg
+        font_size:"14dp"
 
 <Nav_page1@BoxLayout>:
     size_hint:1,None

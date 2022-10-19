@@ -482,13 +482,8 @@ def analise_stations(settings, requested_stations, start_time, end_time):
 
     return [decoded_TAFs_data_list, combined_stations_threat_level]
 
-import datetime
-def store_reload_time():
-    reload_time = datetime.datetime.utcnow()
-    print("Not finished (fpf)", reload_time)
-    # path = "Data_new/last_reload_time.json"
-    # with open(path, "w") as f_obj:
-    #     json.dump(reload_time, f_obj)
+
+
 
 import pickle
 def store_requested_station_or_group(settings, request):
@@ -507,3 +502,24 @@ def store_requested_station_or_group(settings, request):
 
 # Extracting data from the the list of dictionaries
 
+import math
+def min_to_hours_and_days(min):
+    """Converts minutes to hours and days if necessary. RETURNS STING"""
+    min = int(min)
+    if 0<=min<60:
+        return f'{min} min'
+    elif min>60:
+        hours = math.floor(min/60)
+        min = min%60
+        if hours<24:
+            if hours == 1:
+                return f'{hours} hour'
+            else:
+                return f'{hours} hours'
+        else:
+            days = math.floor(hours/24)
+            hours= hours%24
+            if days == 1:
+                return f'{days} day'
+            else:
+                return f'{days} days'
