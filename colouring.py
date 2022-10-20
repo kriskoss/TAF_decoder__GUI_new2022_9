@@ -17,7 +17,7 @@ def prRed(skk):         return f'[color=d6321c]{skk}[/color]'
 def prYellow(skk):      return f'[color=d9a930]{skk}[/color]'
 def prLightPurple(skk): return f'[color=ff75fd]{skk}[/color]'
 def prPurple(skk):      return f'[color=8f068d]{skk}[/color]'
-def prUnderlined(skk):  return f'[u]{skk}[/u]'
+def prUnderlined(skk):  return f'[color=e8f1fc]{skk}[/color]'
 def prRedUnderlined(skk):  return f'[u][color=d6321c]{skk}[/color][/u]'
 def prGreen(skk):         return f'[color=117841]{skk}[/color]'
 def colour_Inverse(string):         return f'[i][b]{string}[/b][/i]'
@@ -189,6 +189,7 @@ class SignificantColouring:
             if 'NSC' in cloud:
                 final_cloud.append(cloud)
                 thr_lvl.append([green,cloud,clouds_ref])
+
 
             elif cloud[0:2] == 'VV':
                 if cloud[2:5] == '///':

@@ -366,7 +366,7 @@ def add_new_group(answer_split):
                    f'{g_group__before_update} replaced with: {answer_split}'
 
 # Button functions - get decoded TAF for selected group
-def get_TAF_for_all_requested_stations(requested_stations):
+def get_TAF_for_all_requested_stations(settings,requested_stations):
 
     """downloads valid TAFs for airports in all_airport list"""
     # Initializing list of TAFs for requested stations
@@ -376,7 +376,7 @@ def get_TAF_for_all_requested_stations(requested_stations):
     for station in requested_stations:
 
         # Getting TAF for the station
-        station_TAF = get_single_stations_TAF(station)
+        station_TAF = get_single_stations_TAF(settings,station)
 
 
         # Appending TAF
@@ -387,11 +387,16 @@ def get_TAF_for_all_requested_stations(requested_stations):
 
     return  requested_stations_TAFs
 
-def get_single_stations_TAF(station):
+def get_single_stations_TAF(settings,station):
     """Gets raw TAF string from TAFs json DATABASE for single station"""
     #loading json object conaining station_id and raw_text TAF
 
     path= "Data_new/api__tafs_cleaned.json"
+
+    if settings.testing_decoder:
+        path = "Data_new/For testing/api__tafs_cleaned.json"
+        print("LOADING SPECIAL CASES!! fpf.rrrrrrrr")
+
     with open(path,'r') as f_obj:
         tafs_cleaned_dict = json.load(f_obj)
 
@@ -439,7 +444,7 @@ def analise_stations(settings, requested_stations, start_time, end_time):
 
     # Getting TAFs for stations
 
-    TAFs = get_TAF_for_all_requested_stations(requested_stations)
+    TAFs = get_TAF_for_all_requested_stations(settings,requested_stations)
 
     # FOR DEVELOPMNET ONLY - priniting TAFs
     # for TAF in TAFs:

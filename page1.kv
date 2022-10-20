@@ -23,6 +23,12 @@
             on_state: app.single_station_color_on(self)
             size_hint:None,1
             width: '100dp'
+
+        ToggleButton:
+            text:'TESTING'
+            on_state: app.testing_tafs(self)
+            size_hint:None,1
+            width: '70dp'
     BoxLayout:
         Last_requests__scroll:
             size_hint:None,1

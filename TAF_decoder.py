@@ -204,7 +204,7 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
 
     ### FUNCTION CALL ###
     weather_data = Tdf.creating_weather_data_list(settings,gr_data, type_of_group, reference, score)
-
+#["vis"]
     ref('III')
     if settings.printing_active:
         print(prBoxed('weather_data'))

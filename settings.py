@@ -41,6 +41,7 @@ class Settings:
         self.gap_symbol = ' ' # Valid only if gap_active=True
         self.time_group_type__symbol_BEFORE = "\n" # VALID ONLY when gap_active=False
 
+        self.testing_decoder = False
     ####### END 2022.10###################
         ###########
         # Selection if use real time TAF or special case TAFs (check Data_new/TAFs__special_cases.json)
@@ -57,8 +58,8 @@ class Settings:
 
 
         ### Threat weather printing settings
-        self.print_in_one_line = True
-        self.print_in_multiple_lines = False
+        self.print_in_one_line = False
+        self.print_in_multiple_lines = True #2022.10
         self.print_grayed_out = False
 
         self.print_type = False

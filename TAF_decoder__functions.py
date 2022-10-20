@@ -202,11 +202,16 @@ def create_list_of_thr_lvl_weather(thr_lvl_data, settings,print_type, print_time
                 quit()
         elif n > 0:
             for k in thr_lvl_data[n].keys():
+
                 data_for_key = thr_lvl_data[n][k]
                 #adding data to one_line depending if relevant and depending which is line threat level
-                if (k == 'type' and print_time_group) or (k == 'time_group' and print_type):
+                
+
+                if k == 'type' and print_time_group:
                     if data_for_key[1] == 'not-relevant' and settings.print_grayed_out:
                         one_line.append(data_for_key[1])
+
+                    ## GENERATING TIME INFO REGARDING TEMPO, BCMG etc in THRET LEVEL VIEW
                     elif data_for_key[1] != 'not-relevant':
                         if settings.print_severe and data_for_key[0] == 'severe':
                             one_line.append(data_for_key[1])
@@ -216,6 +221,23 @@ def create_list_of_thr_lvl_weather(thr_lvl_data, settings,print_type, print_time
                             one_line.append(data_for_key[1])
                         if settings.print_green and data_for_key[0] == 'green':
                             one_line.append(data_for_key[1])
+
+                elif k == 'time_group' and print_type:
+                    if data_for_key[1] == 'not-relevant' and settings.print_grayed_out:
+                        one_line.append(data_for_key[1])
+
+                    ## GENERATING TIME INFO REGARDING TEMPO, BCMG etc in THRET LEVEL VIEW
+                    elif data_for_key[1] != 'not-relevant':
+                        if settings.print_severe and data_for_key[0] == 'severe':
+                            one_line.append(data_for_key[1])
+                        if settings.print_warnings and data_for_key[0] == 'warning':
+                            one_line.append(data_for_key[1])
+                        if settings.print_cautions and data_for_key[0] == 'caution':
+                            one_line.append(data_for_key[1])
+                        if settings.print_green and data_for_key[0] == 'green':
+                            one_line.append(data_for_key[1])
+
+
 
                 elif k == 'wind' or k == 'vis' or k == 'weather' or k == 'clouds':
                     if data_for_key != []:
@@ -359,9 +381,16 @@ def     generate_station_threats(all_lines,settings):
     if settings.print_in_one_line and settings.print_in_multiple_lines:
         station_threats+= '\n\n'
 
+
+    ### PRINTING MAIN THREATS FOR SPECIFIC TIME MULTILINE 2022.10
     if settings.print_in_multiple_lines:
-        for l in all_lines:
-            s = ''
+        # for l in all_lines:
+        for i in range(len(all_lines)):
+            if i== 0:
+                s='>>'
+            else:
+                s = '        '
+            l= all_lines[i]
             if l != []:  # skip printing of line if line is empty
                 for i in l:
                     s = s + ' ' + i
@@ -766,7 +795,7 @@ def creating_type_of_group(settings,time_string_uncorrected, TAF_split, station_
             type_of_group.append('error type')
 
     Td_helpers.add_to_dict_TIME_gr_data(type_of_group, "type_of_group", time_gr_data)
-
+# ['vis']
 def creating_weather_data_list(settings,gr_data, type_of_group, reference, score):
     # creating weather_data list - list which stores weather conditions
     weather_data = []
@@ -808,7 +837,14 @@ def creating_weather_data_list(settings,gr_data, type_of_group, reference, score
                         score.append([n, l])
 
             elif 'CAVOK' in p:
+                # CAVOK affects vis, weather and clouds groups 2022.10
+                # IF CAVOK is detected - then vis, weather, clouds lists are supplemented by A SPECIFIC STRING
+                # IF ANY stirn in an array - then it will cancel any previous one if BECMG or FM
                 weather_data_dict['vis'].append(p)
+
+                # 2022.10
+                weather_data_dict['weather'].append("") # 2022.10 # CAVOK CANCELS WEATHER
+                weather_data_dict['clouds'].append("")  # # 2022.10 # CAVOK CANCELS CLOUDS
                 score.append([n, l])
 
             wind = ['KT', 'MPS', 'CALM', 'VRB']
@@ -824,6 +860,17 @@ def creating_weather_data_list(settings,gr_data, type_of_group, reference, score
             for c in clouds:
                 if c in p:
                     weather_data_dict['clouds'].append(p)
+
+                    ## 2022.10
+
+                    # REMOVING NSW from CLOUD GROUP if ANY cloud detected in time group
+                    i_to_remove=-1
+                    if "NSW" in weather_data_dict['weather'] and len(weather_data_dict['clouds'])>0:
+                        for i in range(len(weather_data_dict['clouds'])):
+                            if weather_data_dict['clouds'][i]=="?NSW?":
+                                i_to_remove=i
+                        weather_data_dict['clouds'].pop(i_to_remove)
+
                     score.append([n, l])
 
             if 'TX' in p:
@@ -839,6 +886,15 @@ def creating_weather_data_list(settings,gr_data, type_of_group, reference, score
                   'VA', 'UP', 'NSW']
 
             for w in wx:
+
+                # 2022.10 NSW withou CLOUD  cancels previous clouds  (my decision)
+                # REMOVE THIS IF NECESSARY
+                if w =="NSW" and p =="NSW" :
+
+                    weather_data_dict['clouds'].append("?NSW?")
+                ####
+
+
                 if w == 'PO':
                     if p == 'TEMPO': pass
                 elif w == 'PR':

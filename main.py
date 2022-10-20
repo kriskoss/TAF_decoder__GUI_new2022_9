@@ -127,7 +127,7 @@ class TheTAFApp(App):
     def build(self):
         # Schedule the self.update_clock function to be called once a second
             # REFERENCE: https://stackoverflow.com/questions/54426193/how-to-have-an-updating-time-in-kivy
-        Clock.schedule_interval(self.update_clock, 1)
+        Clock.schedule_interval(self.update_clock, 3) # called every X seconds
 
     # Initializig
     time_delta_minutes = StringProperty('-1')
@@ -234,16 +234,14 @@ class TheTAFApp(App):
                                     '\n      ----------RWY & APPR------------')
 
         self.label__decoded_TAFs = combined_stations_threat_level + '\n\n' +'\n\n'.join(decoded_TAFs) + "\n\n    -----------END -----------\n"
-
+        pprint.pprint(max_threat_level_at_airports)
         # FINDING earliest TAF validity START hour and LATEST end HOUR
 
+        # print(min(TAFs_validity_start_times),max(TAFs_validity_end_times),'main.ssss')
         # print(min(TAFs_validity_start_times),max(TAFs_validity_end_times),'main.ssss')
 
         self.TAFs_validity__earliers_start_txt = str(min(TAFs_validity_start_times))
         self.TAFs_validity__latest_end_txt = str(max(TAFs_validity_end_times))
-
-
-
 
         return max_threat_level_at_airports
 
@@ -301,7 +299,7 @@ class TheTAFApp(App):
 
             self.calculate_trend__end_slider()
 
-            print(self.trend, int(self.current_difference_str), 'main.KKk')
+
 
             # SLIDER BEHAVIOUR - prevents END slider TO MOVE before RIGHT
             if int(self.trend) <0 and int(self.current_difference_str)<=0:
@@ -345,7 +343,6 @@ class TheTAFApp(App):
         # Updating elements
         self.TAF_decoder__input_data = self.combine_data(self.selected_g_group,self.value__start_slider,self.value__end_slider)
         self.label__stations_threat_levels  = self.TAF_decoder__input_data
-
 
     def combine_data(self, data1, data2, data3):
         """Just combines data into one element - to avoid repeating the code"""
@@ -494,6 +491,7 @@ class TheTAFApp(App):
 
         # Opening TAF vs station database
         path = "Data_new/api__tafs_cleaned.json"
+
         with open(path, 'r') as f_obj:
             tafs_cleaned_dict = json.load(f_obj)
         stations_to_show=[]
@@ -520,7 +518,8 @@ class TheTAFApp(App):
                 app.requested_stations= app.requested_stations[:settings.max_num_of_colored]
 
                 max_threat_level_at_airports = self.update_TAFs(app.requested_stations, int(self.value__start_slider), int(self.value__start_slider) + settings.SINGLE_station_time_range)
-                print(max_threat_level_at_airports, 'main.EEEE')
+
+
 
         if len(stations_to_show) > 0:
             i=0
@@ -530,9 +529,9 @@ class TheTAFApp(App):
                     tl =max_threat_level_at_airports[i][1][0]
 
                     if tl =="severe":
-                        b_colour= '#750437'  # MAGENTA
+                        b_colour= '#370557'  # MAGENTA
                     elif tl =="warning":
-                        b_colour = '#967a09' # RED
+                        b_colour = '#961509' # RED
                     elif tl == "caution":
                         b_colour = '#967a09' # YELLOW
                     elif tl=="green":
@@ -564,9 +563,8 @@ class TheTAFApp(App):
             last_requests_list = pickle.load(fp)[0:settings.num_of_last_reqested_stations_or_groups]
 
             # Spliting into SINGLE STATION and g_group
-            print(last_requests_list, 'main.ffff')
             for item in last_requests_list:
-                print(item, 'main.ffff')
+
                 if len(item) == 4:
                     # SINGLE STATION
                     btn = Button(
@@ -683,6 +681,7 @@ class TheTAFApp(App):
 
         # Opening TAF vs station database
         path = "Data_new/api__tafs_cleaned.json"
+
         with open(path, 'r') as f_obj:
             tafs_cleaned_dict = json.load(f_obj)
         # Checking if TAF in database
@@ -711,6 +710,7 @@ class TheTAFApp(App):
 
         self.value__start_slider = str(self.time_now.strftime("%H"))
         self.value__end_slider = str(int(self.value__start_slider) + n)
+        self.period_counter = int(self.time_now.strftime("%H"))
         print(self.value__start_slider,self.value__end_slider, 'main.dddd')
 
 
@@ -731,5 +731,14 @@ class TheTAFApp(App):
         else:
             #OFF - normal
             settings.gap_active = False
+
+    def testing_tafs(self, widget):
+
+        if widget.state == "normal":
+            settings.testing_decoder = False
+        else:
+            # DOWN
+            settings.testing_decoder = True
+
 
 TheTAFApp().run()  # RUNS THE KIVY!!
