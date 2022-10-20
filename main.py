@@ -138,10 +138,8 @@ class TheTAFApp(App):
                 ### END of youtube reference
         self.g_groups_db = self.load_g_groups_db()
 
-        self.call_TAFs_reload()
-
-
-
+        # self.call_TAFs_reload()
+        self.update_clock() # SIDE EFFECT of this function is the last RELOAD time displayed correctyly
 
     def build(self):
         # Schedule the self.update_clock function to be called once a second

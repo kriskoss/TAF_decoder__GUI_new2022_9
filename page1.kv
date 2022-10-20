@@ -18,13 +18,13 @@
             id:Search_textInput
 
         Button:
+            # CLR - BUTTON
             on_release:
                 Search_textInput.text=''
                 app.search_hint="Search"
             text: "CLR"
             size_hint:None,1
             width: '60dp'
-
 
 
     BoxLayout:
@@ -44,7 +44,6 @@
     orientation:'vertical'
     Button:
         text: "Reload TAFs"
-
         on_release: app.call_TAFs_reload()
         background_color: (1,0.5,1,1)
         font_size:"20dp"

@@ -1,3 +1,26 @@
+"""HOW DOES TAF DECODER WORKS?
+1. TAF in a form of string isan input
+2. It is being parsed into time groups (imaginary ROWS) of Initial, TEMPO, BECMG,PROB.. etc
+3. In each time group elements are assigned into groups such as: WIND,VIS, WEATHER, CLOUDS.. etc
+4. Than, based on the INPUT of the  significant range - the preriod of time that the user wants the TAF to be analised- the parts of the THF are being split into RELEVANT and NON-RELEVANT.
+5. For Init, TEMPO, PROB and PROB TEMPO  time groups - they can be sent to be COLOURED based on the WIND,VIS, WEATHER, CLOUDS limits
+6. For BECMG and FM time groups, each group: WIND,VIS, WEATHER, CLOUDS is treated as a stack
+    - only the last item in the e.g CLOUD stack is RELEVANT, and any other is being trated as a NON RELEVANT
+    - once the RELEVANT items found then time group is ready  for COLOURING.
+
+    TO DO:
+    - split code into two parts: - parsing into the groups
+    - checking if time group is in the SIGNIFICNT RANGE (selected by the user)
+    - analizing BECMG/FM and TEMPO/PROB
+    - colouring
+
+    !!!! FIND A DATASTRUCTURE WHERE IT ALL WILL BE CLEARLY VISIBLE - csv? json file with propprt plugin?"""
+
+
+
+
+
+
 import TAF_decoder__functions as Tdf
 import final_program_functions
 from TAF_decoder__helper_functions import ref, prBoxed,TEMPO_color,BECMG_color,BECMG_non_significant_color,grayed_area_left,grayed_area_right,error_added,add_to_dict_gr_data,print_dicts,add_to_dict_TIME_gr_data, print_keys, print_all_data, print_list
