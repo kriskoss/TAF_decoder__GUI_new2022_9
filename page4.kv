@@ -1,9 +1,11 @@
 ### ADD NEW AIRPORT page
-<Page4@StackLayout>
-#    orientation: "vertical"
+<Page4@BoxLayout>
+    orientation: "vertical"
+
 
     Add_Group:
         id: id__Add_Group
+
     Button:
         size_hint:1,None
         height: "40dp"
@@ -14,28 +16,22 @@
             app.root.current ="first"
             app.root.transition.direction = "right"
 
-
 <Add_Group>:
     #Add_New_Airport
-
-    size_hint:1,None
-    height: "160dp"
     orientation: "vertical"
 
 #    pos_hint:{"center_x": 0.5}
     Label:
         color: (0.6,0.5,0,1)
         text: root.terminal_answer
-#        size_hint_y: None
-#        text_size: self.width, None
-        height: '200dp'
+        size_hint_y: 2
+        text_size: self.width, None
         halign: "center"
-        font_size: "20dp"
+        font_size: "16dp"
 
 
     TextInput:
-        size_hint:1,None
-        height: "100dp"
+        size_hint:1,2
         id: my_g_group_input
         multiline: True
         do_wrap:True

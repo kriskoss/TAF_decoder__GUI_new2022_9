@@ -1,11 +1,17 @@
 {
   "gEPWA": [
     "EPWA",
-    "EPLL",
     "EPKT",
+    "EPLL",
+    "EPGD",
     "EPWR",
+    "EPKK",
     "EPPO",
-    "EPGD"
+    "EPLB",
+    "EPRZ",
+    "LKPR",
+    "EDDB",
+    "EVYI"
   ],
   "gEGGW": [
     "eggw",
@@ -211,8 +217,14 @@
     "fsfc"
   ],
   "gaaaa": [
-    "aaaa",
-    "gggg"
+    "AAAA",
+    "SSSS",
+    "DDDD",
+    "FFFF",
+    "GGGG",
+    "HHHH",
+    "JJJJ",
+    "KKKK"
   ],
   "gLGZA": [
     "LGZA",
@@ -379,5 +391,16 @@
     "EPWA",
     "EPLL",
     "TEST"
+  ],
+  "gGGGG": [
+    "GGGG",
+    "LKHJ",
+    "HJKL",
+    "HJKL",
+    "HJKL",
+    "KJHL",
+    "HJKL",
+    "JHKL",
+    "JHKL"
   ]
 }

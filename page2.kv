@@ -81,6 +81,11 @@
                 app.show_T_time_toggle(self)
 
         My_ToggleButton:
+            # Multiline threats details
+            text: "Mult"
+            on_state: app.multiline_threats__toggle(self)
+
+        My_ToggleButton:
             text:'RWY'
             on_state: app.print_appr_info__toggle(self)
 

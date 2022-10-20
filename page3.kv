@@ -20,6 +20,17 @@
         Toggle_A:
             text: "Gap active"
             on_state: app.toggle_gap_active(self)
+
+        Toggle_A:
+#        ToggleButton:
+            text:'TESTING'
+            on_state: app.testing_tafs_toggle(self)
+#            size_hint:None,1
+#            width: '70dp'
+        Toggle_A:
+            # Multiline threats details
+            text: "Multiline Threats"
+            on_state: app.multiline_threats__toggle(self)
 <Button_1@Button>:
     size_hint:1,None
     height: '30dp'

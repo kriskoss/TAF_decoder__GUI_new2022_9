@@ -205,7 +205,7 @@ def create_list_of_thr_lvl_weather(thr_lvl_data, settings,print_type, print_time
 
                 data_for_key = thr_lvl_data[n][k]
                 #adding data to one_line depending if relevant and depending which is line threat level
-                
+
 
                 if k == 'type' and print_time_group:
                     if data_for_key[1] == 'not-relevant' and settings.print_grayed_out:
@@ -372,11 +372,23 @@ def adding_coloured_station_name(thr_lvl_data):
 
 def     generate_station_threats(all_lines,settings):
     station_threats =''
+
     if settings.print_in_one_line:
+        # BEGIN SIGN
         s = ''
+        count=0
         for l in all_lines:
+            # ADDING BREAK SYMBOL - skiping the STAION CODE and EMPTY LISTS
+            if count==1:
+                # GAP between STATION and WEATHER
+                s = s + '  '
+            elif count>2 and len(l)>0:
+                # CONECTOR between TIME GROUPS
+                s = s + '|'
+
             for i in l:
                 s = s + ' ' + i
+            count += 1
         station_threats += s
     if settings.print_in_one_line and settings.print_in_multiple_lines:
         station_threats+= '\n\n'
@@ -387,11 +399,11 @@ def     generate_station_threats(all_lines,settings):
         # for l in all_lines:
         for i in range(len(all_lines)):
             if i== 0:
-                s='>>'
+                s=''
             else:
                 s = '        '
             l= all_lines[i]
-            if l != []:  # skip printing of line if line is empty
+            if l:  # skip printing of line if line is empty
                 for i in l:
                     s = s + ' ' + i
                 station_threats += s + '\n'
@@ -886,7 +898,6 @@ def creating_weather_data_list(settings,gr_data, type_of_group, reference, score
                   'VA', 'UP', 'NSW']
 
             for w in wx:
-
                 # 2022.10 NSW withou CLOUD  cancels previous clouds  (my decision)
                 # REMOVE THIS IF NECESSARY
                 if w =="NSW" and p =="NSW" :
@@ -900,7 +911,10 @@ def creating_weather_data_list(settings,gr_data, type_of_group, reference, score
                 elif w == 'PR':
                     if p == 'PROB30': pass
                 elif w in p:
-                    if p not in weather_data_dict['weather']:
+                    if "MIL" in p: # MIL contains MI which is erroneously recognised as weather- THIS FIXES this -
+                        break
+
+                    elif  p not in weather_data_dict['weather']:
                         weather_data_dict['weather'].append(p)
                         score.append([n, l])
             else:

@@ -57,7 +57,7 @@ def download_taf_database(parse):
 
     # methode 2 - using csv module https://www.youtube.com/watch?v=Xi52tx6phRU&t=114s
     import csv
-    print(dir(csv))  # prints available methodes for csv module
+    # print(dir(csv))  # prints available methodes for csv module
 
     file = open(path__extracted, newline='')  # newline='' -  depending on the system strings may end in differene t way - this prowides that all works correctly across all systems
     reader = csv.reader(file)
@@ -66,7 +66,7 @@ def download_taf_database(parse):
         next(reader)
 
     header = (next(reader))
-    print(header)
+
 
     # Parsing the data and converting some of it into a proper type
 
@@ -118,7 +118,7 @@ def download_taf_database(parse):
     with open(path, "w") as f_obj:
         json.dump(tafs_cleaned_dict, f_obj)
 
-    print('TAF DOWNLOAD COMPLETE - fpf')
+
 
 # Button function - Update Airports
 def download_airports_database():
@@ -362,8 +362,9 @@ def add_new_group(answer_split):
             return f"Added group: {g_key} ({', '.join(answer_split)})."
         else:
 
-            return f'{g_key} existed in the database!' \
-                   f'{g_group__before_update} replaced with: {answer_split}'
+            return f'{g_key} exists!\n' \
+                    f'Replaced with:\n' \
+                   f'{answer_split}'
 
 # Button functions - get decoded TAF for selected group
 def get_TAF_for_all_requested_stations(settings,requested_stations):

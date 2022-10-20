@@ -58,8 +58,9 @@ class Settings:
 
 
         ### Threat weather printing settings
-        self.print_in_one_line = False
-        self.print_in_multiple_lines = True #2022.10
+        self.print_in_one_line = True  # Td_f all_lines
+        self.print_in_multiple_lines = False #2022.10 # Td_f all_lines
+
         self.print_grayed_out = False
 
         self.print_type = False

@@ -63,6 +63,7 @@ class Add_Group(BoxLayout):
     time_now = datetime.datetime.utcnow()
 
     terminal_answer=StringProperty('')
+    terminal_answer=StringProperty('')
 
     def on_text_validate(self,widget):
         # Storing ANY input as UPPERCASE string
@@ -122,8 +123,26 @@ class TheTAFApp(App):
     search_hint = StringProperty("Search")
 
     current_time_str = StringProperty("current_time_str")
-    # Initializng datetime
-    utc_now = datetime.datetime.utcnow()
+
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        # YouTube reference:  https://stackoverflow.com/questions/73079260/kivy-how-to-access-global-variables-in-kv-file
+        # Initializing global variables --- (__init__ above required!!)
+        self.selected_g_group = None  # Just to avoid pycharm caution display
+
+        # Renaming self to app to enable direct the Main App object in other classes
+        global app
+        app = self
+                ### END of youtube reference
+        self.g_groups_db = self.load_g_groups_db()
+
+        self.call_TAFs_reload()
+
+
+
+
     def build(self):
         # Schedule the self.update_clock function to be called once a second
             # REFERENCE: https://stackoverflow.com/questions/54426193/how-to-have-an-updating-time-in-kivy
@@ -133,6 +152,7 @@ class TheTAFApp(App):
     time_delta_minutes = StringProperty('-1')
     reload_TAFs_msg = StringProperty('reload_TAFs_msg')
     last_reload_failed = False
+
     def update_clock(self, *args):
         # Called once a second using the kivy.clock module
         self.utc_now = datetime.datetime.utcnow()
@@ -152,21 +172,6 @@ class TheTAFApp(App):
             self.reload_TAFs_msg = f'Last reload  {last_update__object.strftime("%H:%M UTC ,%d-%m-%Y ")},  {fpf.min_to_hours_and_days(self.time_delta_minutes)} ago'
             if self.last_reload_failed:
                 self.reload_TAFs_msg = f'Reload FAILED. Last reload {fpf.min_to_hours_and_days(self.time_delta_minutes)} ago'
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-        # YouTube reference:  https://stackoverflow.com/questions/73079260/kivy-how-to-access-global-variables-in-kv-file
-        # Initializing global variables --- (__init__ above required!!)
-        self.selected_g_group = None  # Just to avoid pycharm caution display
-
-        # Renaming self to app to enable direct the Main App object in other classes
-        global app
-        app = self
-                ### END of youtube reference
-        self.g_groups_db = self.load_g_groups_db()
-
-        self.call_TAFs_reload()
-
 
     def update_FontSize_slider_value(self,widget):
         self.fontSize_slider_value = f'{int(widget.value/2)}sp'
@@ -234,7 +239,7 @@ class TheTAFApp(App):
                                     '\n      ----------RWY & APPR------------')
 
         self.label__decoded_TAFs = combined_stations_threat_level + '\n\n' +'\n\n'.join(decoded_TAFs) + "\n\n    -----------END -----------\n"
-        pprint.pprint(max_threat_level_at_airports)
+
         # FINDING earliest TAF validity START hour and LATEST end HOUR
 
         # print(min(TAFs_validity_start_times),max(TAFs_validity_end_times),'main.ssss')
@@ -351,7 +356,7 @@ class TheTAFApp(App):
 
 
 
-    period_counter= int(utc_now.strftime("%H"))
+    period_counter= int(datetime.datetime.utcnow().strftime("%H"))
     def update_range(self,direction):
         """ Changes the value of the period that wil be selected at each BUTTON click"""
         self.record_difference()
@@ -364,8 +369,8 @@ class TheTAFApp(App):
 
         # Resets counter when the max value reached
         if self.period_counter > int(self.TAFs_validity__latest_end_txt) - int(self.initial_difference_str):
-            self.period_counter = int(self.utc_now.strftime("%H"))
-        if self.period_counter < int(self.utc_now.strftime("%H")):
+            self.period_counter = int(datetime.datetime.utcnow().strftime("%H"))
+        if self.period_counter < int(datetime.datetime.utcnow().strftime("%H")):
             self.period_counter = int(self.TAFs_validity__latest_end_txt)-int(self.initial_difference_str)
         # Updates BUTTON description
         self.value__start_slider = str(self.period_counter)
@@ -402,8 +407,7 @@ class TheTAFApp(App):
             self.last_reload_failed =False
 
             # create STRING from DATETIME object using the following format
-            utc_now = datetime.datetime.utcnow()
-            reload_time = utc_now.strftime("%H:%M'%S UTC  %d-%m-%Y")
+            reload_time = datetime.datetime.utcnow().strftime("%H:%M'%S UTC  %d-%m-%Y")
 
             # Saving last update time
             path = "Data_new/last_reload_time.json"
@@ -429,7 +433,7 @@ class TheTAFApp(App):
             settings.onoff_type_and_time_group()
             # settings.print_time_group = True
 
-        print('main.suspect2')
+        # print('main.suspect2')
         self.update_TAFs(app.requested_stations,
             app.value__start_slider,
             app.value__end_slider)
@@ -446,11 +450,11 @@ class TheTAFApp(App):
             settings.print_appr_info = True
             # settings.print_time_group = True
 
-        print('main.suspect3')
+
         self.update_TAFs(app.requested_stations,
             app.value__start_slider,
             app.value__end_slider)
-        print(settings.print_type, settings.print_time_group, 'main')
+
         self.update_TAFs_display_labels()
     def update_search_input(self,widget):
         self.search_input = widget.text
@@ -511,7 +515,7 @@ class TheTAFApp(App):
 
         #Minimum number of characters in search input to show THREAT LEVEL
         max_threat_level_at_airports=[]
-        print(stations_to_show, 'main.stations_to_show')
+
         if len(search_input)>=settings.min_num_of_char:
             if len(stations_to_show)> 0:
                 # Has to callit self so sliders_values use the same value ()
@@ -732,7 +736,7 @@ class TheTAFApp(App):
             #OFF - normal
             settings.gap_active = False
 
-    def testing_tafs(self, widget):
+    def testing_tafs_toggle(self, widget):
 
         if widget.state == "normal":
             settings.testing_decoder = False
@@ -740,5 +744,20 @@ class TheTAFApp(App):
             # DOWN
             settings.testing_decoder = True
 
+    def multiline_threats__toggle(self, widget):
+        if widget.state == "normal":
+            settings.print_in_one_line = True
+            settings.print_in_multiple_lines = False
+
+        else:
+            # DOWN
+            settings.print_in_one_line = False
+            settings.print_in_multiple_lines = True
+
+        # UPDATING DISPLAY OF TAFs
+        self.update_TAFs(app.requested_stations,
+                         app.value__start_slider,
+                         app.value__end_slider)
+        self.update_TAFs_display_labels()
 
 TheTAFApp().run()  # RUNS THE KIVY!!
