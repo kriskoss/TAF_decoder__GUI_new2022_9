@@ -32,7 +32,7 @@ class Settings:
             # 5 means OFF
             # 2 is std
         self.max_num_of_colored =100 # max number of checked results for MAX THREAT LEVEL
-        self.SINGLE_station_time_range=12 # relevant time (hours) of SIGLE STATION in search resuls colouring
+        self.SINGLE_station_time_range=4 # relevant time (hours) of SIGLE STATION in search resuls colouring
 
         self.num_of_last_reqested_stations_or_groups = 10
 
@@ -51,15 +51,13 @@ class Settings:
         self.special_case_taf_active = not self.real_time_taf_active
             # tafs are being taken from taf_special_cases.py
 
+        ### Threat weather printing settings
+        self.print_in_one_line = True  # Td_f.ONE LINE
+        self.print_in_multiple_lines = False  # 2022.10 # Td_f.MULTIILINE
 
-    ############
+        ############
         # Flag used in some fucntion
         self.cancel_out_of_range_msg = True
-
-
-        ### Threat weather printing settings
-        self.print_in_one_line = True  # Td_f all_lines
-        self.print_in_multiple_lines = False #2022.10 # Td_f all_lines
 
         self.print_grayed_out = False
 

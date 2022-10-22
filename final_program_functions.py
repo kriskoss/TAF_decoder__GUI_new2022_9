@@ -1,3 +1,5 @@
+import pprint
+
 from TAF_decoder import TAF_decoder_function
 import TAF_decoder__helper_functions as Td_helpers
 import json
@@ -469,6 +471,7 @@ def analise_stations(settings, requested_stations, start_time, end_time):
                 continue
 
         # Decoding TAF
+        print('fpf. startime',end_time)
         decoded_TAF_dict = TAF_decoder_function(settings, TAF,start_time,end_time)
         decoded_TAFs_data_list.append(decoded_TAF_dict)
 
@@ -486,6 +489,7 @@ def analise_stations(settings, requested_stations, start_time, end_time):
     # Combinig stations threat and runways into single list
     combined_stations_threat_level = combine_all_stations_threat_level(stations__threat_level)
 
+    
     return [decoded_TAFs_data_list, combined_stations_threat_level]
 
 

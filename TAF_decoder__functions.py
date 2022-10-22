@@ -192,6 +192,7 @@ def create_list_of_thr_lvl_weather(thr_lvl_data, settings,print_type, print_time
     for n in range(len(thr_lvl_data)):
         # creating one line print
         one_line = []
+        wind_line=[]
         if n == 0:
             if len(thr_lvl_data[n]['wind']) > 1:
                 one_line.append(thr_lvl_data[n]['wind'][1])
@@ -206,12 +207,11 @@ def create_list_of_thr_lvl_weather(thr_lvl_data, settings,print_type, print_time
                 data_for_key = thr_lvl_data[n][k]
                 #adding data to one_line depending if relevant and depending which is line threat level
 
-
+                # ADDING TIME GROUP type (T, B, P30 etc) to one_line
                 if k == 'type' and print_time_group:
                     if data_for_key[1] == 'not-relevant' and settings.print_grayed_out:
                         one_line.append(data_for_key[1])
 
-                    ## GENERATING TIME INFO REGARDING TEMPO, BCMG etc in THRET LEVEL VIEW
                     elif data_for_key[1] != 'not-relevant':
                         if settings.print_severe and data_for_key[0] == 'severe':
                             one_line.append(data_for_key[1])
@@ -222,28 +222,43 @@ def create_list_of_thr_lvl_weather(thr_lvl_data, settings,print_type, print_time
                         if settings.print_green and data_for_key[0] == 'green':
                             one_line.append(data_for_key[1])
 
+                # ADDING TIME GROUP time range to one_line
                 elif k == 'time_group' and print_type:
                     if data_for_key[1] == 'not-relevant' and settings.print_grayed_out:
                         one_line.append(data_for_key[1])
 
                     ## GENERATING TIME INFO REGARDING TEMPO, BCMG etc in THRET LEVEL VIEW
                     elif data_for_key[1] != 'not-relevant':
-                        if settings.print_severe and data_for_key[0] == 'severe':
-                            one_line.append(data_for_key[1])
-                        if settings.print_warnings and data_for_key[0] == 'warning':
-                            one_line.append(data_for_key[1])
-                        if settings.print_cautions and data_for_key[0] == 'caution':
-                            one_line.append(data_for_key[1])
-                        if settings.print_green and data_for_key[0] == 'green':
-                            one_line.append(data_for_key[1])
+                        if settings.print_in_multiple_lines:
+                            if settings.print_severe and data_for_key[0] == 'severe':
+                                one_line.append(data_for_key[1]+' newlinee.Tdf')
+                            if settings.print_warnings and data_for_key[0] == 'warning':
+                                one_line.append(data_for_key[1]+' newlinee.Tdf')
+                            if settings.print_cautions and data_for_key[0] == 'caution':
+                                one_line.append(data_for_key[1]+' newlinee.Tdf')
+                            if settings.print_green and data_for_key[0] == 'green':
+                                one_line.append(data_for_key[1]+' newlinee.Tdf')
+                        else:
+                            if settings.print_severe and data_for_key[0] == 'severe':
+                                one_line.append(data_for_key[1])
+                            if settings.print_warnings and data_for_key[0] == 'warning':
+                                one_line.append(data_for_key[1])
+                            if settings.print_cautions and data_for_key[0] == 'caution':
+                                one_line.append(data_for_key[1])
+                            if settings.print_green and data_for_key[0] == 'green':
+                                one_line.append(data_for_key[1])
 
-
-
+                # ADDING WEATHER DATA to one_line list
                 elif k == 'wind' or k == 'vis' or k == 'weather' or k == 'clouds':
                     if data_for_key != []:
                         for i in data_for_key:
                             if (i[3] == 'not-relevant TEMPO' or i[3] == 'not-relevant BECMG') and settings.print_grayed_out:
                                 one_line.append(i[1])
+
+                                # ADDING WIND data  - to separate list (this one depends on settings)
+                                if k == 'wind':
+                                    wind_line.append(i[1])
+
                             elif i[3] != 'not-relevant TEMPO' and i[3] != 'not-relevant BECMG':
                                 if settings.print_green and i[0] == 'green':
                                     one_line.append(i[1])
@@ -253,8 +268,14 @@ def create_list_of_thr_lvl_weather(thr_lvl_data, settings,print_type, print_time
                                     one_line.append(i[1])
                                 if settings.print_severe and i[0] == 'severe':
                                     one_line.append(i[1])
+
+                                # ADDING WIND data  - to separate list
+                                if k == 'wind':
+                                    wind_line.append(i[1])
+                                    wind_line.append(i[1])
         all_lines.append(one_line)
-    return all_lines
+
+    return all_lines, wind_line
 
 def find_max_threat_level_in_one_line(thr_lvl_data):
     max_threat_level_in_one_line = []
@@ -372,7 +393,7 @@ def adding_coloured_station_name(thr_lvl_data):
 
 def     generate_station_threats(all_lines,settings):
     station_threats =''
-
+    ### ONE LINE
     if settings.print_in_one_line:
         # BEGIN SIGN
         s = ''
@@ -394,14 +415,14 @@ def     generate_station_threats(all_lines,settings):
         station_threats+= '\n\n'
 
 
-    ### PRINTING MAIN THREATS FOR SPECIFIC TIME MULTILINE 2022.10
+    ### MULTILINE 2022.10
     if settings.print_in_multiple_lines:
         # for l in all_lines:
         for i in range(len(all_lines)):
             if i== 0:
                 s=''
             else:
-                s = '        '
+                s = ''
             l= all_lines[i]
             if l:  # skip printing of line if line is empty
                 for i in l:

@@ -1,5 +1,7 @@
 <Page1@BoxLayout>
     orientation:"vertical"
+    spacing:'5dp'
+    padding:'5dp'
     Nav_page1:
     Top_Bar:
         id: id__Top_Bar
@@ -8,11 +10,16 @@
         font_size: "20dp"
 
     Search__container:
+        spacing:'5dp'
         ToggleButton:
-            text:'COLOR ON'
-            on_state: app.single_station_color_on(self)
+            text:'COLOR ON+'+ app.color_on__t_range +'h'
+            bold: True
+            font_size:"12dp"
+            on_state:
+                app.single_station_color_on(self)
+                app.refresh_station_buttons()
             size_hint:None,1
-            width: '100dp'
+            width: '82dp'
 
         Search_textInput:
             id:Search_textInput
@@ -28,12 +35,37 @@
 
 
     BoxLayout:
+        spacing:'5dp'
         Last_requests__scroll:
-            size_hint:None,1
-            width: '90dp'
             id:id__Last_requests__scroll
+            size_hint:None,1
+            width: '82dp'
+
         TAF_groups__scroll:
             id: id__TAF_groups__scroll
+    BoxLayout:
+        size_hint:1,None
+        height:'40dp'
+        Button:
+            text: "All"
+            on_release: app.next_nh_PAGE1(72)
+        Button:
+            text: "12h"
+            on_release: app.next_nh_PAGE1(12)
+
+        Button:
+            text: "8h"
+            on_release: app.next_nh_PAGE1(8)
+
+        Button:
+            text: "4h"
+            on_release: app.next_nh_PAGE1(4)
+            background_color:"#5672f5"
+
+        Button:
+            text: "2h"
+            on_release: app.next_nh_PAGE1(2)
+
 
 <Search__container@BoxLayout>:
     size_hint: 1, None
@@ -82,21 +114,10 @@
     on_text_validate: app.load_single_TAF(self)
     on_text:
         ## Introduces search functionality
-        # Pases the search inputText value
+        # Passes the search inputText value
         app.update_search_input(self)
 
-        # Apps root element - window manager
-        window_manager = app.root
-
-        # Finds the element storing g_group buttons
-        id__TAF_groups_Stack = (window_manager.ids.id__Page1.ids.id__TAF_groups__scroll.ids.id__TAF_groups_Stack)
-
-        # Removes all the g_group buttons
-        id__TAF_groups_Stack.clear_widgets()
-
-        # Creates new g_group buttons which met search criteria - search string has to be in g_group key
-        app.create_g_group_buttons(id__TAF_groups_Stack)
-        app.create_SINGLE_station_buttons(id__TAF_groups_Stack)
+        app.refresh_station_buttons()
 
 
 ####

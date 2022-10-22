@@ -52,7 +52,7 @@ class TAF_groups_Stack(StackLayout):
 class Last_requests(StackLayout):
     def __init__(self, **kwargs):
         super(Last_requests, self).__init__(**kwargs)
-        app.create_last_requests_buttons(self)
+        app.create_last_requests_buttons(self,settings)
 
 class Add_Group(BoxLayout):
     """ Methods used to Add and Edit new g_group"""
@@ -123,7 +123,7 @@ class TheTAFApp(App):
     search_hint = StringProperty("Search")
 
     current_time_str = StringProperty("current_time_str")
-
+    color_on__t_range = StringProperty(str(settings.SINGLE_station_time_range))
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -186,7 +186,7 @@ class TheTAFApp(App):
         id__Last_requests.clear_widgets()
 
         # RECREATING the LAST REQUESTED buttons
-        app.create_last_requests_buttons(id__Last_requests)
+        app.create_last_requests_buttons(id__Last_requests, settings)
         ### END
 
         decoded_TAFs_data_list, combined_stations_threat_level \
@@ -211,16 +211,16 @@ class TheTAFApp(App):
 
             # REPLACING PLACEHOLDERS (2022.10)
             decoded_TAF = decoded_TAF_dict["decoded_TAF"]
-            decoded_TAF=decoded_TAF.replace('newlinee.Tdf','\n')
             decoded_TAF=decoded_TAF.replace('space.Tdf', '   ')
-
             decoded_TAFs.append(decoded_TAF)  ## APPEND - VERY IMPORTATN!!! - here it is being decided what is being printed out
+
             runways_length = decoded_TAF_dict["runways_length"]
             station_threats = decoded_TAF_dict["station_threats"]
             appr_data = decoded_TAF_dict["appr_data"]
+
             max_threat_level_at_airport =decoded_TAF_dict['max_threat_level_at_airport']
             max_threat_level_at_airports.append((station_name,max_threat_level_at_airport))
-            ### Getting MAX THREAT LEVEL for the single station
+                        ### Getting MAX THREAT LEVEL for the single station
 
 
             ### FINDING VALID TAFs range ###
@@ -237,6 +237,9 @@ class TheTAFApp(App):
                                     '\n      ----------RWY & APPR------------')
 
         self.label__decoded_TAFs = combined_stations_threat_level + '\n\n' +'\n\n'.join(decoded_TAFs) + "\n\n    -----------END -----------\n"
+
+        #Decoding symbols - adding NEW LINE symbol
+        self.label__decoded_TAFs = self.label__decoded_TAFs.replace("newlinee.Tdf", '\n')
 
         # FINDING earliest TAF validity START hour and LATEST end HOUR
 
@@ -435,7 +438,7 @@ class TheTAFApp(App):
         self.update_TAFs(app.requested_stations,
             app.value__start_slider,
             app.value__end_slider)
-        print(settings.print_type, settings.print_time_group, 'main')
+
         self.update_TAFs_display_labels()
 
 
@@ -488,6 +491,23 @@ class TheTAFApp(App):
 
             # Adding buttons to the layout
             widget.add_widget(btn)
+
+    def change_colour_depending_on_threat_level(self, threat_level):
+        """Changes b_colour depending on the threat level
+        INPUT: threat level string (severe, warning, green, caution)
+        OUTPUT: COLOR STRING to be used
+        """
+        b_colour='#454545'
+        if threat_level == "severe":
+            b_colour = '#370557'  # MAGENTA
+        elif threat_level == "warning":
+            b_colour = '#961509'  # RED
+        elif threat_level == "caution":
+            b_colour = '#967a09'  # YELLOW
+        elif threat_level == "green":
+            b_colour = '#0a6932'  # GREEN
+        return b_colour
+
     def create_SINGLE_station_buttons(self, widget):
         search_input = app.search_input
 
@@ -508,7 +528,7 @@ class TheTAFApp(App):
                     # If search input in station_id, the store the station
                     stations_to_show.append(station)
 
-        # Updating requested_stations so it is more efficient as UPDATE TAF runs 5x times
+        # Updating requested_stations so it is more efficient as UPDATE TAF runs 5x times (FIXED)
         app.requested_stations = stations_to_show
 
         #Minimum number of characters in search input to show THREAT LEVEL
@@ -521,23 +541,20 @@ class TheTAFApp(App):
 
                 max_threat_level_at_airports = self.update_TAFs(app.requested_stations, int(self.value__start_slider), int(self.value__start_slider) + settings.SINGLE_station_time_range)
 
-
+                # Store searched airports name and threat level
 
         if len(stations_to_show) > 0:
             i=0
             for station in stations_to_show:
                 b_colour = '#474747'    # GRAY-BLUE
                 if i<len(max_threat_level_at_airports):
-                    tl =max_threat_level_at_airports[i][1][0]
+                    # THREAT LEVEL at SINGLE STATION
+                    station_threat_level =max_threat_level_at_airports[i][1][0]
 
-                    if tl =="severe":
-                        b_colour= '#370557'  # MAGENTA
-                    elif tl =="warning":
-                        b_colour = '#961509' # RED
-                    elif tl == "caution":
-                        b_colour = '#967a09' # YELLOW
-                    elif tl=="green":
-                        b_colour = '#0a6932' # GREEN
+                    # Get colour depending on the threat level
+                    b_colour=self.change_colour_depending_on_threat_level(station_threat_level)
+
+
                 i+=1
                 btn = Button(
                     text=station.upper(),
@@ -559,15 +576,64 @@ class TheTAFApp(App):
                 # Adding buttons to the layout
                 widget.add_widget(btn)
 
-    def create_last_requests_buttons(self,widget):
+    def getting_decoded_TAF_data_for_SINGLE_STATION(self,station_name):
+        """getting ALL data returned by TAF_decoder (station_name, max_threat_level, ect) for SINGLE STATION
+        INPUT: station_name STRING (do not mistake with LIST for similar function)"""
+
+        ## GETTING THREAT LEVEL FOR THE STATION
+        input_text = station_name
+
+        # Opening TAF vs station database
+        path = "Data_new/api__tafs_cleaned.json"
+
+        with open(path, 'r') as f_obj:
+            tafs_cleaned_dict = json.load(f_obj)
+        # Checking if TAF in database
+        if input_text.upper() in tafs_cleaned_dict['station_id']:
+
+            print(int(self.value__start_slider),
+                  int(self.value__start_slider) + settings.SINGLE_station_time_range,'main.oooooooo')
+
+            ## GETTING THREAT LEVEL FOR SINGLE STATION
+            station_name = [station_name]  ## ONLY ONE STATION - nested functions require LIST not STRING
+            decoded_TAFs_data_list, _NOT_USED = fpf.analise_stations(
+                 settings,
+                 station_name,
+                 int(self.value__start_slider),
+                 int(self.value__start_slider) + settings.SINGLE_station_time_range)
+            if len(decoded_TAFs_data_list) > 0:
+                return decoded_TAFs_data_list[0] # [0] because there is onlyu one station and usually data is returned for multiple stations
+            else:
+                print('main.errror 21144')
+
+    def create_last_requests_buttons(self,widget,settings):
         path = "Data_new/last_requested_station_or_group.json"
         with open(path, "rb") as fp:  # Unpickling
             last_requests_list = pickle.load(fp)[0:settings.num_of_last_reqested_stations_or_groups]
 
+            #REMOVING DUPLICATES
+            last_requests_list = list(dict.fromkeys(last_requests_list))
+
+
             # Spliting into SINGLE STATION and g_group
             for item in last_requests_list:
-
                 if len(item) == 4:
+
+                    decoded_single_TAF_dict = self.getting_decoded_TAF_data_for_SINGLE_STATION(item)
+
+                    if decoded_single_TAF_dict:
+                        #single_station__name = decoded_single_TAF_dict['station_name']
+                        single_station__max_threat_level = decoded_single_TAF_dict['max_threat_level_at_airport'][0]
+
+                    ### Colours the LAST REQUESTED AIRPORTS buttons
+                    # COLOR_ON
+                    if settings.min_num_of_char != 5:
+                        last_req_single_station__b_colour = self.change_colour_depending_on_threat_level(single_station__max_threat_level)
+                    # COLOR OFF
+                    else:
+                        last_req_single_station__b_colour ="#312f42"
+
+
                     # SINGLE STATION
                     btn = Button(
                         text=item.upper(),
@@ -576,8 +642,8 @@ class TheTAFApp(App):
                         # width=dp(100),
                         font_name="Resources/Fonts/JetBrainsMono-Regular.ttf",
                         font_size='20dp',
-                        background_color="#7ca000"
-
+                        background_color=last_req_single_station__b_colour,
+                        background_normal = ''  # MODIIES HOW COLOR ARE BEING DISPLAYED
                     )
 
                     widget.ids[item] = btn  # CORRECT WAY based on the above
@@ -708,6 +774,7 @@ class TheTAFApp(App):
                 self.search_hint= 'No TAF for such station'
 
     def next_nh(self, n):
+        """Next n hours for PAGE2"""
         # 12h, 4h
 
         self.value__start_slider = str(self.time_now.strftime("%H"))
@@ -715,6 +782,14 @@ class TheTAFApp(App):
         self.period_counter = int(self.time_now.strftime("%H"))
         print(self.value__start_slider,self.value__end_slider, 'main.dddd')
 
+    def next_nh_PAGE1(self,n):
+        #3h,6h,12h,
+        settings.SINGLE_station_time_range = n
+        self.color_on__t_range= str(settings.SINGLE_station_time_range)
+
+
+
+        self.refresh_station_buttons()
 
     ### SETTINGS BINDING
     def single_station_color_on(self, widget):
@@ -758,4 +833,18 @@ class TheTAFApp(App):
                          app.value__end_slider)
         self.update_TAFs_display_labels()
 
+    def refresh_station_buttons(self):
+        """VERY IMPORTANT FUNCTION -- updates all buttons in the PAGE1 when parameters changes"""
+        window_manager = app.root
+        id__TAF_groups_Stack = window_manager.ids.id__Page1.ids.id__TAF_groups__scroll.ids.id__TAF_groups_Stack
+        id__Last_requests = window_manager.ids.id__Page1.ids.id__Last_requests__scroll.ids.id__Last_requests
+
+        # REMOVES ALL BUTTONS
+        id__Last_requests.clear_widgets()
+        id__TAF_groups_Stack.clear_widgets()
+
+        #REBUILD ALL BUTTONS with new parameters
+        app.create_g_group_buttons(id__TAF_groups_Stack)
+        app.create_SINGLE_station_buttons(id__TAF_groups_Stack)
+        app.create_last_requests_buttons(id__Last_requests,settings)
 TheTAFApp().run()  # RUNS THE KIVY!!
