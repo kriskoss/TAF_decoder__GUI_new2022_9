@@ -17,7 +17,6 @@
             font_size:"12dp"
             on_state:
                 app.single_station_color_on(self)
-                app.refresh_station_buttons()
             size_hint:None,1
             width: '82dp'
 
@@ -49,6 +48,10 @@
         Button:
             text: "All"
             on_release: app.next_nh_PAGE1(72)
+
+        Button:
+            text: "16"
+            on_release: app.next_nh_PAGE1(16)
         Button:
             text: "12h"
             on_release: app.next_nh_PAGE1(12)

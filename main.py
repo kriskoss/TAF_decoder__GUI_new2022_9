@@ -265,7 +265,7 @@ class TheTAFApp(App):
                     METARs_final_string = METARs_final_string + '\n\n' + item
 
 
-            
+
 
 
 
@@ -763,11 +763,11 @@ class TheTAFApp(App):
         """Changes the decoded TAF font"""
         self.font_counter += 1
         if self.font_counter ==0:
-            f_size = "12dp"
+            f_size = "10dp"
         elif self.font_counter ==1:
-            f_size = "15dp"
+            f_size = "12dp"
         elif self.font_counter ==2:
-            f_size = "18dp"
+            f_size = "14dp"
         else:
             f_size = "14dp"
         self.font_size = f_size
@@ -776,6 +776,11 @@ class TheTAFApp(App):
         if self.font_counter ==3:
             self.font_counter=0
 
+        self.update_TAFs(settings,
+                         app.requested_stations,
+                         app.value__start_slider,
+                         app.value__end_slider)
+        self.update_TAFs_display_labels()
 
 
 
@@ -824,8 +829,6 @@ class TheTAFApp(App):
         settings.SINGLE_station_time_range = n
         self.color_on__t_range= str(settings.SINGLE_station_time_range)
 
-
-
         self.refresh_station_buttons()
 
     ### SETTINGS BINDING
@@ -835,6 +838,11 @@ class TheTAFApp(App):
         else:
             #DOWN
             settings.min_num_of_char = 2
+        # Last requested stations NEED TO BE CLEARED
+        # id__Last_requests = app.root.ids.id__Page1.ids.id__Last_requests__scroll.ids.id__Last_requests  #### DIRECT PATH!!!!!
+        # id__Last_requests.clear_widgets()
+        self.refresh_station_buttons()
+
     def reset_time_all_day(self):
         self.value__start_slider = self.time_now.strftime("%H")
         self.value__end_slider = self.TAFs_validity__latest_end_txt
@@ -889,8 +897,9 @@ class TheTAFApp(App):
     def refresh_station_buttons(self):
         """VERY IMPORTANT FUNCTION -- updates all buttons in the PAGE1 when parameters changes"""
         window_manager = app.root
-        id__TAF_groups_Stack = window_manager.ids.id__Page1.ids.id__TAF_groups__scroll.ids.id__TAF_groups_Stack
-        id__Last_requests = window_manager.ids.id__Page1.ids.id__Last_requests__scroll.ids.id__Last_requests
+        id__TAF_groups_Stack = app.root.ids.id__Page1.ids.id__TAF_groups__scroll.ids.id__TAF_groups_Stack
+
+        id__Last_requests = app.root.ids.id__Page1.ids.id__Last_requests__scroll.ids.id__Last_requests
 
         # REMOVES ALL BUTTONS
         id__Last_requests.clear_widgets()

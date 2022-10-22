@@ -630,9 +630,13 @@ def store_requested_station_or_group(settings, request):
     with open(path, "rb") as fp:  # Unpickling
         last_requests_list = pickle.load(fp)[0:settings.num_of_last_reqested_stations_or_groups]
         last_requests_list.insert(0,request)
+        last_requests_list = list(dict.fromkeys(last_requests_list))
+
 
     # STORES A LIST
     with open(path, "wb") as fp:  # Pickling
+        # REMOVING DUPLICATES
+        last_requests_list = list(dict.fromkeys(last_requests_list))
         pickle.dump(last_requests_list, fp)
 
 # Extracting data from the the list of dictionaries
