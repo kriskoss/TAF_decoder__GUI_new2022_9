@@ -19,9 +19,24 @@
                 app.root.transition.direction = "left"
 
     MyLabel__scroll:
-        id: MyLabel__scroll
-        MyLabel:
-            id: MyLabel
+            # Final_Display relpaced MyLabel
+#        id: MyLabel__scroll
+#        MyLabel:
+#            id: MyLabel
+
+        Final_DISPLAY:
+            size_hint_y: None
+            height: self.minimum_height # sets height based on the children size!!
+            halign: 'left'
+            MyLabel:
+                text:app.display_TOP
+            MyLabel:
+                text:app.display_METARs
+            ## TAFs has to be split in two because LABEL max height exceeded for large groups
+            MyLabel:
+                text:app.display_TAFs
+            MyLabel:
+                text:app.extended_TAFs_display
 
     StackLayout:
         orientation: "rl-bt"
@@ -38,7 +53,7 @@
         StackButton:
             # FONT SIZE
             text:'FONT'
-            on_press: app.change_font_size()
+            on_release: app.change_font_size()
 
         StackButton:
             # RESET
@@ -110,7 +125,8 @@
     height:'40dp'
 
 <TopPanel@BoxLayout>:
-
+<Final_DISPLAY@StackLayout>:
+    do_scroll_y: True
 
 <Time_slider__label@Label>:
     size_hint: 1,None
@@ -129,12 +145,14 @@
     font_name: "Resources/Fonts/JetBrainsMono-Regular.ttf"
 
     size_hint_y: None
+#    text: app.label__decoded_TAFs
+    font_size:  app.TAF_display_font_size
     height: self.texture_size[1]
     text_size: self.width, None
     halign: 'left'
 
-    font_size:  app.font_size
-    text: app.label__decoded_TAFs
+
+
 
 
 

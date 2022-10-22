@@ -461,7 +461,11 @@ def convert_data_lists_to_single_string(data_list,settings):
             for i in l:
                 s = s + ' ' + i
             count += 1
+
         final_string += s
+
+        ## Ads EXTRA line for clarity
+        final_string+='\n'
 
     if settings.print_in_one_line and settings.print_in_multiple_lines:
         final_string+= '\n\n'

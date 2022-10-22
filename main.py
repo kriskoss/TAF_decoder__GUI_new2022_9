@@ -28,6 +28,7 @@ Builder.load_file('page1.kv')
 Builder.load_file('page2.kv')
 Builder.load_file('page3.kv')
 Builder.load_file('page4.kv')
+Builder.load_file('page5.kv')
 # Builder.load_file('TheTAF.kv')
 
 ## Kivy modules
@@ -38,7 +39,38 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.stacklayout import StackLayout
 
+class TAF_StackLayout(BoxLayout):
+    #### FOR TESTING!!
+    def __init__(self,**kwargs):
+        super(TAF_StackLayout, self).__init__(**kwargs)
 
+        lbl = Label(
+            text=app.single_decoded_TAF,
+            # size_hint=(1, None),
+            # height=dp(40),
+            font_name="Resources/Fonts/JetBrainsMono-Regular.ttf",
+            font_size='20dp'
+        )
+
+        self.add_widget(lbl)
+
+        # Adding buttons to the layout
+
+        print(app.global_decoded_TAFs_data_list, 'main.ssssssssss')
+        for decoded_TAF_dict in app.global_decoded_TAFs_data_list:
+            decoded_TAF = decoded_TAF_dict["decoded_TAF"]
+            decoded_TAF = decoded_TAF.replace('space.Tdf', '   ')
+            app.global_decoded_TAF= decoded_TAF
+
+            lbl = Label(
+                text='decoded_TAF',
+                # size_hint=(1, None),
+                # height=dp(40),
+                font_name="Resources/Fonts/JetBrainsMono-Regular.ttf",
+                font_size='20dp'
+            )
+
+            self.add_widget(lbl)
 
 class TAF_groups_Stack(StackLayout):
 
@@ -109,9 +141,18 @@ class TheTAFApp(App):
 
     # Lable which display the decoded TAF
     label__stations_threat_levels = StringProperty('label__stations_threat_levels')
-    label__decoded_TAFs = StringProperty('label__decoded_TAFs')
+    # label__decoded_TAFs = StringProperty('label__decoded_TAFs')
 
-    font_size = StringProperty('15dp')
+    # Initializin for fina display
+    display_TOP = StringProperty('display_TOP')
+    display_METARs = StringProperty('display_METARs')
+    display_TAFs = StringProperty('display_TAFs')
+    extended_TAFs_display =StringProperty('extended_TAFs_display')
+
+    font_counter = 1
+    font_step = 3
+
+    TAF_display_font_size = StringProperty(str( 10+ font_counter * font_step) + 'dp')
     search_input = StringProperty('')
 
 
@@ -124,6 +165,11 @@ class TheTAFApp(App):
 
     current_time_str = StringProperty("current_time_str")
     color_on__t_range = StringProperty(str(settings.SINGLE_station_time_range))
+
+    # FOR TESTING
+    global_decoded_TAFs_data_list = []
+    global_decoded_TAF = ''
+    single_decoded_TAF = StringProperty('')
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -194,6 +240,9 @@ class TheTAFApp(App):
         TAFs_validity_end_times =[]
         max_threat_level_at_airports =[]
 
+        # Making DECODED TAFs data available in the whole APP
+        app.global_decoded_TAFs_data_list = decoded_TAFs_data_list
+        print(app.global_decoded_TAFs_data_list, 'aaaaaa')
         for decoded_TAF_dict in decoded_TAFs_data_list:
             # Looping throughout all STATIONS
 
@@ -204,9 +253,7 @@ class TheTAFApp(App):
 
             # Adding STATION NAME to TAF label
             decoded_TAFs.append(station_name)
-            selected_time_info = decoded_TAF_dict["selected_time_info"]
-
-
+            # selected_time_info = decoded_TAF_dict["selected_time_info"]
 
             # REPLACING PLACEHOLDERS (2022.10)
             decoded_TAF = decoded_TAF_dict["decoded_TAF"]
@@ -234,7 +281,8 @@ class TheTAFApp(App):
                 decoded_TAFs.append('\n      ----------RWY & APPR------------\n'+
                                     appr_data+
                                     '\n      ----------RWY & APPR------------')
-
+            ## TESTING
+            self.single_decoded_TAF='decoded_TAFs'
 
 
         # FINDING earliest TAF validity START hour and LATEST end HOUR
@@ -265,19 +313,34 @@ class TheTAFApp(App):
                     METARs_final_string = METARs_final_string + '\n\n' + item
 
 
+        #### REPLACED below
+        # self.label__decoded_TAFs = \
+        #     combined_stations_threat_level + '\n\n' \
+        #     + METARs_final_string + '\n\n\n\n' \
+        #     + "######### TAFs #############"  \
+        #     + '\n\n'.join(decoded_TAFs) + \
+        #     "\n\n    -----------END -----------\n"
 
+        ### CREATOING DATA for MAIN LABELS : TOP, METARS, TAFS, and insering new line
+        combined_stations_threat_level = combined_stations_threat_level.replace("newlinee.Tdf", '\n')
+        self.display_TOP = combined_stations_threat_level
 
+        self.display_METARs = METARs_final_string
+        middle = round(len(decoded_TAFs)/2)
+        # 1st HALF of TAFs
+        decoded_TAFs__string_top = '\n\n'.join(decoded_TAFs[:middle])
+        decoded_TAFs__string_top = decoded_TAFs__string_top.replace("newlinee.Tdf", '\n')
 
+        self.display_TAFs = decoded_TAFs__string_top
 
-        self.label__decoded_TAFs = \
-            combined_stations_threat_level + '\n\n' \
-            + METARs_final_string + '\n\n\n\n' \
-            + "######### TAFs #############"  \
-            + '\n\n'.join(decoded_TAFs) + \
-            "\n\n    -----------END -----------\n"
+        # 2nd HALF of TAFs
+        decoded_TAFs__string_bottom = '\n\n'.join(decoded_TAFs[middle:])
+        decoded_TAFs__string_bottom = decoded_TAFs__string_bottom.replace("newlinee.Tdf", '\n')
+        self.extended_TAFs_display = decoded_TAFs__string_bottom
 
-        # Decoding symbols - adding NEW LINE symbol
-        self.label__decoded_TAFs = self.label__decoded_TAFs.replace("newlinee.Tdf", '\n')
+        #### REPLACED by ABOVE CODE
+        # # Decoding symbols - adding NEW LINE symbol
+        # self.label__decoded_TAFs = self.label__decoded_TAFs.replace("newlinee.Tdf", '\n')
 
     def record_difference(self):
         # ON TOUCH moment ONLY - calculating time difference between START and END SLIDERS
@@ -757,23 +820,19 @@ class TheTAFApp(App):
     slider_height =StringProperty(both_sliders_visible__slider_height)
     slider_opacity = StringProperty(slider_opacity__visible)
 
-    font_counter = 1
 
     def change_font_size(self):
         """Changes the decoded TAF font"""
+
+
+
+        f_size = str(str( 12+ self.font_counter* self.font_step) + 'dp')
+
+        self.TAF_display_font_size = f_size
+        print(self.TAF_display_font_size , 'main.font')
         self.font_counter += 1
-        if self.font_counter ==0:
-            f_size = "10dp"
-        elif self.font_counter ==1:
-            f_size = "12dp"
-        elif self.font_counter ==2:
-            f_size = "14dp"
-        else:
-            f_size = "14dp"
-        self.font_size = f_size
 
-
-        if self.font_counter ==3:
+        if self.font_counter ==4:
             self.font_counter=0
 
         self.update_TAFs(settings,
@@ -909,4 +968,8 @@ class TheTAFApp(App):
         app.create_g_group_buttons(id__TAF_groups_Stack)
         app.create_SINGLE_station_buttons(id__TAF_groups_Stack)
         app.create_last_requests_buttons(id__Last_requests,settings)
+
+    def pritnsth(self, widget):
+        widget.text = app.global_decoded_TAF
+        print(app.global_decoded_TAF, 'main.uuuuuuu')
 TheTAFApp().run()  # RUNS THE KIVY!!

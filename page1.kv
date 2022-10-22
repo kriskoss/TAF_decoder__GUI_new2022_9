@@ -91,11 +91,18 @@
     size_hint:1,None
     height:'30dp'
     Button:
-        text: "Go to TAFs page"
+        text: "Result"
 
         on_press:
             app.root.current="second"
             app.root.transition.direction = "left"
+    Button:
+        text: "TAFs"
+
+        on_press:
+            app.root.current="fifth"
+            app.root.transition.direction = "left"
+
     Button:
         text: "Settings"
         on_press:

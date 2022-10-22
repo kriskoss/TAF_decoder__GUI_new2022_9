@@ -1,0 +1,15 @@
+<Page5@BoxLayout>
+    orientation: "vertical"
+    Button:
+        size_hint:1,None
+        height:'40dp'
+        text: "APTs"
+        background_color: '#5232a8'
+        on_release:
+            app.root.current ="first"
+            app.root.transition.direction = "right"
+#    TAF_StackLayout__scroll:
+    TAF_StackLayout:
+
+<TAF_StackLayout__scroll@ScrollView>:
+    do_scroll_y: True
