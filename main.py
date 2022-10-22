@@ -149,10 +149,10 @@ class TheTAFApp(App):
     display_TAFs = StringProperty('display_TAFs')
     extended_TAFs_display =StringProperty('extended_TAFs_display')
 
-    font_counter = 1
+    font_counter = 2
     font_step = 3
 
-    TAF_display_font_size = StringProperty(str( 10+ font_counter * font_step) + 'dp')
+    TAF_display_font_size = StringProperty(str( 14+ font_counter * font_step) + 'dp')
     search_input = StringProperty('')
 
 
@@ -826,7 +826,7 @@ class TheTAFApp(App):
 
 
 
-        f_size = str(str( 12+ self.font_counter* self.font_step) + 'dp')
+        f_size = str(str( 14+ self.font_counter* self.font_step) + 'dp')
 
         self.TAF_display_font_size = f_size
         print(self.TAF_display_font_size , 'main.font')
@@ -898,8 +898,8 @@ class TheTAFApp(App):
             #DOWN
             settings.min_num_of_char = 2
         # Last requested stations NEED TO BE CLEARED
-        # id__Last_requests = app.root.ids.id__Page1.ids.id__Last_requests__scroll.ids.id__Last_requests  #### DIRECT PATH!!!!!
-        # id__Last_requests.clear_widgets()
+        id__Last_requests = app.root.ids.id__Page1.ids.id__Last_requests__scroll.ids.id__Last_requests  #### DIRECT PATH!!!!!
+        id__Last_requests.clear_widgets()
         self.refresh_station_buttons()
 
     def reset_time_all_day(self):
