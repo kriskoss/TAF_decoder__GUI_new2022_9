@@ -111,7 +111,7 @@ class TheTAFApp(App):
     label__stations_threat_levels = StringProperty('label__stations_threat_levels')
     label__decoded_TAFs = StringProperty('label__decoded_TAFs')
 
-    font_size = StringProperty('12sp')
+    font_size = StringProperty('14dp')
     search_input = StringProperty('')
 
 
@@ -130,7 +130,7 @@ class TheTAFApp(App):
 
         # YouTube reference:  https://stackoverflow.com/questions/73079260/kivy-how-to-access-global-variables-in-kv-file
         # Initializing global variables --- (__init__ above required!!)
-        self.selected_g_group = None  # Just to avoid pycharm caution display
+        self.selected_g_group = ''  # Just to avoid pycharm caution display
 
         # Renaming self to app to enable direct the Main App object in other classes
         global app
@@ -176,7 +176,7 @@ class TheTAFApp(App):
 
         self.update_scroll_height()
 
-    def update_TAFs(self, stations_, start, end):
+    def update_TAFs(self, settings, stations_, start, end):
 
         ### RECREATING LAST REQUESTED airports list
         # GETTING AN ITEM by ID!!!
@@ -189,11 +189,9 @@ class TheTAFApp(App):
         app.create_last_requests_buttons(id__Last_requests, settings)
         ### END
 
-        decoded_TAFs_data_list, combined_stations_threat_level \
-            = fpf.analise_stations(settings, stations_,
+        decoded_TAFs_data_list,combined_stations_threat_level, METARs_list= \
+            fpf.analise_stations(settings, stations_,
                                    int(start), int(end))
-
-        # self.label__stations_threat_levels = combined_stations_threat_level
 
         decoded_TAFs = []
         TAFs_validity_start_times =[]
@@ -203,11 +201,12 @@ class TheTAFApp(App):
         for decoded_TAF_dict in decoded_TAFs_data_list:
             # Looping throughout all STATIONS
 
-            #Modifing STATION NAME to be more visible (2022.10)
             station_name = decoded_TAF_dict["station_name"]
-            station_name=f'\n\n_________________________\n######### {station_name} ######### '
+            #SEPARATOR between STATION TAFs
+            station_name=f'\n\n_________________________\n' \
+                         f'   ******* {station_name} ******* '
 
-            # Adding STATION NAME to TAFlabel
+            # Adding STATION NAME to TAF label
             decoded_TAFs.append(station_name)
             selected_time_info = decoded_TAF_dict["selected_time_info"]
 
@@ -240,24 +239,45 @@ class TheTAFApp(App):
                                     appr_data+
                                     '\n      ----------RWY & APPR------------')
 
-        self.label__decoded_TAFs = combined_stations_threat_level + '\n\n' +'\n\n'.join(decoded_TAFs) + "\n\n    -----------END -----------\n"
 
-        #Decoding symbols - adding NEW LINE symbol
-        self.label__decoded_TAFs = self.label__decoded_TAFs.replace("newlinee.Tdf", '\n')
 
         # FINDING earliest TAF validity START hour and LATEST end HOUR
-
-        # print(min(TAFs_validity_start_times),max(TAFs_validity_end_times),'main.ssss')
-        # print(min(TAFs_validity_start_times),max(TAFs_validity_end_times),'main.ssss')
 
         self.TAFs_validity__earliers_start_txt = str(min(TAFs_validity_start_times))
         self.TAFs_validity__latest_end_txt = str(max(TAFs_validity_end_times))
 
+        #### UPDATING FINAL DISPLAY!!!!! -- START HERE TO MODIFY ANYTHING
+        self.update_FINAL_DISPLAY(combined_stations_threat_level, decoded_TAFs, METARs_list, settings)
         return max_threat_level_at_airports
 
 
     initial_difference_str = StringProperty("0")
     current_difference_str = StringProperty("993")
+
+    def update_FINAL_DISPLAY(self,combined_stations_threat_level,decoded_TAFs, METARs_list,settings):
+        """ FINAL DISPLAY STRUCTURE
+        1.  UPPER displa - threat levels, threats and wind profile
+        2. METARS
+        3. Detailed TAFs"""
+
+        METARs_final_string = ''
+        if settings.display_METARs_on_page2:
+            METARs_list = ["\n ####### METARS ###########"] + METARs_list
+
+            METARs_final_string = '\n\n'.join(METARs_list)
+            print(METARs_final_string, 'main/ddddddddd')
+
+
+        self.label__decoded_TAFs = \
+            combined_stations_threat_level + '\n\n' \
+            + METARs_final_string + '\n\n\n\n' \
+            + "######### TAFs #############"  \
+            + '\n\n'.join(decoded_TAFs) + \
+            "\n\n    -----------END -----------\n"
+
+        # Decoding symbols - adding NEW LINE symbol
+        self.label__decoded_TAFs = self.label__decoded_TAFs.replace("newlinee.Tdf", '\n')
+
     def record_difference(self):
         # ON TOUCH moment ONLY - calculating time difference between START and END SLIDERS
         self.initial_difference_str = str(int(self.value__end_slider) - int(self.value__start_slider))
@@ -281,7 +301,7 @@ class TheTAFApp(App):
             self.label__stations_threat_levels = self.combine_data(self.selected_g_group, self.value__start_slider, self.value__end_slider)
 
 
-            self.update_TAFs(
+            self.update_TAFs(settings,
                 self.requested_stations,
                 self.value__start_slider,
                 self.value__end_slider)
@@ -319,8 +339,8 @@ class TheTAFApp(App):
                 self.value__start_slider=self.value__end_slider
 
             self.label__stations_threat_levels = self.combine_data(self.selected_g_group, self.value__start_slider, self.value__end_slider)
-            # print('main.suspect1',self.value__start_slider, self.value__end_slider)
-            self.update_TAFs(
+            print('main.suspect1',self.value__start_slider, self.value__end_slider)
+            self.update_TAFs(settings,
                 self.requested_stations,
                 self.value__start_slider,
                 self.value__end_slider)
@@ -399,7 +419,7 @@ class TheTAFApp(App):
         # TRYING to UPDATE TAFs
         try:
             fpf.download_taf_database(parse)
-
+            fpf.download_metars_database(parse)
         # UPDATE FAILED
         except:
             # set FLAG to TRUE
@@ -439,7 +459,8 @@ class TheTAFApp(App):
             # settings.print_time_group = True
 
         # print('main.suspect2')
-        self.update_TAFs(app.requested_stations,
+        self.update_TAFs(settings,
+            app.requested_stations,
             app.value__start_slider,
             app.value__end_slider)
 
@@ -456,14 +477,15 @@ class TheTAFApp(App):
             # settings.print_time_group = True
 
 
-        self.update_TAFs(app.requested_stations,
+        self.update_TAFs(settings,
+            app.requested_stations,
             app.value__start_slider,
             app.value__end_slider)
 
         self.update_TAFs_display_labels()
     def update_search_input(self,widget):
         self.search_input = widget.text
-        print(self.search_input)
+        print(self.search_input, "main.search_input")
 
     def create_g_group_buttons(self,widget):
         """Creates the g_group buttons in the widget element (has to be LAYOUT element?) """
@@ -543,7 +565,7 @@ class TheTAFApp(App):
                 # Has to callit self so sliders_values use the same value ()
                 app.requested_stations= app.requested_stations[:settings.max_num_of_colored]
 
-                max_threat_level_at_airports = self.update_TAFs(app.requested_stations, int(self.value__start_slider), int(self.value__start_slider) + settings.SINGLE_station_time_range)
+                max_threat_level_at_airports = self.update_TAFs(settings, app.requested_stations, int(self.value__start_slider), int(self.value__start_slider) + settings.SINGLE_station_time_range)
 
                 # Store searched airports name and threat level
 
@@ -600,7 +622,7 @@ class TheTAFApp(App):
 
             ## GETTING THREAT LEVEL FOR SINGLE STATION
             station_name = [station_name]  ## ONLY ONE STATION - nested functions require LIST not STRING
-            decoded_TAFs_data_list, _NOT_USED = fpf.analise_stations(
+            decoded_TAFs_data_list, _NOT_USED ,_NOT_USED= fpf.analise_stations(
                  settings,
                  station_name,
                  int(self.value__start_slider),
@@ -681,7 +703,11 @@ class TheTAFApp(App):
 
     def on_press_g_group(self, instance):
         """Defines what happens when any g_group button is being pressed"""
+
+        settings.on_staion_button_press_flag = True
         # Updating app variable - VERY IMPORTANT!
+
+
         app.selected_g_group = instance.text
 
         # Storing selected g_group key
@@ -689,14 +715,14 @@ class TheTAFApp(App):
 
         app.requested_stations = fpf.extract_stations_from_g_group(app.selected_g_group)
 
-        print(app.selected_g_group, app.requested_stations)
+        print(app.selected_g_group, app.requested_stations, 'main.kkkkk')
 
         self.generate_TAFs_at_page2_and_show()
 
 
     def generate_TAFs_at_page2_and_show(self):
         # Updates decoded TAF on press
-        self.update_TAFs(
+        self.update_TAFs(settings,
             self.requested_stations,
             self.value__start_slider,
             self.value__end_slider)
@@ -756,6 +782,7 @@ class TheTAFApp(App):
 
         with open(path, 'r') as f_obj:
             tafs_cleaned_dict = json.load(f_obj)
+
         # Checking if TAF in database
         if input_text.upper() in tafs_cleaned_dict['station_id']:
             self.requested_stations = [input_text] ### AAA in
@@ -832,7 +859,8 @@ class TheTAFApp(App):
             settings.print_in_multiple_lines = True
 
         # UPDATING DISPLAY OF TAFs
-        self.update_TAFs(app.requested_stations,
+        self.update_TAFs(settings,
+                            app.requested_stations,
                          app.value__start_slider,
                          app.value__end_slider)
         self.update_TAFs_display_labels()
@@ -846,9 +874,10 @@ class TheTAFApp(App):
             settings.show_wind_profile = True
 
         # UPDATING DISPLAY OF TAFs
-        self.update_TAFs(app.requested_stations,
-                         app.value__start_slider,
-                         app.value__end_slider)
+        self.update_TAFs(settings,
+            app.requested_stations,
+             app.value__start_slider,
+             app.value__end_slider)
         self.update_TAFs_display_labels()
 
     def refresh_station_buttons(self):

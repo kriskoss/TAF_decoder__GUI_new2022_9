@@ -5,7 +5,7 @@ import TAF_decoder__helper_functions as Td_helpers
 import json
 import requests
 import gzip
-
+import csv
 
 no_station_msg = '- no such station'
 #prompt at the beginning of a program
@@ -24,19 +24,105 @@ def combine_all_stations_threat_level(apt_threat_level):
 
     return '\n'.join(combined_stations_threat_level)
 
-def combine_data(settings,station_threats, wind_profile,runways_length, appr_data):
-    station_threat_level=None
+def combine_data(settings,station_threats, wind_profile,runways_length,appr_data):
+    """VERY IMPORTATNT PARR - responsible for generating INITIAL PART of the final display
+    GENERATES FINAL STRING of stations (do not include detailed TAFS)
+
+    :param settings:
+    :param station_threats: LIST - Tdf.all_lines - list containing relevant weather for time periods for single statio
+    :param wind_profile: LIST - Tdf.wind_lines - same as above but for wind
+    :param runways_length:
+    :param appr_data:
+    :return: STRING - ready to be displayed!!!!!!!
+    """
+    final_display_string__UPPER=None
     if settings.show_wind_profile:
-        station_threat_level = wind_profile + '\n   ' + runways_length + '\n'
+        final_display_string__UPPER = wind_profile + '\n   ' + runways_length + '\n'
 
     else:
         if settings.rwy_data == 0:
-            station_threat_level= station_threats
+            final_display_string__UPPER= station_threats
         elif settings.rwy_data == 1:
-            station_threat_level= station_threats + '\n   ' + runways_length +'\n'
+            final_display_string__UPPER= station_threats + '\n   ' + runways_length +'\n'
         elif settings.rwy_data == 2:
-            station_threat_level= station_threats + '\n\n' + appr_data + '\n'
-    return station_threat_level
+            final_display_string__UPPER= station_threats + '\n\n' + appr_data + '\n'
+
+
+    return final_display_string__UPPER
+
+def download_metars_database(parse):
+    url = 'https://www.aviationweather.gov/adds/dataserver_current/current/metars.cache.csv.gz'
+    response = requests.get(url)
+    path__compresed = "Data_new/api__metars_downloaded.csv.gz"
+
+    # SAVING database
+    open(path__compresed, "wb").write(response.content)
+
+    # Extracting csv.gz and saving csv
+    path__extracted = 'Data_new/api__metars_extracted.csv'
+    with gzip.open(path__compresed, 'rt', newline='', encoding='utf-8') as csv_file:
+        csv_data = csv_file.read()
+        with open(path__extracted, 'wt') as out_file:
+            out_file.write(csv_data)
+
+    # methode 2 - using csv module https://www.youtube.com/watch?v=Xi52tx6phRU&t=114s
+    file = open(path__extracted, newline='')  # newline='' -  depending on the system strings may end in differene t way - this prowides that all works correctly across all systems
+    reader = csv.reader(file)
+    # Skipping 5 first lines down to the header - specific to each file
+    for x in range(5):
+        next(reader)
+
+    header = (next(reader))
+    print(header, 'fpf.metars')
+
+
+
+    # Parsing the data and converting some of it into a proper type
+    data = []
+    for row in reader:
+        # row = ['raw_text', 'station_id', 'observation_time', 'latitude', 'longitude', 'temp_c', 'dewpoint_c', 'wind_dir_degrees', 'wind_speed_kt', 'wind_gust_kt', 'visibility_statute_mi', 'altim_in_hg', 'sea_level_pressure_mb', 'corrected', 'auto', 'auto_station', 'maintenance_indicator_on', 'no_signal', 'lightning_sensor_off', 'freezing_rain_sensor_off', 'present_weather_sensor_off', 'wx_string', 'sky_cover', 'cloud_base_ft_agl', 'sky_cover', 'cloud_base_ft_agl', 'sky_cover', 'cloud_base_ft_agl', 'sky_cover', 'cloud_base_ft_agl', 'flight_category', 'three_hr_pressure_tendency_mb', 'maxT_c', 'minT_c', 'maxT24hr_c', 'minT24hr_c', 'precip_in', 'pcp3hr_in', 'pcp6hr_in', 'pcp24hr_in', 'snow_in', 'vert_vis_ft', 'metar_type', 'elevation_m']
+
+        raw_text = str(row[0])
+        station_id = str(row[1])
+        observation_time = str(row[2])
+        data.append([raw_text, station_id, observation_time])
+
+    # Sorting API TAFs based on the station_id
+    data__sorted = sorted(data, key=lambda x: x[1])  # column 1 is station_id in the data object
+
+    # Store parsed data in CSV file - just for reference
+    path__data_cleaned = "Data_new/api__metars_cleaned.csv"
+    file = open(path__data_cleaned, 'w', newline='', encoding='utf-8')
+    writer = csv.writer(file)
+
+    #Storing HEADER
+    writer.writerow(['station_id',' observation_time', 'raw_text'])
+
+    # Storing selected data
+    # for i in range(len(data__sorted)):
+    for i in range(len(data__sorted)):
+        row = data__sorted[i]
+        station_id = row[1]
+        observation_time= row[2]
+        raw_text = row[0]
+        print([station_id, observation_time, raw_text])
+        writer.writerow([station_id, observation_time, raw_text])
+
+    # Converting data_sorted into a dictionary
+    metars_cleaned_dict = {'station_id': [], 'observation_time':[],'raw_text': []}
+    for i in range(len(data__sorted)):
+        metars_cleaned_dict['station_id'].append(data__sorted[i][1])
+        metars_cleaned_dict['observation_time'].append(data__sorted[i][2])
+        metars_cleaned_dict['raw_text'].append(data__sorted[i][0])
+
+    # Store tafs_cleanded_dict as json
+    # Check this video: https://www.youtube.com/watch?v=pTT7HMqDnJw
+    import json
+
+    path = "Data_new/api__metars_cleaned.json"
+    with open(path, "w") as f_obj:
+        json.dump(metars_cleaned_dict, f_obj)
+
 
 # BUTTON function - Update TAFs
 def download_taf_database(parse):
@@ -50,8 +136,6 @@ def download_taf_database(parse):
     open(path__compresed, "wb").write(response.content)
 
     # Extracting csv.gz to csv
-
-
     path__extracted = 'Data_new/api__tafs_extracted.csv'
     with gzip.open(path__compresed, 'rt', newline='', encoding='utf-8') as csv_file:
         csv_data = csv_file.read()
@@ -62,7 +146,6 @@ def download_taf_database(parse):
     lines = [line for line in open(path__extracted)]
 
     # methode 2 - using csv module https://www.youtube.com/watch?v=Xi52tx6phRU&t=114s
-    import csv
     # print(dir(csv))  # prints available methodes for csv module
 
     file = open(path__extracted, newline='')  # newline='' -  depending on the system strings may end in differene t way - this prowides that all works correctly across all systems
@@ -70,13 +153,9 @@ def download_taf_database(parse):
     # Skipping 5 first lines down to the header - specific to each file
     for x in range(5):
         next(reader)
-
     header = (next(reader))
 
-
     # Parsing the data and converting some of it into a proper type
-
-
     data = []
     for row in reader:
         # row = ['raw_text', 'station_id', 'issue_time', 'bulletin_time', 'valid_time_from', 'valid_time_to', 'remarks', 'latitude', 'longitude', 'elevation_m', 'fcst_time_from', 'fcst_time_to']
@@ -373,9 +452,47 @@ def add_new_group(answer_split):
                    f'{answer_split}'
 
 # Button functions - get decoded TAF for selected group
-def get_TAF_for_all_requested_stations(settings,requested_stations):
+def load_single_METAR( station_id):
+    """
 
-    """downloads valid TAFs for airports in all_airport list"""
+    :param station_id: 4-letter STRING - station id
+    :return: STRING - station METAR
+    """
+    path = "Data_new/api__metars_cleaned.json"
+
+    with open(path, 'r') as f_obj:
+        metars_cleaned_dict = json.load(f_obj)
+
+    # Find METARS index based on station_id
+    for i in range(len(metars_cleaned_dict['station_id'])):
+
+        if station_id.upper() == metars_cleaned_dict['station_id'][i].upper():
+            station_METAR = metars_cleaned_dict['raw_text'][i].upper()
+            return station_METAR
+
+
+def get_METARS_for_requested_stations(settings, requested_stations):
+    """Gets metars for selecred stations.
+
+    :param settings: class
+    :param requested_stations: LIST of stations_id
+    :return: LIST of STRINGS - METARs
+    """
+    METARs=[]
+    for station in requested_stations:
+        station_METAR = load_single_METAR(station)
+        METARs.append(station_METAR)
+
+    return METARs
+
+
+def get_TAF_for_all_requested_stations(settings,requested_stations):
+    """
+    Downloads valid TAFs for airports in all_airport list
+    :param settings:
+    :param requested_stations: LIST of stations
+    :return: LIST of TAFs
+    """
     # Initializing list of TAFs for requested stations
     requested_stations_TAFs=[]
 
@@ -453,16 +570,19 @@ def analise_stations(settings, requested_stations, start_time, end_time):
 
     TAFs = get_TAF_for_all_requested_stations(settings,requested_stations)
 
-    # FOR DEVELOPMNET ONLY - priniting TAFs
-    # for TAF in TAFs:
-    #     print(TAF)
+    METARs_list =[]
+    # if settings.on_staion_button_press_flag:
+    METARs_list = get_METARS_for_requested_stations(settings,requested_stations)
+        # settings.on_staion_button_press_flag= False
+
+
 
     # Core of the app - TAF is being coloured
 
     invalid_stations =[]
 
     decoded_TAFs_data_list =[] # Stores all stations decoded_TAFs data
-    stations__threat_level = [] # Stores line related to threat level and runway length for SINGLE station
+    final_display__UPPER_COMBINED_threat_levels_and_winds = [] # Stores line related to threat level and runway length for SINGLE station
     for TAF in TAFs:
         # Checking if station is valid
         if type(TAF) == list: # if it is a LIST then it is not valid, so it can be processed as INVALID STATION
@@ -475,7 +595,6 @@ def analise_stations(settings, requested_stations, start_time, end_time):
                 continue
 
         # Decoding TAF
-        print('fpf. startime',end_time)
         decoded_TAF_dict = TAF_decoder_function(settings, TAF,start_time,end_time)
         decoded_TAFs_data_list.append(decoded_TAF_dict)
 
@@ -487,15 +606,16 @@ def analise_stations(settings, requested_stations, start_time, end_time):
             decoded_TAF_dict["runways_length"],
             decoded_TAF_dict["appr_data"])
 
-        stations__threat_level.append(combined_station_data)
+        final_display__UPPER_COMBINED_threat_levels_and_winds.append(combined_station_data)
 
 
 
     # Combinig stations threat and runways into single list
-    combined_stations_threat_level = combine_all_stations_threat_level(stations__threat_level)
+    combined_stations_threat_level = combine_all_stations_threat_level(final_display__UPPER_COMBINED_threat_levels_and_winds)
 
 
-    return [decoded_TAFs_data_list, combined_stations_threat_level]
+    return [decoded_TAFs_data_list, combined_stations_threat_level, METARs_list]
+
 
 
 

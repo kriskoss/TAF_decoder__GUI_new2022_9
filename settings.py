@@ -44,6 +44,10 @@ class Settings:
         self.testing_decoder = False
 
         self.show_wind_profile = False # SHOW relevant wind instead of STATIONS THREAT
+
+        self.on_staion_button_press_flag = False # Prevents from multiple load of METARs
+
+        self.display_METARs_on_page2 = True
     ####### END 2022.10###################
         ###########
         # Selection if use real time TAF or special case TAFs (check Data_new/TAFs__special_cases.json)
