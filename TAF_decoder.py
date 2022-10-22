@@ -578,7 +578,7 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
     Tdf.change_colour_of__type__and__time_group_to_match_max_thr_lvl_in__one_line(thr_lvl_data, thr_lvl_data_copy, settings)
 
     # crating list of hazardpus weather- ready to print
-    all_lines, wind_line = Tdf.create_list_of_thr_lvl_weather(thr_lvl_data, settings, settings.print_type, settings.print_time_group)
+    all_lines, wind_lines = Tdf.create_list_of_thr_lvl_weather(thr_lvl_data, settings, settings.print_type, settings.print_time_group)
     # adding coloured station name - required for later printing of data
     colored_station_name = Tdf.adding_coloured_station_name(thr_lvl_data)
 
@@ -613,11 +613,11 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
         "selected_time_info":Tdf.generate_selected_time_info(significant_time, weather_data_copy, colored_station_name, start_hour, end_hour, TAF),
         "decoded_TAF":Tdf.generate_decoded_TAF(settings,BECMG_color, error_added, error_found, grayed_area_right, weather_data, gr_data),
         "runways_length":Tdf.avaliable_rwys(apt_code, settings),
-        "station_threats":Tdf.generate_station_threats(all_lines, settings),
+        "station_threats":Tdf.convert_data_lists_to_single_string(all_lines, settings),
         "appr_data":Tdf.generate_appr_info(TAF, settings),
         "time_range": time_range,
         "max_threat_level_at_airport": max_threat_level_at_airport,
-        "wind_lien":wind_line
+        "wind_profile": Tdf.convert_data_lists_to_single_string(wind_lines,settings)
     }
 
     return decoded_TAF_dict

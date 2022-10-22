@@ -42,6 +42,8 @@ class Settings:
         self.time_group_type__symbol_BEFORE = "\n" # VALID ONLY when gap_active=False
 
         self.testing_decoder = False
+
+        self.show_wind_profile = False # SHOW relevant wind instead of STATIONS THREAT
     ####### END 2022.10###################
         ###########
         # Selection if use real time TAF or special case TAFs (check Data_new/TAFs__special_cases.json)

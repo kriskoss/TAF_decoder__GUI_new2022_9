@@ -1,4 +1,6 @@
 """function which are not required in a core file"""
+import pprint
+
 from colouring import SignificantColouring
 import colouring
 import json
@@ -187,17 +189,32 @@ def add_relevance_to_time_group(line_status, n,thr_lvl_data):
     #     print(line_status)
     #     quit()
 
+def add_wind(thr_lvl_data,n, data_for_key, wind_line, k):
+    """TO SIMPLYFY CODE - ADDs wimd only if it is NOT not-relevant"""
+    if thr_lvl_data[n]['wind']:
+        if not "not-relevant" in thr_lvl_data[n]['wind'][0][3]:
+
+            if k == 'time_group':
+                # IF TIME GROUP then start new line after
+                wind_line.append(data_for_key[1] + ' newlinee.Tdf')
+            else:
+                wind_line.append(data_for_key[1])
+
 def create_list_of_thr_lvl_weather(thr_lvl_data, settings,print_type, print_time_group):
     all_lines = []
+    wind_lines = []
     for n in range(len(thr_lvl_data)):
         # creating one line print
         one_line = []
         wind_line=[]
         if n == 0:
             if len(thr_lvl_data[n]['wind']) > 1:
-                one_line.append(thr_lvl_data[n]['wind'][1])
+                station_name_color_coded = thr_lvl_data[n]['wind'][1]
+                one_line.append(station_name_color_coded)  # ADDS STATION name color coded
+                wind_line.append(station_name_color_coded) # ADDS STATION name color coded
             elif len(thr_lvl_data[n]['wind']) == 1:
                 one_line.append(thr_lvl_data[n]['wind'][0] + '- selected time out of TAF range')
+                wind_line.append(thr_lvl_data[n]['wind'][0] + '- selected time out of TAF range')
             else:
                 print('error 3144 - check code here')
                 quit()
@@ -211,42 +228,66 @@ def create_list_of_thr_lvl_weather(thr_lvl_data, settings,print_type, print_time
                 if k == 'type' and print_time_group:
                     if data_for_key[1] == 'not-relevant' and settings.print_grayed_out:
                         one_line.append(data_for_key[1])
+                        wind_line.append(data_for_key[1])
 
                     elif data_for_key[1] != 'not-relevant':
                         if settings.print_severe and data_for_key[0] == 'severe':
                             one_line.append(data_for_key[1])
+
                         if settings.print_warnings and data_for_key[0] == 'warning':
                             one_line.append(data_for_key[1])
+
                         if settings.print_cautions and data_for_key[0] == 'caution':
                             one_line.append(data_for_key[1])
+
                         if settings.print_green and data_for_key[0] == 'green':
                             one_line.append(data_for_key[1])
+
+                        add_wind(thr_lvl_data,n, data_for_key, wind_line, k)
 
                 # ADDING TIME GROUP time range to one_line
                 elif k == 'time_group' and print_type:
                     if data_for_key[1] == 'not-relevant' and settings.print_grayed_out:
                         one_line.append(data_for_key[1])
+                        wind_line.append(data_for_key[1])
 
                     ## GENERATING TIME INFO REGARDING TEMPO, BCMG etc in THRET LEVEL VIEW
                     elif data_for_key[1] != 'not-relevant':
                         if settings.print_in_multiple_lines:
                             if settings.print_severe and data_for_key[0] == 'severe':
                                 one_line.append(data_for_key[1]+' newlinee.Tdf')
+
+
                             if settings.print_warnings and data_for_key[0] == 'warning':
                                 one_line.append(data_for_key[1]+' newlinee.Tdf')
+
+
                             if settings.print_cautions and data_for_key[0] == 'caution':
                                 one_line.append(data_for_key[1]+' newlinee.Tdf')
+
+
                             if settings.print_green and data_for_key[0] == 'green':
                                 one_line.append(data_for_key[1]+' newlinee.Tdf')
+
+                            ## ADDING WIND
+                            # Checks if NOT-RELEVANT wind is in the group - adds only relevant
+                            add_wind(thr_lvl_data,n, data_for_key, wind_line,k)
+
                         else:
                             if settings.print_severe and data_for_key[0] == 'severe':
                                 one_line.append(data_for_key[1])
+
                             if settings.print_warnings and data_for_key[0] == 'warning':
                                 one_line.append(data_for_key[1])
+
                             if settings.print_cautions and data_for_key[0] == 'caution':
                                 one_line.append(data_for_key[1])
+
                             if settings.print_green and data_for_key[0] == 'green':
                                 one_line.append(data_for_key[1])
+
+                            # ADDS TIME GROUP of related to the WIND
+                            add_wind(thr_lvl_data,n, data_for_key, wind_line,k)
 
                 # ADDING WEATHER DATA to one_line list
                 elif k == 'wind' or k == 'vis' or k == 'weather' or k == 'clouds':
@@ -272,10 +313,14 @@ def create_list_of_thr_lvl_weather(thr_lvl_data, settings,print_type, print_time
                                 # ADDING WIND data  - to separate list
                                 if k == 'wind':
                                     wind_line.append(i[1])
-                                    wind_line.append(i[1])
-        all_lines.append(one_line)
 
-    return all_lines, wind_line
+        all_lines.append(one_line)
+        wind_lines.append(wind_line)
+        # print('all lines&&&&&&&&&&&&&&&&&&&&&&')
+        # pprint.pprint(all_lines)
+        # print("wind lines^^^^^^^^^^^^^^^^^^^^^^")
+        # pprint.pprint(wind_lines)
+    return all_lines, wind_lines
 
 def find_max_threat_level_in_one_line(thr_lvl_data):
     max_threat_level_in_one_line = []
@@ -391,14 +436,20 @@ def adding_coloured_station_name(thr_lvl_data):
         print('error 5326 - check code here')
         quit()
 
-def     generate_station_threats(all_lines,settings):
-    station_threats =''
+def convert_data_lists_to_single_string(data_list,settings):
+    """
+
+    :param data_list: LIST containing threats or wind lists for each time group
+    :param settings: universal settings
+    :return: STRING - ready to display string containing any threat condition or wind
+    """
+    final_string =''
     ### ONE LINE
     if settings.print_in_one_line:
-        # BEGIN SIGN
+        # Begin sign
         s = ''
         count=0
-        for l in all_lines:
+        for l in data_list:
             # ADDING BREAK SYMBOL - skiping the STAION CODE and EMPTY LISTS
             if count==1:
                 # GAP between STATION and WEATHER
@@ -410,26 +461,28 @@ def     generate_station_threats(all_lines,settings):
             for i in l:
                 s = s + ' ' + i
             count += 1
-        station_threats += s
+        final_string += s
+
     if settings.print_in_one_line and settings.print_in_multiple_lines:
-        station_threats+= '\n\n'
+        final_string+= '\n\n'
 
 
     ### MULTILINE 2022.10
     if settings.print_in_multiple_lines:
         # for l in all_lines:
-        for i in range(len(all_lines)):
+        for i in range(len(data_list)):
             if i== 0:
                 s=''
             else:
                 s = ''
-            l= all_lines[i]
+            l= data_list[i]
             if l:  # skip printing of line if line is empty
                 for i in l:
                     s = s + ' ' + i
-                station_threats += s + '\n'
+                final_string += s + '\n'
 
-    return station_threats
+    return final_string
+
 ###############################################################12end
 
 # add new functions here

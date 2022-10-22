@@ -24,14 +24,18 @@ def combine_all_stations_threat_level(apt_threat_level):
 
     return '\n'.join(combined_stations_threat_level)
 
-def combine_data(settings,station_threats, runways_length, appr_data):
+def combine_data(settings,station_threats, wind_profile,runways_length, appr_data):
     station_threat_level=None
-    if settings.rwy_data == 0:
-        station_threat_level= station_threats
-    elif settings.rwy_data == 1:
-        station_threat_level= station_threats + '\n   ' + runways_length +'\n'
-    elif settings.rwy_data == 2:
-        station_threat_level= station_threats + '\n\n' + appr_data + '\n'
+    if settings.show_wind_profile:
+        station_threat_level = wind_profile + '\n   ' + runways_length + '\n'
+
+    else:
+        if settings.rwy_data == 0:
+            station_threat_level= station_threats
+        elif settings.rwy_data == 1:
+            station_threat_level= station_threats + '\n   ' + runways_length +'\n'
+        elif settings.rwy_data == 2:
+            station_threat_level= station_threats + '\n\n' + appr_data + '\n'
     return station_threat_level
 
 # BUTTON function - Update TAFs
@@ -479,6 +483,7 @@ def analise_stations(settings, requested_stations, start_time, end_time):
         combined_station_data = combine_data(
             settings,
             decoded_TAF_dict["station_threats"],
+            decoded_TAF_dict["wind_profile"],
             decoded_TAF_dict["runways_length"],
             decoded_TAF_dict["appr_data"])
 
@@ -489,7 +494,7 @@ def analise_stations(settings, requested_stations, start_time, end_time):
     # Combinig stations threat and runways into single list
     combined_stations_threat_level = combine_all_stations_threat_level(stations__threat_level)
 
-    
+
     return [decoded_TAFs_data_list, combined_stations_threat_level]
 
 

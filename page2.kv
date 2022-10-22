@@ -84,6 +84,9 @@
             # Multiline threats details
             text: "Mult"
             on_state: app.multiline_threats__toggle(self)
+        My_ToggleButton:
+            text: "Wind"
+            on_state: app.show_winds__toggle(self)
 
         My_ToggleButton:
             text:'RWY'
@@ -101,7 +104,7 @@
 
 <My_ToggleButton@ToggleButton>:
     size_hint:None,None
-    width: '60dp'
+    width: '50dp'
     height:'40dp'
 
 <TopPanel@BoxLayout>:

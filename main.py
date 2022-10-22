@@ -199,15 +199,19 @@ class TheTAFApp(App):
         TAFs_validity_start_times =[]
         TAFs_validity_end_times =[]
         max_threat_level_at_airports =[]
+
         for decoded_TAF_dict in decoded_TAFs_data_list:
+            # Looping throughout all STATIONS
 
             #Modifing STATION NAME to be more visible (2022.10)
             station_name = decoded_TAF_dict["station_name"]
             station_name=f'\n\n_________________________\n######### {station_name} ######### '
 
-
+            # Adding STATION NAME to TAFlabel
             decoded_TAFs.append(station_name)
             selected_time_info = decoded_TAF_dict["selected_time_info"]
+
+
 
             # REPLACING PLACEHOLDERS (2022.10)
             decoded_TAF = decoded_TAF_dict["decoded_TAF"]
@@ -826,6 +830,20 @@ class TheTAFApp(App):
             # DOWN
             settings.print_in_one_line = False
             settings.print_in_multiple_lines = True
+
+        # UPDATING DISPLAY OF TAFs
+        self.update_TAFs(app.requested_stations,
+                         app.value__start_slider,
+                         app.value__end_slider)
+        self.update_TAFs_display_labels()
+
+    def show_winds__toggle(self, widget):
+        if widget.state == "normal":
+            settings.show_wind_profile = False
+
+        else:
+            # DOWN
+            settings.show_wind_profile = True
 
         # UPDATING DISPLAY OF TAFs
         self.update_TAFs(app.requested_stations,
