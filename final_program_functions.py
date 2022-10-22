@@ -35,7 +35,7 @@ def combine_data(settings,station_threats, wind_profile,runways_length,appr_data
     :param appr_data:
     :return: STRING - ready to be displayed!!!!!!!
     """
-    final_display_string__UPPER=None
+    final_display_string__UPPER=''
     if settings.show_wind_profile:
         final_display_string__UPPER = wind_profile + '\n   ' + runways_length + '\n'
 

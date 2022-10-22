@@ -111,7 +111,7 @@ class TheTAFApp(App):
     label__stations_threat_levels = StringProperty('label__stations_threat_levels')
     label__decoded_TAFs = StringProperty('label__decoded_TAFs')
 
-    font_size = StringProperty('14dp')
+    font_size = StringProperty('15dp')
     search_input = StringProperty('')
 
 
@@ -171,10 +171,6 @@ class TheTAFApp(App):
             if self.last_reload_failed:
                 self.reload_TAFs_msg = f'Reload FAILED. Last reload {fpf.min_to_hours_and_days(self.time_delta_minutes)} ago'
 
-    def update_FontSize_slider_value(self,widget):
-        self.fontSize_slider_value = f'{int(widget.value/2)}sp'
-
-        self.update_scroll_height()
 
     def update_TAFs(self, settings, stations_, start, end):
 
@@ -264,8 +260,13 @@ class TheTAFApp(App):
         if settings.display_METARs_on_page2:
             METARs_list = ["\n ####### METARS ###########"] + METARs_list
 
-            METARs_final_string = '\n\n'.join(METARs_list)
-            print(METARs_final_string, 'main/ddddddddd')
+            for item in METARs_list:
+                if item:
+                    METARs_final_string = METARs_final_string + '\n\n' + item
+
+
+            
+
 
 
         self.label__decoded_TAFs = \
@@ -756,21 +757,26 @@ class TheTAFApp(App):
     slider_height =StringProperty(both_sliders_visible__slider_height)
     slider_opacity = StringProperty(slider_opacity__visible)
 
-    font_counter = 0
+    font_counter = 1
 
     def change_font_size(self):
         """Changes the decoded TAF font"""
+        self.font_counter += 1
         if self.font_counter ==0:
-            f_size = "10sp"
+            f_size = "12dp"
         elif self.font_counter ==1:
-            f_size = "15sp"
+            f_size = "15dp"
+        elif self.font_counter ==2:
+            f_size = "18dp"
         else:
-            f_size = "20sp"
+            f_size = "14dp"
         self.font_size = f_size
-        if self.font_counter <2:
-            self.font_counter+=1
-        else:
+
+
+        if self.font_counter ==3:
             self.font_counter=0
+
+
 
 
 
@@ -811,7 +817,7 @@ class TheTAFApp(App):
         self.value__start_slider = str(self.time_now.strftime("%H"))
         self.value__end_slider = str(int(self.value__start_slider) + n)
         self.period_counter = int(self.time_now.strftime("%H"))
-        print(self.value__start_slider,self.value__end_slider, 'main.dddd')
+
 
     def next_nh_PAGE1(self,n):
         #3h,6h,12h,
