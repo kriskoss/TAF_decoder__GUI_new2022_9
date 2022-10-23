@@ -191,8 +191,14 @@ def download_taf_database(parse):
 
     # Converting data_sorted into a dictionary
     tafs_cleaned_dict = {'station_id': [], 'raw_text': []}
+    num_TAFs_downloaded =0
     for i in range(len(data__sorted)):
+
         tafs_cleaned_dict['station_id'].append(data__sorted[i][1])
+        ## Counting downloaded TAFs
+        if len(tafs_cleaned_dict['station_id'])==4:
+            num_TAFs_downloaded+=1
+            print(num_TAFs_downloaded)
         tafs_cleaned_dict['raw_text'].append(data__sorted[i][0])
 
     # Store tafs_cleanded_dict as json
@@ -203,7 +209,7 @@ def download_taf_database(parse):
     with open(path, "w") as f_obj:
         json.dump(tafs_cleaned_dict, f_obj)
 
-
+    return num_TAFs_downloaded
 
 # Button function - Update Airports
 def download_airports_database():

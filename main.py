@@ -170,7 +170,10 @@ class TheTAFApp(App):
     global_decoded_TAFs_data_list = []
     global_decoded_TAF = ''
     single_decoded_TAF = StringProperty('')
+    num_TAFs_downloaded = StringProperty('0')
 
+    reload_status=StringProperty("#935999")
+    reload_button_msg = StringProperty("Reload TAFs")
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -213,9 +216,9 @@ class TheTAFApp(App):
 
             self.time_delta_minutes = str(math.floor(time_delta__object.total_seconds() / 60))
 
-            self.reload_TAFs_msg = f'Last reload  {last_update__object.strftime("%H:%M UTC ,%d-%m-%Y ")},  {fpf.min_to_hours_and_days(self.time_delta_minutes)} ago'
+            self.reload_TAFs_msg = f'Last reload  {last_update__object.strftime("%H:%M UTC ,%d-%m-%Y ")},  {fpf.min_to_hours_and_days(self.time_delta_minutes)} ago, {self.num_TAFs_downloaded} TAFs'
             if self.last_reload_failed:
-                self.reload_TAFs_msg = f'Reload FAILED. Last reload {fpf.min_to_hours_and_days(self.time_delta_minutes)} ago'
+                self.reload_TAFs_msg = f'Reload FAILED. Last reload {fpf.min_to_hours_and_days(self.time_delta_minutes)} ago. {self.num_TAFs_downloaded} TAFs'
 
 
     def update_TAFs(self, settings, stations_, start, end):
@@ -484,13 +487,15 @@ class TheTAFApp(App):
 
         # TRYING to UPDATE TAFs
         try:
-            fpf.download_taf_database(parse)
+            self.num_TAFs_downloaded= fpf.download_taf_database(parse)
             fpf.download_metars_database(parse)
         # UPDATE FAILED
         except:
             # set FLAG to TRUE
             self.last_reload_failed = True
             print(" ########## UPDATE FAILED ############")
+            self.reload_status ="#ff0015"
+            self.reload_button_msg= "TAFs Reload - FAILED!"
 
         # UPDATE SUCCESSFUL
         else:
@@ -505,6 +510,9 @@ class TheTAFApp(App):
             with open(path, "w") as f_obj:
                 json.dump(reload_time, f_obj)
 
+            # Updating button and label
+            self.reload_status = "#00ff59"
+            self.reload_button_msg = "TAFs Reload - SUCCESSFUL"
 
 
 
@@ -971,7 +979,7 @@ class TheTAFApp(App):
         app.create_SINGLE_station_buttons(id__TAF_groups_Stack)
         app.create_last_requests_buttons(id__Last_requests,settings)
 
-    def pritnsth(self, widget):
-        widget.text = app.global_decoded_TAF
-        print(app.global_decoded_TAF, 'main.uuuuuuu')
+    def reloading_inprogress(self):
+        self.reload_status = "#7b9fba"
+        self.reload_button_msg ="Reloading"
 TheTAFApp().run()  # RUNS THE KIVY!!

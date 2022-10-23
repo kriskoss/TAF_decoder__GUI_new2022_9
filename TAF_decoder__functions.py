@@ -293,7 +293,9 @@ def create_list_of_thr_lvl_weather(thr_lvl_data, settings,print_type, print_time
                 elif k == 'wind' or k == 'vis' or k == 'weather' or k == 'clouds':
                     if data_for_key != []:
                         for i in data_for_key:
+
                             if (i[3] == 'not-relevant TEMPO' or i[3] == 'not-relevant BECMG') and settings.print_grayed_out:
+
                                 one_line.append(i[1])
 
                                 # ADDING WIND data  - to separate list (this one depends on settings)
@@ -937,7 +939,7 @@ def creating_weather_data_list(settings,gr_data, type_of_group, reference, score
                 weather_data_dict['clouds'].append("")  # # 2022.10 # CAVOK CANCELS CLOUDS
                 score.append([n, l])
 
-            wind = ['KT', 'MPS', 'CALM', 'VRB']
+            wind = ['KT', 'MPS', 'CALM'] # VRB not necessaru necause KT and MPS is also included e.g. VRB05KTS
             for w in wind:
 
                 if w in p:
@@ -945,6 +947,7 @@ def creating_weather_data_list(settings,gr_data, type_of_group, reference, score
                         print(p, 'wwwwwwwwwwwww')
                     weather_data_dict['wind'].append(p)
                     score.append([n, l])
+
             clouds = ['SKC', 'NSC', 'VV', 'FEW', 'SCT', 'BKN', 'OVC', ]
 
             for c in clouds:
@@ -1024,7 +1027,7 @@ def creating_weather_data_list(settings,gr_data, type_of_group, reference, score
             l += 1
 
         weather_data.append(weather_data_dict)
-
+    print(weather_data, 'TDd.ffff')
     return weather_data
     # make loop until dict full of weather
 
