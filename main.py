@@ -242,7 +242,7 @@ class TheTAFApp(App):
 
         # Making DECODED TAFs data available in the whole APP
         app.global_decoded_TAFs_data_list = decoded_TAFs_data_list
-        print(app.global_decoded_TAFs_data_list, 'aaaaaa')
+
         for decoded_TAF_dict in decoded_TAFs_data_list:
             # Looping throughout all STATIONS
 
@@ -289,7 +289,7 @@ class TheTAFApp(App):
 
         self.TAFs_validity__earliers_start_txt = str(min(TAFs_validity_start_times))
         self.TAFs_validity__latest_end_txt = str(max(TAFs_validity_end_times))
-
+        print(TAFs_validity_start_times, TAFs_validity_end_times, "main.ddddddd")
         #### UPDATING FINAL DISPLAY!!!!! -- START HERE TO MODIFY ANYTHING
         self.update_FINAL_DISPLAY(combined_stations_threat_level, decoded_TAFs, METARs_list, settings)
         return max_threat_level_at_airports
@@ -457,11 +457,13 @@ class TheTAFApp(App):
 
 
         # Resets counter when the max value reached
-        if self.period_counter > int(self.TAFs_validity__latest_end_txt) - int(self.initial_difference_str):
-            self.period_counter = int(datetime.datetime.utcnow().strftime("%H"))
-        if self.period_counter < int(datetime.datetime.utcnow().strftime("%H")):
-            self.period_counter = int(self.TAFs_validity__latest_end_txt)-int(self.initial_difference_str)
+        ##### LIMITS OF THE SLIDERS
+        # if self.period_counter > int(self.TAFs_validity__latest_end_txt) - int(self.initial_difference_str):
+        #     self.period_counter = int(datetime.datetime.utcnow().strftime("%H"))
+        # if self.period_counter < int(datetime.datetime.utcnow().strftime("%H")):
+        #     self.period_counter = int(self.TAFs_validity__latest_end_txt)-int(self.initial_difference_str)
         # Updates BUTTON description
+
         self.value__start_slider = str(self.period_counter)
 
         self.value__end_slider = str(self.period_counter + int(self.initial_difference_str))
