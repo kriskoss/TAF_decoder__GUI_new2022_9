@@ -53,6 +53,7 @@ def combine_data(settings,station_threats, wind_profile,runways_length,appr_data
 def download_metars_database(parse):
     url = 'https://www.aviationweather.gov/adds/dataserver_current/current/metars.cache.csv.gz'
     response = requests.get(url)
+    print(response, 'fpf.Metar_response')
     path__compresed = "Data_new/api__metars_downloaded.csv.gz"
 
     # SAVING database
@@ -130,6 +131,7 @@ def download_taf_database(parse):
 
     url = 'https://www.aviationweather.gov/adds/dataserver_current/current/tafs.cache.csv.gz'
     response = requests.get(url)
+    print(response, 'fpf.TAF response')
     path__compresed = "Data_new/api__tafs_downloaded.csv.gz"
 
     ##  FOR DEVELOPMENT ONLY!! - -SWITCHED OFF TO AVOID LOADING from the Internet DATA EVERYTIME
@@ -196,9 +198,9 @@ def download_taf_database(parse):
 
         tafs_cleaned_dict['station_id'].append(data__sorted[i][1])
         ## Counting downloaded TAFs
-        if len(tafs_cleaned_dict['station_id'])==4:
+        if len(tafs_cleaned_dict['station_id'][i])==4:
             num_TAFs_downloaded+=1
-            print(num_TAFs_downloaded)
+
         tafs_cleaned_dict['raw_text'].append(data__sorted[i][0])
 
     # Store tafs_cleanded_dict as json

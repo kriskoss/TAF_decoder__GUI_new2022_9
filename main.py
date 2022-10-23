@@ -487,11 +487,12 @@ class TheTAFApp(App):
 
         # TRYING to UPDATE TAFs
         try:
-            self.num_TAFs_downloaded= fpf.download_taf_database(parse)
+            self.num_TAFs_downloaded= str(fpf.download_taf_database(parse))
             fpf.download_metars_database(parse)
         # UPDATE FAILED
         except:
             # set FLAG to TRUE
+            self.num_TAFs_downloaded ='--'
             self.last_reload_failed = True
             print(" ########## UPDATE FAILED ############")
             self.reload_status ="#ff0015"
