@@ -706,7 +706,7 @@ class TheTAFApp(App):
             #       int(self.value__start_slider) + settings.SINGLE_station_time_range,'main.oooooooo')
             dispalyed_start = int(self.value__start_slider)
             dispalyed_end = int(self.value__start_slider) + settings.SINGLE_station_time_range
-            app.PAGE1_time_range = f'Colouring time range: {Td_helpers.hours_to_ddhh(dispalyed_start)} -  {Td_helpers.hours_to_ddhh(dispalyed_end)}'
+            app.PAGE1_time_range = f'[b]{app.color_on__t_range}h[/b] COLOR RANGE,     {Td_helpers.hours_to_ddhh(dispalyed_start)} -  {Td_helpers.hours_to_ddhh(dispalyed_end)}  '
             ## GETTING THREAT LEVEL FOR SINGLE STATION
             station_name = [station_name]  ## ONLY ONE STATION - nested functions require LIST not STRING
             decoded_TAFs_data_list, _NOT_USED ,_NOT_USED= fpf.analise_stations(

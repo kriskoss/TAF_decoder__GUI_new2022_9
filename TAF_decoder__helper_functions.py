@@ -174,4 +174,4 @@ def hours_to_ddhh(hours):
     if hours<24:
         return f'[b]{hours}:00[/b]'
     else:
-        return f'(+24) [b]{hours-24}:00[/b]'
+        return f'[b]{hours-24}:00(+1day)[/b]'
