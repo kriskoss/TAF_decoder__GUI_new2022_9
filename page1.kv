@@ -32,6 +32,13 @@
             size_hint:None,1
             width: '60dp'
 
+    Label:
+        markup:True
+        size_hint:1,None
+        height:"10dp"
+        font_size:"16dp"
+        text: app.PAGE1_time_range
+
     BoxLayout:
         spacing:'5dp'
         Last_requests__scroll:
@@ -42,12 +49,7 @@
         TAF_groups__scroll:
             id: id__TAF_groups__scroll
 
-    Label:
-        markup:True
-        size_hint:1,None
-        height:"10dp"
-        font_size:"16dp"
-        text: app.PAGE1_time_range
+
 
     BoxLayout:
         size_hint:1,None
