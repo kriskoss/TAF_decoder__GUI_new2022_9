@@ -26,6 +26,10 @@ import final_program_functions
 from TAF_decoder__helper_functions import ref, prBoxed,TEMPO_color,BECMG_color, INTER_color,BECMG_non_significant_color,grayed_area_left,grayed_area_right,error_added,add_to_dict_gr_data,print_dicts,add_to_dict_TIME_gr_data, print_keys, print_all_data, print_list
 import copy
 def TAF_decoder_function(settings, TAF, start_hour, end_hour):
+
+    ### IF ERROR DETECTED  -- returns RAW (may need some more work)
+    return_raw__error_detected = False
+
     # Spliiting TAF into words
     TAF_split = TAF.split(' ')
 
@@ -566,70 +570,94 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
     thr_lvl_data_copy = copy.deepcopy(thr_lvl_data)
 
     # adding relevance part to data in 'type' and 'time_group'
-    Tdf.add_relevance_to__type__and__time_group(BECMG_color, TEMPO_color, INTER_color, grayed_area_right, thr_lvl_data)
+
+    try:
+        Tdf.add_relevance_to__type__and__time_group(BECMG_color, TEMPO_color, INTER_color, grayed_area_right, thr_lvl_data)
+    except:
+        print('fatal error - T_d.252')
+        return_raw__error_detected =True
 
     ### finding and colouring the highest level o threat for an airport ###
     # finding max threat level in one_line of TAF
-    max_threat_level_in_one_line = Tdf.find_max_threat_level_in_one_line(thr_lvl_data)
+    try:
+        max_threat_level_in_one_line = Tdf.find_max_threat_level_in_one_line(thr_lvl_data)
 
 
-    # 'type' and time_group' data - adding threat level of one_line
-    Tdf.adding_threat_level_data_of__type__and_time_group__to__thr_lvl_data(max_threat_level_in_one_line, thr_lvl_data)
+        # 'type' and time_group' data - adding threat level of one_line
+        Tdf.adding_threat_level_data_of__type__and_time_group__to__thr_lvl_data(max_threat_level_in_one_line, thr_lvl_data)
 
 
-    # finding max threat level at the airport
-    max_threat_level_at_airport = Tdf.finding_max_threat_level_at_the_airport(max_threat_level_in_one_line)
+        # finding max threat level at the airport
 
-    # adding threat level to airport name data
-    thr_lvl_data[0]['wind'] = max_threat_level_at_airport + thr_lvl_data[0]['wind']
+        max_threat_level_at_airport = Tdf.finding_max_threat_level_at_the_airport(max_threat_level_in_one_line)
 
-    Tdf.colouring_airport_in_thr_lvl_data(thr_lvl_data, thr_lvl_data_copy, grayed_area_right)
+        # adding threat level to airport name data
+        thr_lvl_data[0]['wind'] = max_threat_level_at_airport + thr_lvl_data[0]['wind']
+    except:
+        print('FATAL ERROR - T_d.maxddd')
+        return_raw__error_detected =True
 
-    Tdf.change_colour_of__type__and__time_group_to_match_max_thr_lvl_in__one_line(thr_lvl_data, thr_lvl_data_copy, settings)
+    if not return_raw__error_detected:
+        Tdf.colouring_airport_in_thr_lvl_data(thr_lvl_data, thr_lvl_data_copy, grayed_area_right)
 
-    # crating list of hazardpus weather- ready to print
-    all_lines, wind_lines = Tdf.create_list_of_thr_lvl_weather(thr_lvl_data, settings, settings.print_type, settings.print_time_group)
-    # adding coloured station name - required for later printing of data
-    colored_station_name = Tdf.adding_coloured_station_name(thr_lvl_data)
+        Tdf.change_colour_of__type__and__time_group_to_match_max_thr_lvl_in__one_line(thr_lvl_data, thr_lvl_data_copy, settings)
 
-    # Suplementary print outs
-    if not error_found == []:
-        err_msg = error_added("Errors found:")
-        print('\nLegend:' + "\033[94m {}\033[00m".format('TEMPO'),
-              "\033[95m {}\033[00m".format('Initial/BECMG') + ' ' + err_msg)
-        print(error_found)
-        print(error_type_of_group)
+        # crating list of hazardpus weather- ready to print
+        all_lines, wind_lines = Tdf.create_list_of_thr_lvl_weather(thr_lvl_data, settings, settings.print_type, settings.print_time_group)
+        # adding coloured station name - required for later printing of data
+        colored_station_name = Tdf.adding_coloured_station_name(thr_lvl_data)
 
-        print_dicts(gr_data, 'groups_strings')
-    if settings.print_colouring_logic:
-        print('wind_ranges'), print_list(wind_ranges)
-        print()
-        print_list(vis_ranges)
-        print('')
-        print_list(weather_ranges)
-        print('')
-        print_list(clouds_ranges)
-        print(becmg_time_group_coloring_list)
-    # print_all_data(gr_data, time_gr_data, weather_data, weather_data_copy)
+        # Suplementary print outs
+        if not error_found == []:
+            err_msg = error_added("Errors found:")
+            print('\nLegend:' + "\033[94m {}\033[00m".format('TEMPO'),
+                  "\033[95m {}\033[00m".format('Initial/BECMG') + ' ' + err_msg)
+            print(error_found)
+            print(error_type_of_group)
+
+            print_dicts(gr_data, 'groups_strings')
+        if settings.print_colouring_logic:
+            print('wind_ranges'), print_list(wind_ranges)
+            print()
+            print_list(vis_ranges)
+            print('')
+            print_list(weather_ranges)
+            print('')
+            print_list(clouds_ranges)
+            print(becmg_time_group_coloring_list)
+        # print_all_data(gr_data, time_gr_data, weather_data, weather_data_copy)
 
 
-    ##### PRINTING FINAL ##########
+        ##### PRINTING FINAL ##########
 
-    apt_code = weather_data_copy[0]['wind'][0]
+        apt_code = weather_data_copy[0]['wind'][0]
 
-    # Generating data and adding it into the dictionary
-    decoded_TAF_dict = {
-        "station_name": station_name[0],
-        "selected_time_info":Tdf.generate_selected_time_info(significant_time, weather_data_copy, colored_station_name, start_hour, end_hour, TAF),
-        "decoded_TAF":Tdf.generate_decoded_TAF(settings,BECMG_color, error_added, error_found, grayed_area_right, weather_data, gr_data),
-        "runways_length":Tdf.avaliable_rwys(apt_code, settings),
-        "station_threats":Tdf.convert_data_lists_to_single_string(all_lines, settings),
-        "appr_data":Tdf.generate_appr_info(TAF, settings),
-        "time_range": time_range,
-        "max_threat_level_at_airport": max_threat_level_at_airport,
-        "wind_profile": Tdf.convert_data_lists_to_single_string(wind_lines,settings)
-    }
-
+        # Generating data and adding it into the dictionary
+        decoded_TAF_dict = {
+            "station_name": station_name[0],
+            "selected_time_info":Tdf.generate_selected_time_info(significant_time, weather_data_copy, colored_station_name, start_hour, end_hour, TAF),
+            "decoded_TAF":Tdf.generate_decoded_TAF(settings,BECMG_color, error_added, error_found, grayed_area_right, weather_data, gr_data),
+            "runways_length":Tdf.avaliable_rwys(apt_code, settings),
+            "station_threats":Tdf.convert_data_lists_to_single_string(all_lines, settings),
+            "appr_data":Tdf.generate_appr_info(TAF, settings),
+            "time_range": time_range,
+            "max_threat_level_at_airport": max_threat_level_at_airport,
+            "wind_profile": Tdf.convert_data_lists_to_single_string(wind_lines,settings)
+        }
+    # ERROR DETECTED IN DECODING --- RETURNING RAW TAF
+    else:
+        print('T_d. printing raw')
+        decoded_TAF_dict = {
+            "station_name": station_name[0],
+            "selected_time_info": 'errA',
+            "decoded_TAF": TAF,
+            "runways_length": 'errB',
+            "station_threats": station_name[0],
+            "appr_data": 'errD',
+            "time_range": time_range,
+            "max_threat_level_at_airport": ['not-relevant'],
+            "wind_profile": 'errF',
+        }
     return decoded_TAF_dict
 
 

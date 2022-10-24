@@ -147,7 +147,7 @@ def colour_change_base_on_relevance__time_group(BECMG_color, TEMPO_color,INTER_c
         thr_lvl_data[n]['time_group'][0] = INTER_color(t_g[0])
     else:
         print('T_d.error 1231-3 -check code here')
-        quit()
+        # quit()
 
 def colour_change_base_on_relevance__type(BECMG_color, TEMPO_color, INTER_color, grayed_area_right, n, thr_lvl_data):
     """changing colour of 'type' group depending on relevance flag"""
@@ -162,7 +162,8 @@ def colour_change_base_on_relevance__type(BECMG_color, TEMPO_color, INTER_color,
         thr_lvl_data[n]['type'][0] = INTER_color(t[0])
     else:
         print('T_d.error 1231-2 -check code here')
-        quit()
+
+        # quit()
 
 def add_relevance_to_time_group(line_status, n,thr_lvl_data):
     ## adding 'relevant' data to 'time_group' (##)
@@ -187,7 +188,8 @@ def add_relevance_to_time_group(line_status, n,thr_lvl_data):
     else:
         print('T_d.error 1231-1 check code here - conflicting codes in  linestatus')
         print(line_status)
-        quit()
+        thr_lvl_data[n]['time_group'] = 'fatal error'
+        # quit()
     # if line_status == {'not-relevant'}:
     #     thr_lvl_data[n]['type'] = [t, 'not-relevant']
     #     thr_lvl_data[n]['time_group'] = [t_g, 'not-relevant']  ##
