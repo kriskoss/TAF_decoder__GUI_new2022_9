@@ -52,6 +52,11 @@ def TEMPO_color(string):
     string = prGreen(string)
     return string
 
+def INTER_color(string):
+    # string = prCyan(string)
+    string = prGreen(string)
+    return string
+
 
 def BECMG_color(string):
     string = prGreen(string)

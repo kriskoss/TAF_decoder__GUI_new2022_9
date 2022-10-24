@@ -100,7 +100,7 @@ def create_thr_lvl_data_list(weather_data,weather_data_copy, settings):
     return thr_lvl_data
 ###############################################################12start
 #LEVEL 1#
-def add_relevance_to__type__and__time_group(BECMG_color, TEMPO_color, grayed_area_right, thr_lvl_data):
+def add_relevance_to__type__and__time_group(BECMG_color, TEMPO_color, INTER_color, grayed_area_right, thr_lvl_data):
     for n in range(len(thr_lvl_data)):
         # adding extra data to 'type' key
         line_status = set([])  # stores data relevant for colouring of type - is any item relevant or not and if it is TEMPO or BCMG or Init
@@ -109,8 +109,8 @@ def add_relevance_to__type__and__time_group(BECMG_color, TEMPO_color, grayed_are
         if n > 0:
             check_relevance_of_items_in_line(line_status, n, thr_lvl_data)
             add_relevance_to_time_group(line_status, n, thr_lvl_data)
-            colour_change_base_on_relevance__type(BECMG_color, TEMPO_color, grayed_area_right, n, thr_lvl_data)
-            colour_change_base_on_relevance__time_group(BECMG_color, TEMPO_color, grayed_area_right, n, thr_lvl_data)
+            colour_change_base_on_relevance__type(BECMG_color, TEMPO_color, INTER_color,grayed_area_right, n, thr_lvl_data)
+            colour_change_base_on_relevance__time_group(BECMG_color, TEMPO_color, INTER_color,grayed_area_right, n, thr_lvl_data)
 
 #LEVEL 2#
 def check_relevance_of_items_in_line(line_status, n, thr_lvl_data):
@@ -120,17 +120,20 @@ def check_relevance_of_items_in_line(line_status, n, thr_lvl_data):
         if k == 'wind' or k == 'vis' or k == 'weather' or k == 'clouds':
             if v != []:
                 for item in v:
-                    if 'not-relevant TEMPO' in item or 'not-relevant BECMG' in item:
+
+                    if 'not-relevant TEMPO' in item or 'not-relevant BECMG' in item or 'not-relevant INTER' in item:
                         line_status.add('not-relevant')
                     elif 'relevant TEMPO' in item:
                         line_status.add('relevant TEMPO')
                     elif 'relevant BECMG' in item:
                         line_status.add('relevant BECMG')
+                    elif 'relevant INTER' in item:
+                        line_status.add('relevant INTER')
                     else:
                         print('error 141')
-                        quit()
 
-def colour_change_base_on_relevance__time_group(BECMG_color, TEMPO_color, grayed_area_right, n, thr_lvl_data):
+
+def colour_change_base_on_relevance__time_group(BECMG_color, TEMPO_color,INTER_color, grayed_area_right, n, thr_lvl_data):
     """changing colour of 'time_group' group depending on relevance flag"""
     t_g = thr_lvl_data[n]['time_group']
 
@@ -140,11 +143,13 @@ def colour_change_base_on_relevance__time_group(BECMG_color, TEMPO_color, grayed
         thr_lvl_data[n]['time_group'][0] = BECMG_color(t_g[0])
     elif t_g[1] == 'relevant TEMPO':
         thr_lvl_data[n]['time_group'][0] = TEMPO_color(t_g[0])
+    elif t_g[1] == 'relevant INTER':
+        thr_lvl_data[n]['time_group'][0] = INTER_color(t_g[0])
     else:
         print('T_d.error 1231-3 -check code here')
         quit()
 
-def colour_change_base_on_relevance__type(BECMG_color, TEMPO_color, grayed_area_right, n, thr_lvl_data):
+def colour_change_base_on_relevance__type(BECMG_color, TEMPO_color, INTER_color, grayed_area_right, n, thr_lvl_data):
     """changing colour of 'type' group depending on relevance flag"""
     t = thr_lvl_data[n]['type']
     if t[1] == 'not-relevant':
@@ -153,6 +158,8 @@ def colour_change_base_on_relevance__type(BECMG_color, TEMPO_color, grayed_area_
         thr_lvl_data[n]['type'][0] = BECMG_color(t[0])
     elif t[1] == 'relevant TEMPO':
         thr_lvl_data[n]['type'][0] = TEMPO_color(t[0])
+    elif t[1] == 'relevant INTER':
+        thr_lvl_data[n]['type'][0] = INTER_color(t[0])
     else:
         print('T_d.error 1231-2 -check code here')
         quit()
@@ -165,10 +172,16 @@ def add_relevance_to_time_group(line_status, n,thr_lvl_data):
     if 'relevant BECMG' in line_status:
         thr_lvl_data[n]['type'] = [t, 'relevant BECMG']
         thr_lvl_data[n]['time_group'] = [t_g, 'relevant BECMG']  ##
+
     elif 'relevant TEMPO' in line_status:
         thr_lvl_data[n]['type'] = [t, 'relevant TEMPO']
         thr_lvl_data[n]['time_group'] = [t_g, 'relevant TEMPO']  ##
-    elif ('relevant BECMG' not in  line_status or 'relevant TEMPO' not in line_status) and 'not-relevant' in line_status:
+    elif 'relevant INTER' in line_status:
+        thr_lvl_data[n]['type'] = [t, 'relevant INTER']
+        thr_lvl_data[n]['time_group'] = [t_g, 'relevant INTER']  ##
+
+
+    elif ('relevant BECMG' not in  line_status or 'relevant TEMPO' not in line_status or 'relevant INTER' not in line_status) and 'not-relevant' in line_status:
         thr_lvl_data[n]['type'] = [t, 'not-relevant']
         thr_lvl_data[n]['time_group'] = [t_g, 'not-relevant']
     else:
@@ -294,7 +307,7 @@ def create_list_of_thr_lvl_weather(thr_lvl_data, settings,print_type, print_time
                     if data_for_key != []:
                         for i in data_for_key:
 
-                            if (i[3] == 'not-relevant TEMPO' or i[3] == 'not-relevant BECMG') and settings.print_grayed_out:
+                            if (i[3] == 'not-relevant TEMPO' or i[3] == 'not-relevant BECMG' or i[3] == 'not-relevant INTER') and settings.print_grayed_out:
 
                                 one_line.append(i[1])
 
@@ -302,7 +315,7 @@ def create_list_of_thr_lvl_weather(thr_lvl_data, settings,print_type, print_time
                                 if k == 'wind':
                                     wind_line.append(i[1])
 
-                            elif i[3] != 'not-relevant TEMPO' and i[3] != 'not-relevant BECMG':
+                            elif i[3] != 'not-relevant TEMPO' and i[3] != 'not-relevant BECMG' and i[3] != 'not-relevant INTER':
                                 if settings.print_green and i[0] == 'green':
                                     one_line.append(i[1])
                                 if settings.print_cautions and i[0] == 'caution':
@@ -334,9 +347,9 @@ def find_max_threat_level_in_one_line(thr_lvl_data):
             if data_for_key != []:
                 if k == 'wind' or k == 'vis' or k == 'weather' or k == 'clouds':
                     for i in data_for_key:
-                        if i[3] == 'relevant TEMPO' or i[3] == 'relevant BECMG':
+                        if i[3] == 'relevant TEMPO' or i[3] == 'relevant BECMG' or i[3] == 'relevant INTER':
                             threats_in_one_line.append(i[0])
-                        elif i[3] == 'not-relevant TEMPO' or i[3] == 'not-relevant BECMG':
+                        elif i[3] == 'not-relevant TEMPO' or i[3] == 'not-relevant BECMG' or i[3] == 'not-relevant INTER':
                             pass
                         else:
                             print('error T_d 1414 - edit code here')
@@ -875,6 +888,17 @@ def creating_type_of_group(settings,time_string_uncorrected, TAF_split, station_
                 type_of_group.append('P40 T')
             else:
                 type_of_group.append('T')
+
+        elif one_before == 'INTER':
+            if two_before == 'PROB30':
+                type_of_group.append('P30 ITR')
+            elif two_before == 'PROB40':
+                type_of_group.append('P40 ITR')
+            else:
+                type_of_group.append('ITR')
+
+
+
         elif settings.no_publication_time_not_an_error == True \
                 and (len(one_before) == 4 and one_before.isalpha()):
             type_of_group.append('Initial')
@@ -988,7 +1012,7 @@ def creating_weather_data_list(settings,gr_data, type_of_group, reference, score
 
 
                 if w == 'PO':
-                    if p == 'TEMPO': pass
+                    if p == 'TEMPO' or p == 'INTER': pass
                 elif w == 'PR':
                     if p == 'PROB30': pass
                 elif w in p:
@@ -1002,7 +1026,7 @@ def creating_weather_data_list(settings,gr_data, type_of_group, reference, score
                 """ this part is responsible for catching erroneous data or 
                 values which has were missed from decoding. Without this any of
                 erroneous data wont appear in final TAF ."""
-                propper_words = ['TEMPO', 'PROB30', 'BECMG', 'PROB40',
+                propper_words = ['TEMPO','INTER', 'PROB30', 'BECMG', 'PROB40',
                                  'TAF',
                                  'COR', 'AMD']
                 gaps = []
@@ -1027,7 +1051,7 @@ def creating_weather_data_list(settings,gr_data, type_of_group, reference, score
             l += 1
 
         weather_data.append(weather_data_dict)
-    print(weather_data, 'TDd.ffff')
+
     return weather_data
     # make loop until dict full of weather
 
@@ -1059,7 +1083,7 @@ def weather_for_selected_time_RIGHT(key_,settings, weather_data, significant_tim
         typ = weather_data[n]['type']
         wx_key = weather_data[n][key_]
         t_range = weather_data[n]['modified_range']
-        ### ------ TEMPO colouring ------------------------------------------
+        ### ------ TEMPO  and INTER colouring ------------------------------------------
         significant_time_stack = []
         # creating significant_time_stack to monitor if significant_time
         # encroaches range
@@ -1075,6 +1099,7 @@ def weather_for_selected_time_RIGHT(key_,settings, weather_data, significant_tim
             elif wx_key != []:
                 # print(typ, t_range, wx_key)
 
+                # TEMPO and PROB
                 if typ == 'T' or typ == 'P40 T' or typ == 'P30 T' or typ == 'P40' or typ == 'P30':
                     if key_ == 'clouds' or key_ == 'weather' or key_ == 'vis' or key_ == 'wind':
                         m = 0
@@ -1098,6 +1123,33 @@ def weather_for_selected_time_RIGHT(key_,settings, weather_data, significant_tim
                                 weather_data[n][key_] = wx_key
                             m += 1
 
+                #INTER
+                elif typ == 'ITR' or typ == 'P40 ITR' or typ == 'P30 ITR':
+                    if key_ == 'clouds' or key_ == 'weather' or key_ == 'vis' or key_ == 'wind':
+                        m = 0
+                        for i in wx_key:
+                            if str('\x1b') not in i[1]:
+                                skk = i[1]
+                                tempo_text = Td_helpers.INTER_color(skk)
+                                i = tempo_text
+                                weather_data[n][key_][m][1] = i
+                                weather_data[n][key_][m].append('relevant INTER')
+
+                            elif str('\x1b') in i[1]:
+                                weather_data[n][key_][m].append('relevant INTER')
+
+                            else:
+                                print('error -121 - update code ')
+                                quit()
+                                skk = wx_key
+                                tempo_text = Td_helpers.INTER_color(skk)
+                                wx_key = tempo_text
+                                weather_data[n][key_] = wx_key
+                            m += 1
+
+
+
+
                 elif typ == 'Initial' or typ == 'B' or typ == 'FM':
                     pass
                 else:
@@ -1109,9 +1161,9 @@ def weather_for_selected_time_RIGHT(key_,settings, weather_data, significant_tim
                     weather_data[n][key_] = wx_key
 
         elif len(significant_time_stack) == 0:
-            """ stores n which contain TEMPO and is outside significant time
+            """ stores n which contain TEMPO and INTER and is outside significant time
             - it is stored in tempo_line_n"""
-            if typ == 'T' or typ == 'P40 T' or typ == 'P30 T' or typ == 'P40' or typ == 'P30':
+            if typ == 'T' or typ == 'P40 T' or typ == 'P30 T' or typ == 'P40' or typ == 'P30' or typ == 'ITR' or typ == 'P40 ITR' or typ == 'P30 ITR':
                 if key_ == 'wind':
                     tempo_line_n.append(n)
                     #print('llllllllllll---why only wind??')
@@ -1278,7 +1330,7 @@ def weather_for_selected_time(key_, settings, weather_data, significant_time, te
             typ = weather_data[n]['type']
             wx_key = weather_data[n][key_]
             t_range = weather_data[n]['modified_range']
-            ### ------ TEMPO colouring ------------------------------------------
+            ### ------ TEMPO and INTER colouring ------------------------------------------
             significant_time_stack = []
             # creating significant_time_stack to monitor if significant_time
             # encroaches range
@@ -1293,6 +1345,8 @@ def weather_for_selected_time(key_, settings, weather_data, significant_time, te
                         pass
                 elif wx_key != []:
                     # print(typ, t_range, wx_key)
+
+                    # TEMPO
                     if typ == 'T' or typ == 'P40 T' or typ == 'P30 T' or typ == 'P40' or typ == 'P30':
                         if key_ == 'clouds' or key_ == 'weather' or key_ == 'vis':
                             m = 0
@@ -1319,6 +1373,36 @@ def weather_for_selected_time(key_, settings, weather_data, significant_time, te
                                 tempo_text = Td_helpers.TEMPO_color(skk)
                                 wx_key = tempo_text
                                 weather_data[n][key_] = wx_key
+
+                    # INTER
+
+                    elif typ == 'ITR' or typ == 'P40 ITR' or typ == 'P30 ITR':
+                        if key_ == 'clouds' or key_ == 'weather' or key_ == 'vis':
+                            m = 0
+                            for i in wx_key:
+                                if str('\x1b') not in i:
+                                    skk = i
+                                    tempo_text = Td_helpers.INTER_color(skk)
+                                    i = tempo_text
+                                    weather_data[n][key_][m] = i
+                                m += 1
+                        else:
+                            if type(wx_key) == list:
+                                m = 0
+                                for i in wx_key:
+                                    if str('\x1b') not in i:
+                                        skk = i
+                                        tempo_text = Td_helpers.INTER_color(skk)
+                                        i = tempo_text
+                                        weather_data[n][key_][m] = i
+                                    m += 1
+
+                            else:
+                                skk = wx_key
+                                tempo_text = Td_helpers.INTER_color(skk)
+                                wx_key = tempo_text
+                                weather_data[n][key_] = wx_key
+
 
                     elif typ == 'Initial' or typ == 'B' or typ == 'FM':
                         pass

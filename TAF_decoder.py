@@ -23,7 +23,7 @@
 
 import TAF_decoder__functions as Tdf
 import final_program_functions
-from TAF_decoder__helper_functions import ref, prBoxed,TEMPO_color,BECMG_color,BECMG_non_significant_color,grayed_area_left,grayed_area_right,error_added,add_to_dict_gr_data,print_dicts,add_to_dict_TIME_gr_data, print_keys, print_all_data, print_list
+from TAF_decoder__helper_functions import ref, prBoxed,TEMPO_color,BECMG_color, INTER_color,BECMG_non_significant_color,grayed_area_left,grayed_area_right,error_added,add_to_dict_gr_data,print_dicts,add_to_dict_TIME_gr_data, print_keys, print_all_data, print_list
 import copy
 def TAF_decoder_function(settings, TAF, start_hour, end_hour):
     # Spliiting TAF into words
@@ -80,7 +80,7 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
         if one_before == 'BECMG' or one_before == 'PROB30' or one_before == \
                 'PROB40':
             time_string[n] = time_string[n] - 1
-        elif one_before == 'TEMPO':
+        elif one_before == 'TEMPO' or one_before == 'INTER' :
             if two_before == 'PROB30' or two_before == 'PROB40':
                 time_string[n] = time_string[n] - 2
             else:
@@ -122,7 +122,7 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
         for g in groups[n]:
             if g == 'TAF':
                 points.append(4)
-            if g == 'TEMPO' or g == 'BECMG':
+            if g == 'TEMPO' or g == 'BECMG' or g =='INTER':
                 points.append(6)
             if g == 'PROB30' or g == 'PROB40':
                 points.append(7)
@@ -174,12 +174,12 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
     ref(1)
     if settings.printing_active:
         add_to_dict_TIME_gr_data(time_string_uncorrected,
-                                 'time_string corrected for TEMPO and BECMG',time_gr_data)
+                                 'time_string corrected for TEMPO and BECMG and INTER',time_gr_data)
 
     if settings.printing_active:
         print(prBoxed('time_gr_data')), print_dicts(time_gr_data,
                                                     'time_string '
-                                                    'corrected for TEMPO and BECMG')
+                                                    'corrected for TEMPO and BECMG and INTER')
 
     ref(2)
     add_to_dict_TIME_gr_data(time_string_uncorrected,
@@ -417,12 +417,22 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
             weather_data[n]['group_type_long'] = '_i_'
         elif d == 'B':
             weather_data[n]['group_type_long'] = 'BECMG'
+
         elif d == 'T':
             weather_data[n]['group_type_long'] = 'TEMPO'
+        elif d == 'ITR':
+            weather_data[n]['group_type_long'] = 'INTER'
+
         elif d == 'P40 T':
             weather_data[n]['group_type_long'] = 'PROB40 TEMPO'
+        elif d == 'P40 ITR':
+            weather_data[n]['group_type_long'] = 'PROB40 INTER'
+
         elif d == 'P30 T':
             weather_data[n]['group_type_long'] = 'PROB30 TEMPO'
+        elif d == 'P30 ITR':
+            weather_data[n]['group_type_long'] = 'PROB30 INTER'
+
         elif d == 'P30':
             weather_data[n]['group_type_long'] = 'PROB30'
         elif d == 'P40':
@@ -556,7 +566,7 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
     thr_lvl_data_copy = copy.deepcopy(thr_lvl_data)
 
     # adding relevance part to data in 'type' and 'time_group'
-    Tdf.add_relevance_to__type__and__time_group(BECMG_color, TEMPO_color, grayed_area_right, thr_lvl_data)
+    Tdf.add_relevance_to__type__and__time_group(BECMG_color, TEMPO_color, INTER_color, grayed_area_right, thr_lvl_data)
 
     ### finding and colouring the highest level o threat for an airport ###
     # finding max threat level in one_line of TAF

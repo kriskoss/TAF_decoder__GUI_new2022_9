@@ -74,8 +74,6 @@ def download_metars_database(parse):
         next(reader)
 
     header = (next(reader))
-    print(header, 'fpf.metars')
-
 
 
     # Parsing the data and converting some of it into a proper type
@@ -106,7 +104,7 @@ def download_metars_database(parse):
         station_id = row[1]
         observation_time= row[2]
         raw_text = row[0]
-        print([station_id, observation_time, raw_text])
+
         writer.writerow([station_id, observation_time, raw_text])
 
     # Converting data_sorted into a dictionary
