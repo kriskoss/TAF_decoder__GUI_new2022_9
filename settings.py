@@ -48,6 +48,8 @@ class Settings:
         self.on_staion_button_press_flag = False # Prevents from multiple load of METARs
 
         self.display_METARs_on_page2 = True
+
+        self.show_threats = False
     ####### END 2022.10###################
         ###########
         # Selection if use real time TAF or special case TAFs (check Data_new/TAFs__special_cases.json)
@@ -94,8 +96,8 @@ class Settings:
                            'HZ', 'DZ', 'SH', 'PR', 'BC', 'MI']
 
         # CLOUDS colouring thresholds
-        self.cloud_caution = 5
-        self.cloud_warning = 3
+        self.cloud_caution = 8
+        self.cloud_warning = 4
         self.cloud_lvo_warning = 2
         self.few_caution = self.cloud_warning
 
@@ -106,7 +108,7 @@ class Settings:
         # WINDS colouring thresholds
         self.wind_caution = 15
         self.wind_warning = 30
-        self.wind_severe = 40
+        self.wind_severe = 45
         self.wind_gusts_caution = self.wind_caution
         self.wind_gusts_warning = self.wind_warning
         self.wind_gusts_severe = self.wind_severe

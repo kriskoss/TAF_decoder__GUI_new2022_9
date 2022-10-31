@@ -18,9 +18,11 @@ def prYellow(skk):      return f'[color=d9a930]{skk}[/color]'
 def prLightPurple(skk): return f'[color=ff75fd]{skk}[/color]'
 def prPurple(skk):      return f'[color=8f068d]{skk}[/color]'
 def prUnderlined(skk):  return f'[color=e8f1fc]{skk}[/color]'
-def prRedUnderlined(skk):  return f'[u][color=d6321c]{skk}[/color][/u]'
+def prRedUnderlined(skk):  return f'[u][color=940f5f]{skk}[/color][/u]'
 def prGreen(skk):         return f'[color=117841]{skk}[/color]'
-def colour_Inverse(string):         return f'[i][b]{string}[/b][/i]'
+path = "Resources/Fonts/Consolas-Bold.ttf"
+# def colour_Inverse(string):         return f'[size=30dp][font=Resources/Fonts/Consolas-Bold.ttf]{string}[/font][/size]'
+def colour_Inverse(string):         return f'[size=26dp]{string}[/size]'
 def bold_text(string):         return f'[b]{string}[/b]'
 
 

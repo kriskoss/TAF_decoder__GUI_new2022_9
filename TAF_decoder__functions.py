@@ -455,25 +455,24 @@ def adding_coloured_station_name(thr_lvl_data):
 
 def convert_data_lists_to_single_string(data_list,settings):
     """
-
+    Creates threates for a SINGLE STATION
     :param data_list: LIST containing threats or wind lists for each time group
     :param settings: universal settings
     :return: STRING - ready to display string containing any threat condition or wind
     """
     final_string =''
-    ### ONE LINE
-    if settings.print_in_one_line:
+
+    ### PRINTING THREATS NOT active
+    if not settings.show_threats:
         # Begin sign
         s = ''
-        count=0
+        count = 0
         for l in data_list:
             # ADDING BREAK SYMBOL - skiping the STAION CODE and EMPTY LISTS
-            if count==1:
-                # GAP between STATION and WEATHER
-                s = s + '  '
-            elif count>2 and len(l)>0:
-                # CONECTOR between TIME GROUPS
-                s = s + '|'
+
+
+            if count == 1:
+                break
 
             for i in l:
                 s = s + ' ' + i
@@ -481,27 +480,50 @@ def convert_data_lists_to_single_string(data_list,settings):
 
         final_string += s
 
-        ## Ads EXTRA line for clarity
-        final_string+='\n'
+    else:
+        ### PRINTING THREATS ACTIVE
+        ### ONE LINE
+        if settings.print_in_one_line:
+            # Begin sign
+            s = ''
+            count=0
+            for l in data_list:
+                # ADDING BREAK SYMBOL - skiping the STAION CODE and EMPTY LISTS
+                if count==1:
+                    # GAP between STATION and WEATHER
+                    s = s + '  '
+                elif count>2 and len(l)>0:
+                    # CONECTOR between TIME GROUPS
+                    s = s + '|'
 
-    if settings.print_in_one_line and settings.print_in_multiple_lines:
-        final_string+= '\n\n'
-
-
-    ### MULTILINE 2022.10
-    if settings.print_in_multiple_lines:
-        # for l in all_lines:
-        for i in range(len(data_list)):
-            if i== 0:
-                s=''
-            else:
-                s = ''
-            l= data_list[i]
-            if l:  # skip printing of line if line is empty
                 for i in l:
                     s = s + ' ' + i
-                final_string += s + '\n'
+                count += 1
 
+            final_string += s
+
+            ## Ads EXTRA line for clarity
+            final_string+='\n'
+
+
+        if settings.print_in_one_line and settings.print_in_multiple_lines:
+            final_string+= '\n\n'
+
+
+        ### MULTILINE 2022.10
+        if settings.print_in_multiple_lines:
+            # for l in all_lines:
+            for i in range(len(data_list)):
+                if i== 0:
+                    s=''
+                else:
+                    s = ''
+                l= data_list[i]
+                if l:  # skip printing of line if line is empty
+                    for i in l:
+                        s = s + ' ' + i
+                    final_string += s + '\n'
+    print(final_string, 'Td_f.ffffffg')
     return final_string
 
 ###############################################################12end

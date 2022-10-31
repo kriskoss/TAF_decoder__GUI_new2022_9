@@ -965,13 +965,34 @@ class TheTAFApp(App):
                          app.value__end_slider)
         self.update_TAFs_display_labels()
 
+    def show_threats__togle(self, widget):
+        """
+        Turns on display of THREATS for each station - COLOURED STATION name always remain
+        :param widget: toggle button
+        :return: None
+        """
+        if widget.state == "down":
+            settings.show_threats = True
+        else:
+            # OFF - normal
+            settings.show_threats = False
+
+        # UPDATING DISPLAY OF TAFs
+        self.update_TAFs(settings,
+                         app.requested_stations,
+                         app.value__start_slider,
+                         app.value__end_slider)
+        self.update_TAFs_display_labels()
+
     def show_winds__toggle(self, widget):
         if widget.state == "normal":
             settings.show_wind_profile = False
-
+            settings.show_threats = False
         else:
             # DOWN
             settings.show_wind_profile = True
+            # TREATS need to be active to show the WIND
+            settings.show_threats = True
 
         # UPDATING DISPLAY OF TAFs
         self.update_TAFs(settings,
