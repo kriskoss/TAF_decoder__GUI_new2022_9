@@ -60,8 +60,8 @@ class Settings:
             # tafs are being taken from taf_special_cases.py
 
         ### Threat weather printing settings
-        self.print_in_one_line = True  # Td_f.ONE LINE
-        self.print_in_multiple_lines = False  # 2022.10 # Td_f.MULTIILINE
+        self.print_in_one_line = False  # Td_f.ONE LINE
+        self.print_in_multiple_lines = True  # 2022.10 # Td_f.MULTIILINE
 
         ############
         # Flag used in some fucntion

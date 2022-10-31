@@ -49,11 +49,39 @@
             on_release:
                 app.root.current ="first"
                 app.root.transition.direction = "right"
+        My_ToggleButton:
+            text: "THRs"
+            on_state: app.show_threats__togle(self)
+
+
+        My_ToggleButton:
+            text: "Wind"
+            on_state: app.show_winds__toggle(self)
+
+
+        My_ToggleButton:
+            text:'RWY'
+            on_state: app.print_appr_info__toggle(self)
+
+        My_ToggleButton:
+            text: "T"
+            on_state:
+                app.show_T_time_toggle(self)
 
         StackButton:
             # FONT SIZE
             text:'FONT'
             on_release: app.change_font_size()
+
+        StackButton:
+            # INCREASE time
+            text: "+"
+            on_release: app.update_range("increase")
+
+        StackButton:
+            # REDUCE time
+            text: "-"
+            on_release: app.update_range("decrease")
 
         StackButton:
             text: '2h'
@@ -83,39 +111,11 @@
 
 
 
-
-        StackButton:
-            # INCREASE time
-            text: "+"
-            on_release: app.update_range("increase")
-
-        StackButton:
-            # REDUCE time
-            text: "-"
-            on_release: app.update_range("decrease")
-
-
-
         My_ToggleButton:
-            text: "T"
-            on_state:
-                app.show_T_time_toggle(self)
+            # OneLine threats details
+            text: "1line"
+            on_state: app.oneline_threats__toggle(self)
 
-        My_ToggleButton:
-            # Multiline threats details
-            text: "Mult"
-            on_state: app.multiline_threats__toggle(self)
-        My_ToggleButton:
-            text: "Wind"
-            on_state: app.show_winds__toggle(self)
-        My_ToggleButton:
-            text: "THRs"
-            on_state: app.show_threats__togle(self)
-
-
-        My_ToggleButton:
-            text:'RWY'
-            on_state: app.print_appr_info__toggle(self)
 
 
         Time_Sliders:

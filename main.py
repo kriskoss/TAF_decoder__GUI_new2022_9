@@ -17,6 +17,7 @@ import TAF_decoder__helper_functions as Td_helpers
 ## My modules
 from kivy.core.window import Window
 
+import colouring
 import final_program_functions as fpf
 from settings import Settings
 settings = Settings()
@@ -292,12 +293,24 @@ class TheTAFApp(App):
 
 
         # FINDING earliest TAF validity START hour and LATEST end HOUR
+        try:
+            self.TAFs_validity__earliers_start_txt = str(min(TAFs_validity_start_times))
+            self.TAFs_validity__latest_end_txt = str(max(TAFs_validity_end_times))
+            print(TAFs_validity_start_times, TAFs_validity_end_times, "main.ddddddd")
+        except ValueError:
+            ### If g_group exists, BUT all g_group stations are missing in the latest TAFs
+            print('No stations available!! - main.py')
+            ## UPDATING PAGE 2 label
+            app.display_TOP = colouring.prRed(" STATIONS NOT AVAILABE!" ) \
+                              + "[size=14dp] \n- try to refresh TAFs in a few minutes " \
+                                "\n- check g_group stations[/size]"
 
-        self.TAFs_validity__earliers_start_txt = str(min(TAFs_validity_start_times))
-        self.TAFs_validity__latest_end_txt = str(max(TAFs_validity_end_times))
-        print(TAFs_validity_start_times, TAFs_validity_end_times, "main.ddddddd")
+            app.display_METARs=''
+            app.display_TAFs=''
+            app.extended_TAFs_display=''
         #### UPDATING FINAL DISPLAY!!!!! -- START HERE TO MODIFY ANYTHING
-        self.update_FINAL_DISPLAY(combined_stations_threat_level, decoded_TAFs, METARs_list, settings)
+        else:
+            self.update_FINAL_DISPLAY(combined_stations_threat_level, decoded_TAFs, METARs_list, settings)
         return max_threat_level_at_airports
 
 
@@ -948,15 +961,15 @@ class TheTAFApp(App):
             # DOWN
             settings.testing_decoder = True
 
-    def multiline_threats__toggle(self, widget):
+    def oneline_threats__toggle(self, widget):
         if widget.state == "normal":
-            settings.print_in_one_line = True
-            settings.print_in_multiple_lines = False
+            settings.print_in_one_line = False
+            settings.print_in_multiple_lines = True
 
         else:
             # DOWN
-            settings.print_in_one_line = False
-            settings.print_in_multiple_lines = True
+            settings.print_in_one_line = True
+            settings.print_in_multiple_lines = False
 
         # UPDATING DISPLAY OF TAFs
         self.update_TAFs(settings,
