@@ -827,8 +827,28 @@ def creating_start_end_times_dates(settings,time_group_list, Tdf, time_gr_data):
                 # DATE of end
                 end24 = end + 24
                 end48 = end + 48
+                end72 = end + 72
 
+                ### START-END difference 72h
                 if ((left == 28 or
+                       left == 29 or
+                       left == 30 or
+                       left == 31) and right == 3) or \
+                    ((left == 27 or
+                      left == 28 or
+                      left == 29 or
+                      left == 30 ) and right == 2) or \
+                            ((left == 27 or
+                             left == 28 or
+                             left == 29) and right == 1)\
+                     or ((left == 26 or
+                          left == 27 or
+                          left == 28
+                         ) and right == left + 3):
+                    diff = end72 - start
+
+                ### START-END difference 48h
+                elif ((left == 28 or
                      left == 29 or
                      left == 30 or
                      left == 31) and right == 2) \
@@ -839,9 +859,11 @@ def creating_start_end_times_dates(settings,time_group_list, Tdf, time_gr_data):
                         or ((left == 27 or
                              left == 28 or
                              left == 29 or
-                             left == 30) and right == 1):
+                             left == 30
+                            ) and right == 1):
                     diff = end48 - start
 
+                ### START-END difference 24h
                 elif ((left == 28 or
                      left == 29 or
                      left == 30 or
@@ -870,7 +892,7 @@ def creating_start_end_times_dates(settings,time_group_list, Tdf, time_gr_data):
                     print('error! err2')
                     diff = 'err2'
                 else:
-                    diff = 'else err'
+                    diff = 'TD_f.else err', left, right
 
                 start_date = left
                 end_date = right

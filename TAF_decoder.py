@@ -293,6 +293,7 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
         if tg_hl[0] == ref_date:
             # comparing if date og group is the same as date of start of TAF validity
             range_start = tg_hl[1]
+            print(range_start, tg_hl[4], 'Td.ffffffff')
             range_end = range_start + tg_hl[4]
             time_range.append([range_start, range_end])
 
