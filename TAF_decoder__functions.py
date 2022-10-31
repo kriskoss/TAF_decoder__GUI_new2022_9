@@ -821,6 +821,7 @@ def creating_start_end_times_dates(settings,time_group_list, Tdf, time_gr_data):
 
                 left = int(str(dash_word[dash_location - 4]) + str(
                     dash_word[dash_location - 3]))  #
+                print('left',left, "TDf/left")
                 # DATE of beginning
                 right = int(str(dash_word[dash_location + 1]) + str(
                     dash_word[dash_location + 2]))  #
@@ -892,7 +893,10 @@ def creating_start_end_times_dates(settings,time_group_list, Tdf, time_gr_data):
                     print('error! err2')
                     diff = 'err2'
                 else:
-                    diff = 'TD_f.else err', left, right
+                    if left ==0:
+                        ## There should NOT be left==0 - those are dates!!!
+                        print('TD_f.else err', left, right, end, start)
+                        diff = end+24 - start
 
                 start_date = left
                 end_date = right
