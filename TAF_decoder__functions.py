@@ -125,10 +125,10 @@ def check_relevance_of_items_in_line(line_status, n, thr_lvl_data):
                         line_status.add('not-relevant')
                     elif 'relevant TEMPO' in item:
                         line_status.add('relevant TEMPO')
-                    elif 'relevant BECMG' in item:
-                        line_status.add('relevant BECMG')
                     elif 'relevant INTER' in item:
                         line_status.add('relevant INTER')
+                    elif 'relevant BECMG' in item:
+                        line_status.add('relevant BECMG')
                     else:
                         print('error 141')
 
@@ -392,8 +392,9 @@ def adding_threat_level_data_of__type__and_time_group__to__thr_lvl_data(max_thre
             data_for_key = thr_lvl_data[n][k]
 
             if k == 'type' or k == 'time_group':
-                data_for_key = [max_threat_level_in_one_line[n - 1]] + data_for_key
-                thr_lvl_data[n][k] = data_for_key
+                if len(max_threat_level_in_one_line)>n-1: ####### this line added 2022.10.31 (NOT SURE HOW it WORKS!!)
+                    data_for_key = [max_threat_level_in_one_line[n - 1]] + data_for_key
+                    thr_lvl_data[n][k] = data_for_key
 
 def change_colour_of__type__and__time_group_to_match_max_thr_lvl_in__one_line(thr_lvl_data, thr_lvl_data_copy, settings):
     # changing colour of 'type' and 'time_group' to mach max threat level in one line
@@ -523,7 +524,7 @@ def convert_data_lists_to_single_string(data_list,settings):
                     for i in l:
                         s = s + ' ' + i
                     final_string += s + '\n'
-    print(final_string, 'Td_f.ffffffg')
+
     return final_string
 
 ###############################################################12end
@@ -901,6 +902,9 @@ def creating_type_of_group(settings,time_string_uncorrected, TAF_split, station_
             type_of_group.append('FM')
         elif one_before == 'BECMG':
             type_of_group.append('B')
+
+
+
         elif one_before == 'PROB30':
             type_of_group.append('P30')
         elif one_before == 'PROB40':
@@ -1036,7 +1040,8 @@ def creating_weather_data_list(settings,gr_data, type_of_group, reference, score
 
 
                 if w == 'PO':
-                    if p == 'TEMPO' or p == 'INTER': pass
+                    # if p == 'TEMPO' or p == 'INTER': pass
+                    if p == 'TEMPO': pass
                 elif w == 'PR':
                     if p == 'PROB30': pass
                 elif w in p:
