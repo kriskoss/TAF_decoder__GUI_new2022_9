@@ -454,7 +454,7 @@ def adding_coloured_station_name(thr_lvl_data):
         print('error 5326 - check code here')
         quit()
 
-def convert_data_lists_to_single_string(data_list,settings):
+def convert_data_lists_to_single_string(data_list,settings, TAF_num):
     """
     Creates threates for a SINGLE STATION
     :param data_list: LIST containing threats or wind lists for each time group
@@ -488,6 +488,7 @@ def convert_data_lists_to_single_string(data_list,settings):
             # Begin sign
             s = ''
             count=0
+
             for l in data_list:
                 # ADDING BREAK SYMBOL - skiping the STAION CODE and EMPTY LISTS
                 if count==1:
@@ -524,6 +525,8 @@ def convert_data_lists_to_single_string(data_list,settings):
                     for i in l:
                         s = s + ' ' + i
                     final_string += s + '\n'
+        ### WRAPPING final_string in [ref] markup - CORE FUNCTIONALITY!!!
+        final_string = f'[ref={TAF_num}]{final_string}[/ref]'
 
     return final_string
 
@@ -821,7 +824,7 @@ def creating_start_end_times_dates(settings,time_group_list, Tdf, time_gr_data):
 
                 left = int(str(dash_word[dash_location - 4]) + str(
                     dash_word[dash_location - 3]))  #
-                print('left',left, "TDf/left")
+
                 # DATE of beginning
                 right = int(str(dash_word[dash_location + 1]) + str(
                     dash_word[dash_location + 2]))  #

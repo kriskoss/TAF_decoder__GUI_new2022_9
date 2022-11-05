@@ -23,6 +23,7 @@ def prGreen(skk):         return f'[color=117841]{skk}[/color]'
 path = "Resources/Fonts/Consolas-Bold.ttf"
 # def colour_Inverse(string):         return f'[size=30dp][font=Resources/Fonts/Consolas-Bold.ttf]{string}[/font][/size]'
 def colour_Inverse(string):         return f'[size=26dp]{string}[/size]'
+# def colour_Inverse(string):         return f'[ref=station]{string}[/re qf]'
 def bold_text(string):         return f'[b]{string}[/b]'
 
 
@@ -471,8 +472,13 @@ class SignificantColouring:
 
                 elif wind_direction.isdigit():
                     wind_direction = int(wind_direction)
-                    if 0 <= wind_direction <= 360:
-                        wind_speed = int(wind[3:5])
+                    ########## QUICK FIX!!!############
+                    if 0 < wind_direction <= 360:
+                        if  type(wind[3:5]) != str:
+                            wind_speed = int(wind[3:5])
+                        else:
+                            wind_speed=1
+                    ###################################
                         wind_direction = int(wind[0:3])
                         if 'G' in wind:
                             g_index = wind.index('G')

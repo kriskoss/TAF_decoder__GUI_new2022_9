@@ -49,7 +49,7 @@ class Settings:
 
         self.display_METARs_on_page2 = True
 
-        self.show_threats = False
+        self.show_threats = True
     ####### END 2022.10###################
         ###########
         # Selection if use real time TAF or special case TAFs (check Data_new/TAFs__special_cases.json)
@@ -60,8 +60,10 @@ class Settings:
             # tafs are being taken from taf_special_cases.py
 
         ### Threat weather printing settings
-        self.print_in_one_line = False  # Td_f.ONE LINE
-        self.print_in_multiple_lines = True  # 2022.10 # Td_f.MULTIILINE
+        self.print_in_one_line = True  # Td_f.ONE LINE
+        self.print_in_multiple_lines = False  # 2022.10 # Td_f.MULTIILINE
+
+        self.update_TAFs_in_real_time_when_slider_moved = False
 
         ############
         # Flag used in some fucntion

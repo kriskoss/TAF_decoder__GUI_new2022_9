@@ -588,7 +588,9 @@ def analise_stations(settings, requested_stations, start_time, end_time):
     invalid_stations =[]
 
     decoded_TAFs_data_list =[] # Stores all stations decoded_TAFs data
+    stationsList =[]
     final_display__UPPER_COMBINED_threat_levels_and_winds = [] # Stores line related to threat level and runway length for SINGLE station
+    TAF_num =0
     for TAF in TAFs:
         # Checking if station is valid
         if type(TAF) == list: # if it is a LIST then it is not valid, so it can be processed as INVALID STATION
@@ -600,9 +602,14 @@ def analise_stations(settings, requested_stations, start_time, end_time):
                 invalid_stations.append(station_id)
                 continue
 
-        # Decoding TAF
-        decoded_TAF_dict = TAF_decoder_function(settings, TAF,start_time,end_time)
+        # DECODING TAF
+        decoded_TAF_dict, stationObject = TAF_decoder_function(settings, TAF,TAF_num,start_time,end_time)
+
+        # Appending STATION OBJECT to a List of OBECTS
         decoded_TAFs_data_list.append(decoded_TAF_dict)
+        stationsList.append(stationObject)
+
+
 
         # Combining station data depending on the settings
         combined_station_data = combine_data(
@@ -614,13 +621,16 @@ def analise_stations(settings, requested_stations, start_time, end_time):
 
         final_display__UPPER_COMBINED_threat_levels_and_winds.append(combined_station_data)
 
+        #Updateing TAF_num - required for interactive station label at page2
+        TAF_num+=1
+
 
 
     # Combinig stations threat and runways into single list
     combined_stations_threat_level = combine_all_stations_threat_level(final_display__UPPER_COMBINED_threat_levels_and_winds)
 
 
-    return [decoded_TAFs_data_list, combined_stations_threat_level, METARs_list]
+    return [decoded_TAFs_data_list,stationsList, combined_stations_threat_level, METARs_list]
 
 
 

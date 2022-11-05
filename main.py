@@ -150,6 +150,12 @@ class TheTAFApp(App):
     display_TAFs = StringProperty('display_TAFs')
     extended_TAFs_display =StringProperty('extended_TAFs_display')
 
+    ## SINGLE TAF (page 5)
+    station_name = StringProperty('sation_name')
+    station_TAF =StringProperty('station_TAF')
+    station_METAR =StringProperty('station_METAR')
+    station_APPRs = StringProperty('station_APPRs')
+
     font_counter = 2
     font_step = 3
 
@@ -238,9 +244,14 @@ class TheTAFApp(App):
         app.create_last_requests_buttons(id__Last_requests, settings)
         ### END
 
-        decoded_TAFs_data_list,combined_stations_threat_level, METARs_list= \
+        decoded_TAFs_data_list, stationsList ,combined_stations_threat_level, METARs_list= \
             fpf.analise_stations(settings, stations_,
                                    int(start), int(end))
+
+        # Converting LISTs to be GLOBAL
+        self.stationsList= stationsList
+        self.METARs_list = METARs_list
+
 
         decoded_TAFs = []
         TAFs_validity_start_times =[]
@@ -331,15 +342,6 @@ class TheTAFApp(App):
                 if item:
                     METARs_final_string = METARs_final_string + '\n\n' + item
 
-
-        #### REPLACED below
-        # self.label__decoded_TAFs = \
-        #     combined_stations_threat_level + '\n\n' \
-        #     + METARs_final_string + '\n\n\n\n' \
-        #     + "######### TAFs #############"  \
-        #     + '\n\n'.join(decoded_TAFs) + \
-        #     "\n\n    -----------END -----------\n"
-
         ### CREATOING DATA for MAIN LABELS : TOP, METARS, TAFS, and insering new line
         combined_stations_threat_level = combined_stations_threat_level.replace("newlinee.Tdf", '\n')
         self.display_TOP = combined_stations_threat_level
@@ -369,7 +371,16 @@ class TheTAFApp(App):
     def calculating_current_difference(self):
         self.current_difference_str =str(int(self.value__end_slider)-int(self.value__start_slider))
 
+    def on_time_slider__touch_up(self):
 
+        if not settings.update_TAFs_in_real_time_when_slider_moved:
+            print('main.suspect4')
+            self.update_TAFs(settings,
+                self.requested_stations,
+                self.value__start_slider,
+                self.value__end_slider)
+        else:
+            pass
     def on_slider_value__start(self, widget):
         # Runs only PAGE2 is being displayed
 
@@ -385,11 +396,12 @@ class TheTAFApp(App):
 
                 self.label__stations_threat_levels = self.combine_data(self.selected_g_group, self.value__start_slider, self.value__end_slider)
 
-                print('main.suspect4')
-                self.update_TAFs(settings,
-                    self.requested_stations,
-                    self.value__start_slider,
-                    self.value__end_slider)
+                if settings.update_TAFs_in_real_time_when_slider_moved:
+                    print('main.suspect4')
+                    self.update_TAFs(settings,
+                        self.requested_stations,
+                        self.value__start_slider,
+                        self.value__end_slider)
 
                 # Just to make display of day:hh
 
@@ -397,17 +409,10 @@ class TheTAFApp(App):
 
                 self.prev_start_slider_value= self.value__start_slider
 
+    prev_end_slider_value = 0
+    prev_start_slider_value = 0
+    trend = StringProperty('994')
 
-
-    def calculate_trend__end_slider(self):
-        self.trend = str(-int(self.prev_end_slider_value) + int(self.value__end_slider))
-
-    def calculate_trend__start_slider(self):
-        self.trend = str(-int(self.prev_start_slider_value) + int(self.value__start_slider))
-
-    prev_end_slider_value=0
-    prev_start_slider_value=0
-    trend=StringProperty('994')
     def on_slider_value__end(self, widget):
         ## It runs only when PAGE2 is being displayed
         if app.root.current == "second":
@@ -416,25 +421,33 @@ class TheTAFApp(App):
 
                 self.calculate_trend__end_slider()
 
-
-
                 # SLIDER BEHAVIOUR - prevents END slider TO MOVE before RIGHT
-                if int(self.trend) <0 and int(self.current_difference_str)<=0:
+                if int(self.trend) < 0 and int(self.current_difference_str) <= 0:
                     # IF END slider is moving LEFT and reaches the START slider then they MOVE TOGETHER
-                    self.initial_difference_str="0" ## MUST BE HERE!!! - prevents from erratic movement!!
+                    self.initial_difference_str = "0"  ## MUST BE HERE!!! - prevents from erratic movement!!
 
-                    self.value__start_slider=self.value__end_slider
+                    self.value__start_slider = self.value__end_slider
 
                 self.label__stations_threat_levels = self.combine_data(self.selected_g_group, self.value__start_slider, self.value__end_slider)
-                print('main.suspect1',self.value__start_slider, self.value__end_slider)
-                self.update_TAFs(settings,
-                    self.requested_stations,
-                    self.value__start_slider,
-                    self.value__end_slider)
+
+                ## Update TAFs in real time
+                if settings.update_TAFs_in_real_time_when_slider_moved:
+                    print('main.suspect1', self.value__start_slider, self.value__end_slider)
+                    self.update_TAFs(settings,
+                                     self.requested_stations,
+                                     self.value__start_slider,
+                                     self.value__end_slider)
 
                 # Just to make display of day:hh
                 self.end_ddhh = Td_helpers.hours_to_ddhh(int(widget.value))
-                self.prev_end_slider_value=self.value__end_slider
+                self.prev_end_slider_value = self.value__end_slider
+
+
+    def calculate_trend__end_slider(self):
+        self.trend = str(-int(self.prev_end_slider_value) + int(self.value__end_slider))
+
+    def calculate_trend__start_slider(self):
+        self.trend = str(-int(self.prev_start_slider_value) + int(self.value__start_slider))
 
 
     def update_scroll_height(self):
@@ -722,7 +735,7 @@ class TheTAFApp(App):
             app.PAGE1_time_range = f'[b]{app.color_on__t_range}h[/b] COLOR RANGE,     {Td_helpers.hours_to_ddhh(dispalyed_start)} -  {Td_helpers.hours_to_ddhh(dispalyed_end)}  '
             ## GETTING THREAT LEVEL FOR SINGLE STATION
             station_name = [station_name]  ## ONLY ONE STATION - nested functions require LIST not STRING
-            decoded_TAFs_data_list, _NOT_USED ,_NOT_USED= fpf.analise_stations(
+            decoded_TAFs_data_list, stationsList, _NOT_USED ,_NOT_USED= fpf.analise_stations(
                  settings,
                  station_name,
                  int(self.value__start_slider),
@@ -961,15 +974,22 @@ class TheTAFApp(App):
             # DOWN
             settings.testing_decoder = True
 
+    def time_slider_TAFs_update_real_time__toggle(self, widget):
+        if widget.state == "normal":
+            settings.update_TAFs_in_real_time_when_slider_moved = False
+        else:
+            # DOWN
+            settings.update_TAFs_in_real_time_when_slider_moved = True
+
     def oneline_threats__toggle(self, widget):
         if widget.state == "normal":
-            settings.print_in_one_line = False
-            settings.print_in_multiple_lines = True
+            settings.print_in_one_line = True
+            settings.print_in_multiple_lines = False
 
         else:
             # DOWN
-            settings.print_in_one_line = True
-            settings.print_in_multiple_lines = False
+            settings.print_in_one_line = False
+            settings.print_in_multiple_lines = True
 
         # UPDATING DISPLAY OF TAFs
         self.update_TAFs(settings,
@@ -985,10 +1005,12 @@ class TheTAFApp(App):
         :return: None
         """
         if widget.state == "down":
-            settings.show_threats = True
+            settings.show_threats = False
+
         else:
             # OFF - normal
-            settings.show_threats = False
+            settings.show_threats = True
+
 
         # UPDATING DISPLAY OF TAFs
         self.update_TAFs(settings,
@@ -1033,4 +1055,44 @@ class TheTAFApp(App):
     def reloading_inprogress(self):
         self.reload_status = "#7b9fba"
         self.reload_button_msg ="Reloading"
+
+    stationsList =[]
+    METARs_list=[]
+    selected_station_index=-1
+    def select_station(self, args):
+        self.selected_station_index= args
+
+        ## UPDATING page 5 label dispalu - single TAF display
+        for i in range(len(self.stationsList)):
+            ## Searching for Station at propper index
+            if i == int(app.selected_station_index):
+                ## UPDATING page5 DISPLAY -
+                print(self.stationsList[i].station_name, 'main.ffff')
+                print(self.stationsList[i].station_name__coloured, 'main.dddddddd')
+                app.station_name = self.stationsList[i].station_name__coloured
+
+                # Replacing text by proper symbols
+                self.stationsList[i].decoded_TAF = self.stationsList[i].decoded_TAF.replace("newlinee.Tdf", '\n')
+                self.stationsList[i].decoded_TAF = self.stationsList[i].decoded_TAF.replace("space.Tdf", '')
+
+                app.station_TAF = self.stationsList[i].decoded_TAF
+
+
+                app.station_METAR = self.METARs_list[i]
+                app.station_APPRs = self.stationsList[i].appr_data
+
+        ## On station touch - go to page 5
+        app.root.current = "fifth"
+        app.root.transition.direction = "left"
+
+    def next_station(self):
+        if int(self.selected_station_index) < len(self.stationsList) - 1:
+            self.selected_station_index= str(int(self.selected_station_index) + 1)
+
+        self.select_station(self.selected_station_index)
+    def prev_station(self):
+        if int(self.selected_station_index) >0:
+            self.selected_station_index= str(int(self.selected_station_index) - 1)
+
+        self.select_station(self.selected_station_index)
 TheTAFApp().run()  # RUNS THE KIVY!!

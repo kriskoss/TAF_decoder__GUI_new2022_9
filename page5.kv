@@ -1,15 +1,90 @@
 <Page5@BoxLayout>
     orientation: "vertical"
-    Button:
+#    Button:
+#        # Go to APTs selection (page1)
+#        size_hint:1,None
+#        height:'40dp'
+#        text: "APTs"
+#        background_color: '#5232a8'
+#        on_release:
+#            app.root.current ="first"
+#            app.root.transition.direction = "right"
+
+    Time_slider__label:
+        text: app.start_ddhh + ' <' + app.current_difference_str+'h> '+ app.end_ddhh
+
+
+
+#    TAF_StackLayout__scroll:
+    MyLabel__scroll:
+        Final_DISPLAY:
+            size_hint_y: None
+            height: self.minimum_height # sets height based on the children size!!
+            halign: 'left'
+
+            # STATION NAME
+            MyLabel:
+                text:app.station_name
+                font_size: '32dp'
+
+            # METAR
+#            MyLabel:
+#                text:"\n    ### METAR ###"
+
+            MyLabel:
+                text:"[color=#80bfff]" +  app.station_METAR + "[/color]"
+
+
+            # TAF
+#            MyLabel:
+#                text:"\n    ### TAF ###"
+
+            MyLabel:
+                text:app.station_TAF
+
+            # APPRs and RWYs
+            MyLabel:
+                text:"[color=#7878bf]" +"\n\n\n------------RWYs and APPRs------------\n" + app.station_APPRs + "[/color]"
+                font_size: '14dp'
+    Nav_Panel:
         size_hint:1,None
         height:'40dp'
-        text: "APTs"
-        background_color: '#5232a8'
-        on_release:
-            app.root.current ="first"
-            app.root.transition.direction = "right"
-#    TAF_StackLayout__scroll:
-    TAF_StackLayout:
+        Button:
+            # GO to Page 2 - TAFs
+
+            text: "BACK"
+            on_press:
+                app.root.current="second"
+                app.root.transition.direction = "right"
+        Button:
+            size_hint:None,1
+            width:"80dp"
+            text: "Prev."
+            on_release: app.prev_station()
+
+
+        Button:
+            size_hint:None,1
+            width:"80dp"
+            text: "Next"
+            on_release: app.next_station()
+
+
+<Nav_Panel@BoxLayout>:
 
 <TAF_StackLayout__scroll@ScrollView>:
     do_scroll_y: True
+<Single_Station_Data_Label@Label>
+
+
+<MyLabel__scroll@ScrollView>:
+    do_scroll_y: True
+
+<Final_DISPLAY@StackLayout>:
+    do_scroll_y: True
+
+<Time_slider__label@Label>:
+    size_hint: 1,None
+    height: "25dp"
+    markup: True
+    font_size: "18dp"

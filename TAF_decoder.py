@@ -25,7 +25,7 @@ import TAF_decoder__functions as Tdf
 import final_program_functions
 from TAF_decoder__helper_functions import ref, prBoxed,TEMPO_color,BECMG_color, INTER_color,BECMG_non_significant_color,grayed_area_left,grayed_area_right,error_added,add_to_dict_gr_data,print_dicts,add_to_dict_TIME_gr_data, print_keys, print_all_data, print_list
 import copy
-def TAF_decoder_function(settings, TAF, start_hour, end_hour):
+def TAF_decoder_function(settings, TAF,TAF_num, start_hour, end_hour):
 
     ### IF ERROR DETECTED  -- returns RAW (may need some more work)
     return_raw__error_detected = False
@@ -302,7 +302,7 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
                 if i == tg_hl[0]:
                     # tg_hl[0] == ref_date + 1:
                     range_start = tg_hl[1] + 24
-            print(range_start, tg_hl[4], 'Td.ffffffff')
+
             range_end = range_start + tg_hl[4]
             time_range.append([range_start, range_end])
 
@@ -634,32 +634,63 @@ def TAF_decoder_function(settings, TAF, start_hour, end_hour):
 
         apt_code = weather_data_copy[0]['wind'][0]
 
-        # Generating data and adding it into the dictionary
-        decoded_TAF_dict = {
-            "station_name": station_name[0],
-            "selected_time_info":Tdf.generate_selected_time_info(significant_time, weather_data_copy, colored_station_name, start_hour, end_hour, TAF),
-            "decoded_TAF":Tdf.generate_decoded_TAF(settings,BECMG_color, error_added, error_found, grayed_area_right, weather_data, gr_data),
-            "runways_length":Tdf.avaliable_rwys(apt_code, settings),
-            "station_threats":Tdf.convert_data_lists_to_single_string(all_lines, settings),
-            "appr_data":Tdf.generate_appr_info(TAF, settings),
-            "time_range": time_range,
-            "max_threat_level_at_airport": max_threat_level_at_airport,
-            "wind_profile": Tdf.convert_data_lists_to_single_string(wind_lines,settings)
-        }
-    # ERROR DETECTED IN DECODING --- RETURNING RAW TAF
+        # GENERATING DATA - NO ERROR
+        station_name =  station_name[0]
+        selected_time_info = Tdf.generate_selected_time_info(significant_time, weather_data_copy, colored_station_name, start_hour, end_hour, TAF)
+        decoded_TAF = Tdf.generate_decoded_TAF(settings,BECMG_color, error_added, error_found, grayed_area_right, weather_data, gr_data)
+        runways_length = Tdf.avaliable_rwys(apt_code, settings)
+        station_threats = Tdf.convert_data_lists_to_single_string(all_lines, settings, TAF_num)
+        station_name__coloured = all_lines[0][0]
+        appr_data = Tdf.generate_appr_info(TAF, settings)
+        time_range =  time_range
+        max_threat_level_at_airport =  max_threat_level_at_airport
+        wind_profile =  Tdf.convert_data_lists_to_single_string(wind_lines,settings, TAF_num)
+
+        # Generating data and
+
+
+
     else:
+        # ERROR DETECTED IN DECODING --- RETURNING RAW TAF
         print('T_d. printing raw')
-        decoded_TAF_dict = {
-            "station_name": station_name[0],
-            "selected_time_info": 'errA',
-            "decoded_TAF": TAF,
-            "runways_length": 'errB',
-            "station_threats": station_name[0],
-            "appr_data": 'errD',
-            "time_range": time_range,
-            "max_threat_level_at_airport": ['not-relevant'],
-            "wind_profile": 'errF',
-        }
-    return decoded_TAF_dict
+
+        station_name = station_name[0]
+        station_name__coloured =station_name
+        selected_time_info = 'errA'
+        decoded_TAF = TAF
+        runways_length = 'errB'
+        station_threats = station_name[0]
+        appr_data = 'errD'
+        time_range = time_range
+        max_threat_level_at_airport = ['not-relevant']
+        wind_profile = 'errF'
 
 
+    # Adding Data it into the dictionary
+    decoded_TAF_dict = {
+        "station_name": station_name,
+        "selected_time_info": selected_time_info,
+        "decoded_TAF": decoded_TAF,
+        "runways_length": runways_length,
+        "station_threats": station_threats,
+        "appr_data": appr_data,
+        "time_range": time_range,
+        "max_threat_level_at_airport": max_threat_level_at_airport,
+        "wind_profile": wind_profile,
+    }
+
+    # Creating INSTANCE
+    singleStation = SingleStation(station_name, station_name__coloured, decoded_TAF, runways_length, appr_data, max_threat_level_at_airport, wind_profile)
+
+    return decoded_TAF_dict, singleStation
+
+class SingleStation:
+    """Contains data related to the single station"""
+    def __init__(self, station_name, station_name__coloured,decoded_TAF, runways_length, appr_data, max_threat_level_at_airport, wind_profile ):
+        self.station_name = station_name
+        self.station_name__coloured = station_name__coloured
+        self.decoded_TAF = decoded_TAF
+        self.runways_length = runways_length
+        self.appr_data = appr_data
+        self.max_threat_level_at_airport = max_threat_level_at_airport
+        self.wind_profile = wind_profile

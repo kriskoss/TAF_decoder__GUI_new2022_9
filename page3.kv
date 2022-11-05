@@ -1,3 +1,4 @@
+# SETTINGS (page 3)
 <Page3@ScrollView>
     StackLayout:
         orientation:"lr-bt"
@@ -27,10 +28,10 @@
             on_state: app.testing_tafs_toggle(self)
 #            size_hint:None,1
 #            width: '70dp'
+
         Toggle_A:
-            # Multiline threats details
-            text: "Multiline Threats"
-            on_state: app.multiline_threats__toggle(self)
+            text: "When time slider moved - update in real time"
+            on_state: app.time_slider_TAFs_update_real_time__toggle(self)
 <Button_1@Button>:
     size_hint:1,None
     height: '30dp'

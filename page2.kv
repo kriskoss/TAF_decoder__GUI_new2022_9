@@ -19,10 +19,6 @@
                 app.root.transition.direction = "left"
 
     MyLabel__scroll:
-            # Final_Display relpaced MyLabel
-#        id: MyLabel__scroll
-#        MyLabel:
-#            id: MyLabel
 
         Final_DISPLAY:
             size_hint_y: None
@@ -30,13 +26,16 @@
             halign: 'left'
             MyLabel:
                 text:app.display_TOP
-            MyLabel:
-                text:app.display_METARs
+
+            ### DISPLAY ON PAGE 5 now!!!
+#            MyLabel:
+#                text:app.display_METARs
+
             ## TAFs has to be split in two because LABEL max height exceeded for large groups
-            MyLabel:
-                text:app.display_TAFs
-            MyLabel:
-                text:app.extended_TAFs_display
+#            MyLabel:
+#                text:app.display_TAFs # dispaly_TAFs - 1st part
+#            MyLabel:
+#                text:app.extended_TAFs_display #dispaly_TAFs - 2nd part
 
     StackLayout:
         orientation: "rl-bt"
@@ -158,10 +157,9 @@
     height: self.texture_size[1]
     text_size: self.width, None
     halign: 'left'
-
-
-
-
+    on_ref_press: app.select_station(args[1])
+#    on_ref_press: print(args[1])
+        #https://stackoverflow.com/questions/26302848/how-can-i-get-ref-text-when-i-have-many-refs-in-kivy-label
 
 
 <Time_Sliders@StackLayout>:
@@ -175,10 +173,8 @@
         on_touch_down: app.record_difference()
         on_value: app.on_slider_value__start(self)
 
-
     # END TIME SLIDER
     Time_slider__slider:
-
         value: app.value__end_slider
         on_value:
             app.on_slider_value__end(self)
@@ -194,11 +190,12 @@
     size_hint_y: None
     height: app.slider_height
 
-    value_track_width:2
+    value_track_width:1
     value_track_color: 1,0,0,1
     sensitivity: "all"
-    cursor_size: '50dp','50dp'
+    cursor_size: '20dp','20dp'
 
+    on_touch_up: app.on_time_slider__touch_up()
 
 
 
