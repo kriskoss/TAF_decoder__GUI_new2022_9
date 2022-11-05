@@ -63,7 +63,7 @@ class Settings:
         self.print_in_one_line = True  # Td_f.ONE LINE
         self.print_in_multiple_lines = False  # 2022.10 # Td_f.MULTIILINE
 
-        self.update_TAFs_in_real_time_when_slider_moved = False
+        self.update_TAFs_in_real_time_when_slider_moved = True ## DOES NOT WORK CORRECTLY
 
         ############
         # Flag used in some fucntion
