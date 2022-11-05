@@ -12,6 +12,10 @@
 
     Time_slider__label:
         text: app.start_ddhh + ' <' + app.current_difference_str+'h> '+ app.end_ddhh
+    MyLabel:
+        text:app.station_name
+        font_size: '32dp'
+        halign: "center"
 
 
 
@@ -23,21 +27,10 @@
             halign: 'left'
 
             # STATION NAME
-            MyLabel:
-                text:app.station_name
-                font_size: '32dp'
 
-            # METAR
-#            MyLabel:
-#                text:"\n    ### METAR ###"
 
             MyLabel:
                 text:"[color=#80bfff]" +  app.station_METAR + "[/color]"
-
-
-            # TAF
-#            MyLabel:
-#                text:"\n    ### TAF ###"
 
             MyLabel:
                 text:app.station_TAF
@@ -46,6 +39,7 @@
             MyLabel:
                 text:"[color=#7878bf]" +"\n\n\n------------RWYs and APPRs------------\n" + app.station_APPRs + "[/color]"
                 font_size: '14dp'
+
     Nav_Panel:
         size_hint:1,None
         height:'40dp'
