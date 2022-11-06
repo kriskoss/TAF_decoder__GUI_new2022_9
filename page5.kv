@@ -1,4 +1,5 @@
 <Page5@BoxLayout>
+
     orientation: "vertical"
 #    Button:
 #        # Go to APTs selection (page1)
@@ -11,7 +12,7 @@
 #            app.root.transition.direction = "right"
 
     Time_slider__label:
-        text: app.start_ddhh + ' <' + app.current_difference_str+'h> '+ app.end_ddhh
+        text: app.current_time_str + ":   :" + app.start_ddhh + ' <' + app.current_difference_str+'h> '+ app.end_ddhh
     MyLabel:
         text:app.station_name
         font_size: '32dp'
@@ -21,6 +22,7 @@
 
 #    TAF_StackLayout__scroll:
     MyLabel__scroll:
+        id: MyLabel__scroll
         Final_DISPLAY:
             size_hint_y: None
             height: self.minimum_height # sets height based on the children size!!

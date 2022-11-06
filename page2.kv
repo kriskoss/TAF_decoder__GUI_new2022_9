@@ -1,5 +1,6 @@
 ### PAGE 2 -- coloured TAFs dispaly ##################################################
 <Page2@BoxLayout>:
+    id: id__Page2
     orientation: "vertical"
     TopPanel:
         size_hint:1,None
@@ -7,7 +8,7 @@
 
         # TIME LABEL
         Time_slider__label:
-            text: app.start_ddhh + ' <' + app.current_difference_str+'h> '+ app.end_ddhh
+            text: app.current_time_str + ": " + app.start_ddhh + ' <' + app.current_difference_str+'h> '+ app.end_ddhh
         Button:
             text: "Stgs"
 
@@ -114,7 +115,7 @@
 
         My_ToggleButton:
             # OneLine threats details
-            text: "1line"
+            text: "Multi"
             on_state: app.oneline_threats__toggle(self)
 
         Time_Sliders:

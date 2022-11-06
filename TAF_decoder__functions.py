@@ -525,8 +525,8 @@ def convert_data_lists_to_single_string(data_list,settings, TAF_num):
                     for i in l:
                         s = s + ' ' + i
                     final_string += s + '\n'
-        ### WRAPPING final_string in [ref] markup - CORE FUNCTIONALITY!!!
-        final_string = f'[ref={TAF_num}]{final_string}[/ref]'
+    ### WRAPPING final_string in [ref] markup - CORE FUNCTIONALITY!!!
+    final_string = f'[ref={TAF_num}]{final_string}[/ref]'
 
     return final_string
 

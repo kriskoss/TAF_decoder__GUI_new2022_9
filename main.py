@@ -14,6 +14,7 @@ from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 
 import TAF_decoder__helper_functions as Td_helpers
+
 ## My modules
 from kivy.core.window import Window
 
@@ -181,7 +182,7 @@ class TheTAFApp(App):
 
     reload_status=StringProperty("#935999")
     reload_button_msg = StringProperty("Reload TAFs")
-
+    current_time_str = StringProperty(current_time_str)
     PAGE1_time_range = StringProperty('fffffff')
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -202,7 +203,7 @@ class TheTAFApp(App):
     def build(self):
         # Schedule the self.update_clock function to be called once a second
             # REFERENCE: https://stackoverflow.com/questions/54426193/how-to-have-an-updating-time-in-kivy
-        Clock.schedule_interval(self.update_clock, 3) # called every X seconds
+        Clock.schedule_interval(self.update_clock, 1) # called every X seconds
 
     # Initializig
     time_delta_minutes = StringProperty('-1')
@@ -927,7 +928,10 @@ class TheTAFApp(App):
         """Next n hours for PAGE2"""
         # 12h, 4h
 
-        self.value__start_slider = str(self.time_now.strftime("%H"))
+
+        self.value__start_slider = str(int(self.time_now.strftime("%H"))+1)
+        # + 1 to start counting from the next full hour
+
         self.value__end_slider = str(int(self.value__start_slider) + n)
         self.period_counter = int(self.time_now.strftime("%H"))
 
@@ -938,7 +942,9 @@ class TheTAFApp(App):
         self.color_on__t_range= str(settings.SINGLE_station_time_range)
 
         # Updating slider values
-        self.value__start_slider = str(self.time_now.strftime("%H"))
+        self.value__start_slider = str(int(self.time_now.strftime("%H"))+1)
+        # + 1 to start counting from the next full hour
+        
         self.value__end_slider = str(int(self.value__start_slider) + n)
 
         self.refresh_station_buttons()
@@ -1080,10 +1086,15 @@ class TheTAFApp(App):
 
                 app.station_METAR = self.METARs_list[i]
                 app.station_APPRs = self.stationsList[i].appr_data
-
         ## On station touch - go to page 5
         app.root.current = "fifth"
         app.root.transition.direction = "left"
+
+
+        ## RESET scroll position at PAGE 5 (single TAF)
+        page5_scroll = app.root.ids.id__Page5.ids.MyLabel__scroll
+        page5_scroll.scroll_y = 1
+
 
     def next_station(self):
         if int(self.selected_station_index) < len(self.stationsList) - 1:
