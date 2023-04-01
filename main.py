@@ -944,7 +944,7 @@ class TheTAFApp(App):
         # Updating slider values
         self.value__start_slider = str(int(self.time_now.strftime("%H"))+1)
         # + 1 to start counting from the next full hour
-        
+
         self.value__end_slider = str(int(self.value__start_slider) + n)
 
         self.refresh_station_buttons()

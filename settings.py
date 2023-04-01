@@ -86,10 +86,10 @@ class Settings:
 
         ### COLOURING THRESHOLDS
         # WX colouring thresholds
-        self.severe_wx =  ['+TSGR', '+SN', 'GR']
+        self.severe_wx =  ['+TSGR', '+SN', 'GR', 'FG', 'FC', 'SQ']
 
-        self.warning_wx = ['+SHSN', 'SHSN', 'SN', 'TS', '-TS', 'GR', 'FZ', 'FG',
-                           'BLSN', 'IC', 'GS','FC', 'SQ', 'VA', 'SS', 'DS', ]
+        self.warning_wx = ['+SHSN', 'SHSN', 'SN', 'TS', '-TS', 'GR', 'FZ',
+                           'BLSN', 'IC', 'GS', 'VA', 'SS', 'DS', ]
 
         self.exceptions_from_warning_and_severe = ['MIFG', '-SHSNRA', '-SHRASN', '-SN', 'RASN', 'SNRA','-SHSN']
 
@@ -100,12 +100,12 @@ class Settings:
         # CLOUDS colouring thresholds
         self.cloud_caution = 8
         self.cloud_warning = 4
-        self.cloud_lvo_warning = 2
+        self.cloud_lvo_warning = 1
         self.few_caution = self.cloud_warning
 
-        self.vv_severe = 2
+        self.vv_severe = 1
         self.vv_warning = 3
-        self.vv_caution = 5
+        self.vv_caution = 6
 
         # WINDS colouring thresholds
         self.wind_caution = 15
@@ -125,7 +125,7 @@ class Settings:
         # VIS colouring thresholds
         self.caution_vis = 3000
         self.warning_vis = 1500
-        self.lvo = 800
+        self.lvo = 600
         ###
 
         ### RUNWAY PARAMETERS
