@@ -176,6 +176,7 @@
         value: app.value__start_slider
         on_touch_down: app.record_difference()
         on_value: app.on_slider_value__start(self)
+        on_touch_up: app.on_slider_value__start_RELEASED()
 
 
     # END TIME SLIDER
@@ -184,6 +185,7 @@
         on_value:
             app.on_slider_value__end(self)
             app.calculating_current_difference()
+        on_touch_up: app.on_slider_value__end_RELEASED()
         disabled: app.slider_variable_boolean
         opacity:app.slider_opacity
 
