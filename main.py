@@ -82,7 +82,7 @@ class TAF_groups_Stack(StackLayout):
 
         # Creates first set of g_group buttons
         app.create_g_group_buttons(self)
-        app.create_SINGLE_station_buttons(self)
+        app.create_SINGLE_station_buttons(self, False)
 
 class Last_requests(StackLayout):
     def __init__(self, **kwargs):
@@ -189,7 +189,7 @@ class TheTAFApp(App):
     need_to_update_TAFS_for_buttons = False
     max_thrts_at_apts = []
     ready_for_colouring_of_single_station_buttons = False
-    add_GRAY_only_single_station_buttons = False
+
 
     def __init__(self, **kwargs):
 
@@ -211,7 +211,7 @@ class TheTAFApp(App):
     def build(self):
         # Schedule the self.update_clock function to be called once a second
             # REFERENCE: https://stackoverflow.com/questions/54426193/how-to-have-an-updating-time-in-kivy
-        Clock.schedule_interval(self.update_clock, 1) # called every X seconds
+        Clock.schedule_interval(self.update_clock, 0.2) # called every X seconds
 
     # Initializig
     time_delta_minutes = StringProperty('-1')
@@ -219,6 +219,7 @@ class TheTAFApp(App):
     last_reload_failed = False
 
     def update_clock(self, *args):
+
         # Called once a second using the kivy.clock module
         self.utc_now = datetime.datetime.utcnow()
         self.current_time_str = self.utc_now.strftime('%H:%M:%S')
@@ -236,7 +237,10 @@ class TheTAFApp(App):
 
             self.reload_TAFs_msg = f'Last reload  {last_update__object.strftime("%H:%M UTC ,%d-%m-%Y ")},  {fpf.min_to_hours_and_days(self.time_delta_minutes)} ago, {self.num_TAFs_downloaded} TAFs'
             if self.last_reload_failed:
-                self.reload_TAFs_msg = f'Reload FAILED. Last reload {fpf.min_to_hours_and_days(self.time_delta_minutes)} ago. {self.num_TAFs_downloaded} TAFs'
+                self.reload_TAFs_msg  = f'Reload FAILED. Last reload {fpf.min_to_hours_and_days(self.time_delta_minutes)} ago. {self.num_TAFs_downloaded} TAFs'
+
+            if self.find_thread("Preparing_MaxThreatLevels_THREAD"):
+                self.reload_TAFs_msg  = "LOADING..."
 
         # UPDATES decoded TAFs only when flag true - CASE FOR PAGE2 SLIDER MOVEMENT
         if self.need_to_update_TAFS:
@@ -246,16 +250,6 @@ class TheTAFApp(App):
                              self.requested_stations,
                              self.value__start_slider,
                              self.value__end_slider)
-
-        # GENERATE GRAY SINGLE STATION BUTTONS - immediately
-        # if self.ready_for_generating_single_station_buttons and self.add_GRAY_only_single_station_buttons:
-        #     self.add_GRAY_only_single_station_buttons=False
-        #     # self.generate_single_station_buttons_GRAY(self.root.ids.id__Page1.ids.id__TAF_groups__scroll.ids.id__TAF_groups_Stack)
-        #     widget = self.root.ids.id__Page1.ids.id__TAF_groups__scroll.ids.id__TAF_groups_Stack
-        #     widget.clear_widgets()
-        #     self.create_g_group_buttons(widget)
-        #     self.generate_single_station_buttons(widget)
-
 
         # UPDATE BUTTONS - COLOUR ADDED - runs only when THREAD complete
         if (not self.find_thread("Preparing_MaxThreatLevels_THREAD")) and self.ready_for_colouring_of_single_station_buttons:
@@ -708,7 +702,7 @@ class TheTAFApp(App):
         self.search_input = widget.text
         print(self.search_input, "main.search_input")
 
-        self.refresh_station_buttons()
+        self.refresh_station_buttons(False)
 
 
     def create_g_group_buttons(self,widget):
@@ -757,94 +751,25 @@ class TheTAFApp(App):
         elif threat_level == "green":
             b_colour = '#0a6932'  # GREEN
         return b_colour
-    #
-    # def create_SINGLE_station_buttons(self, widget):
-    #     search_input = app.search_input
-    #
-    #     # Opening TAF vs station database
-    #     path = "Data_new/api__tafs_cleaned.json"
-    #
-    #     with open(path, 'r') as f_obj:
-    #         tafs_cleaned_dict = json.load(f_obj)
-    #
-    #     ######### Getting stations to show ##############
-    #     stations_to_show=[]
-    #
-    #     # Look for stations in the database only if search input 2-4 letters long
-    #     if 1 < len(search_input) < 5:
-    #         for station in tafs_cleaned_dict['station_id']:
-    #
-    #             # Check if search input is in any station_id
-    #             if search_input.upper() in station.upper():
-    #
-    #                 # If search input in station_id, the store the station
-    #                 stations_to_show.append(station)
-    #
-    #     # Updating requested_stations so it is more efficient as UPDATE TAF runs 5x times (FIXED)
-    #     app.requested_stations = stations_to_show
-    #
-    #     #Minimum number of characters in search input to show THREAT LEVEL
-    #     max_threat_level_at_airports=[]
-    #
-    #     if len(search_input)>=settings.min_num_of_char:
-    #         if len(stations_to_show)> 0:
-    #             # Has to callit self so sliders_values use the same value ()
-    #             app.requested_stations= app.requested_stations[:settings.max_num_of_colored]
-    #             print("suspect3", 'main.333333')
-    #             # max_threat_level_at_airports = self.update_TAFs(settings, app.requested_stations, int(self.value__start_slider), int(self.value__start_slider) + settings.SINGLE_station_time_range)
-    #             self.need_to_update_TAFS_for_buttons= True
-    #             # Store searched airports name and threat level
-    #
-    #     ####### GENERATIN BUTTONS ?? ##########
-    #     if len(stations_to_show) > 0:
-    #         i=0
-    #         for station in stations_to_show:
-    #             b_colour = '#474747'    # GRAY-BLUE
-    #             # if i<len(max_threat_level_at_airports):
-    #             if i<len(self.max_thrts_at_apts):
-    #                 # THREAT LEVEL at SINGLE STATION
-    #                 # station_threat_level =max_threat_level_at_airports[i][1][0]
-    #                 station_threat_level =self.max_thrts_at_apts[i][1][0]
-    #
-    #                 # Get colour depending on the threat level
-    #                 b_colour=self.change_colour_depending_on_threat_level(station_threat_level)
-    #
-    #
-    #             i+=1
-    #             btn = Button(
-    #                 text=station.upper(),
-    #                 size_hint=(0.33, None),
-    #                 height=dp(40),
-    #                 # width=dp(100),
-    #                 font_name="Resources/Fonts/JetBrainsMono-Regular.ttf",
-    #                 font_size='20dp',
-    #
-    #                 background_color = b_colour,
-    #                 background_normal='' #MODIIES HOW COLOR ARE BEING DISPLAYED
-    #             )
-    #
-    #             widget.ids[station] = btn  # CORRECT WAY based on the above
-    #
-    #             # BINDING event with method - VERY IMPORTANT!
-    #             btn.bind(on_press=self.load_single_TAF)
-    #
-    #             # Adding buttons to the layout
-    #             widget.add_widget(btn)
-    #
 
-    def create_SINGLE_station_buttons(self,widget):
 
+    def create_SINGLE_station_buttons(self,widget,change_time_range):
+        """Creates single station BUTTONS
+        INPUT: change_time_range IF:
+            FALSE - first GRAY buttons will be created, then once MAX_THREAT THREAD will be complete the buttons will be removed and COLOURED ONES created instead
+            TRUE - then GRAY buttions will not be created first before colouring"""
         TheTAFApp.get_stations_that_match_search()
-        # self.get_max_threat_level_for_selected_stations()
+
+
         t1 = threading.Thread(name="Preparing_MaxThreatLevels_THREAD",target=self.get_max_threat_level_for_selected_stations)
         t1.start()
 
-        self.add_GRAY_only_single_station_buttons = True
-        # self.generate_single_station_buttons(widget)
         self.ready_for_colouring_of_single_station_buttons = True
 
         # Adding GRAY buttons - to be repalced by COLOURED buttions when THREAD complete
-        self.generate_single_station_buttons_GRAY(widget)
+        if not change_time_range:
+            self.generate_single_station_buttons_GRAY(widget)
+
 
     @staticmethod
     def get_stations_that_match_search():
@@ -1185,7 +1110,7 @@ class TheTAFApp(App):
 
         self.value__end_slider = str(int(self.value__start_slider) + n)
 
-        self.refresh_station_buttons()
+        self.refresh_station_buttons(True)
 
     ### SETTINGS BINDING
     def single_station_color_on(self, widget):
@@ -1197,7 +1122,7 @@ class TheTAFApp(App):
         # Last requested stations NEED TO BE CLEARED
         id__Last_requests = app.root.ids.id__Page1.ids.id__Last_requests__scroll.ids.id__Last_requests  #### DIRECT PATH!!!!!
         id__Last_requests.clear_widgets()
-        self.refresh_station_buttons()
+        self.refresh_station_buttons(False)
 
     def reset_time_all_day(self):
         self.value__start_slider = self.time_now.strftime("%H")
@@ -1282,9 +1207,12 @@ class TheTAFApp(App):
 
 
 
-    def refresh_station_buttons(self):
+    def refresh_station_buttons(self, change_time_range):
 
-        """VERY IMPORTANT FUNCTION -- updates all buttons in the PAGE1 when parameters changes"""
+        """VERY IMPORTANT FUNCTION -- updates all buttons in the PAGE1 when parameters changes
+        INPUT: change_time_range - FALSE at all cases, TRUE only when new itme period buttons are pressed - this is to make change to new period without generating temporarly the GRAY buttons
+        """
+
         window_manager = app.root
         id__TAF_groups_Stack = app.root.ids.id__Page1.ids.id__TAF_groups__scroll.ids.id__TAF_groups_Stack
 
@@ -1292,11 +1220,13 @@ class TheTAFApp(App):
 
         # REMOVES ALL BUTTONS
         id__Last_requests.clear_widgets()
-        id__TAF_groups_Stack.clear_widgets()
+        if not change_time_range: # Not called when changing time range on PAGE1 - prevents from GRAY buttons to appear temporarely
+            id__TAF_groups_Stack.clear_widgets()
 
         # REBUILD ALL BUTTONS with new parameters
-        self.create_g_group_buttons(id__TAF_groups_Stack)
-        self.create_SINGLE_station_buttons(id__TAF_groups_Stack)
+        if not change_time_range:
+            self.create_g_group_buttons(id__TAF_groups_Stack)
+        self.create_SINGLE_station_buttons(id__TAF_groups_Stack, change_time_range)
 
         self.create_last_requests_buttons(id__Last_requests, settings)
 
