@@ -1,30 +1,24 @@
 ## General use modules
+import TAF_decoder__helper_functions as Td_helpers
+import final_program_functions as fpf
+from settings import Settings
+
 import json
 import math
 import threading
-
-import requests
-import pprint
 import datetime
-# For live clock
-from kivy.clock import Clock
-
 import pickle
-
-from kivy.uix.label import Label
-from kivy.uix.widget import Widget
-
-import TAF_decoder__helper_functions as Td_helpers
-
-## My modules
-from kivy.core.window import Window
-
 import colouring
-import final_program_functions as fpf
-from settings import Settings
+
+from kivy.clock import Clock
+from kivy.uix.label import Label
+from kivy.core.window import Window
+from dateutil.parser import parse   # check https://stackabuse.com/converting-strings-to-datetime-in-python/
+                                    # module which automatically converts time string into the datetime format
+
+
+
 settings = Settings()
-from dateutil.parser import parse  # check https://stackabuse.com/converting-strings-to-datetime-in-python/
-        # module which automatically converts time string into the datetime format
 
 from kivy.lang import Builder
 Builder.load_file('page1.kv')
@@ -651,7 +645,6 @@ class TheTAFApp(App):
         """This funciton first defines function that then will be run in the THREAD
         --->>may need to be refactored """
 
-
         """Runs RELOAD in separate thread """
         t1 = threading.Thread(target=self.call_TAFs_reload, args=[])
         t1.start()
@@ -1246,8 +1239,6 @@ class TheTAFApp(App):
             ## Searching for Station at propper index
             if i == int(app.selected_station_index):
                 ## UPDATING page5 DISPLAY -
-                print(self.stationsList[i].station_name, 'main.ffff')
-                print(self.stationsList[i].station_name__coloured, 'main.dddddddd')
                 app.station_name = self.stationsList[i].station_name__coloured
 
                 # Replacing text by proper symbols

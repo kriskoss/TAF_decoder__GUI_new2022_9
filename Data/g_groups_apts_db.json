@@ -137,24 +137,7 @@
     "lsgg",
     "edds"
   ],
-  "gqqqq": [
-    "qqqq",
-    "wwww",
-    "eeee"
-  ],
-  "geeee": [
-    "eeee",
-    "rrrr",
-    "tttt"
-  ],
-  "gwwww": [
-    "wwww",
-    "ssss",
-    "dddd"
-  ],
-  "gdddd": [
-    "DDDD"
-  ],
+
   "gepsc": [
     "epsc",
     "epzg"
@@ -163,19 +146,12 @@
     "epkk",
     "epwa"
   ],
-  "ghhhh": [
-    "HHHH",
-    "DDDD",
-    "EEEE"
-  ],
+
   "gepzg": [
     "epzg",
     "epwa"
   ],
-  "gkkkk": [
-    "kkkk",
-    "bbbb"
-  ],
+
   "gento": [
     "ento",
     "engm",
@@ -213,20 +189,7 @@
     "EGNX",
     "EGGW"
   ],
-  "gfffd": [
-    "fffd",
-    "fsfc"
-  ],
-  "gaaaa": [
-    "AAAA",
-    "SSSS",
-    "DDDD",
-    "FFFF",
-    "GGGG",
-    "HHHH",
-    "JJJJ",
-    "KKKK"
-  ],
+
   "gLGZA": [
     "LGZA",
     "LGKR",
@@ -380,28 +343,6 @@
     "LIRF",
     "LIEE",
     "LIRP"
-  ],
-  "gZZZZ": [
-    "ZZZZ"
-  ],
-  "gKFJD": [
-    "KFJD",
-    "AFFA"
-  ],
-  "gTEST": [
-    "EPWA",
-    "EPLL",
-    "TEST"
-  ],
-  "gGGGG": [
-    "GGGG",
-    "LKHJ",
-    "HJKL",
-    "HJKL",
-    "HJKL",
-    "KJHL",
-    "HJKL",
-    "JHKL",
-    "JHKL"
   ]
+
 }
