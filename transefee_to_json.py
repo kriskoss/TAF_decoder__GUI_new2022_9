@@ -1,5 +1,5 @@
 import json
-filename = 'Data/g_groups_apts_db.json'
+filename = 'Data/g_groups_database_ONLY/g_groups_apts_db.json'
 with open(filename) as f:
     apts = json.load(f)
 

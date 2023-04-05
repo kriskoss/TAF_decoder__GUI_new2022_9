@@ -26,6 +26,7 @@ Builder.load_file('page2.kv')
 Builder.load_file('page3.kv')
 Builder.load_file('page4.kv')
 Builder.load_file('page5.kv')
+Builder.load_file('map.kv')
 # Builder.load_file('TheTAF.kv')
 
 ## Kivy modules
@@ -599,7 +600,7 @@ class TheTAFApp(App):
         fpf.download_airports_database()
 
     def load_g_groups_db(self):
-        filename = 'Data/g_groups_apts_db.json'
+        filename = 'Data/g_groups_database_ONLY/g_groups_apts_db.json'
         with open(filename) as f_obj:
             g_groups_db = json.load(f_obj)
         return g_groups_db

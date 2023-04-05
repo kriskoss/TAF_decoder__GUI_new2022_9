@@ -419,7 +419,7 @@ def add_new_group(answer_split):
     """Adding new g_group or updating existing one in JSON database"""
 
     import copy
-    filename = 'Data/g_groups_apts_db.json'
+    filename = 'Data/g_groups_database_ONLY/g_groups_apts_db.json'
     with open(filename) as f_obj:
         g_groups_db = json.load(f_obj)
 
@@ -555,7 +555,7 @@ def extract_stations_from_g_group(selected_g_group):
     """Returns list of stations stored in to selected g_group"""
 
     # Loading g_group database
-    filename = 'Data/g_groups_apts_db.json'
+    filename = 'Data/g_groups_database_ONLY/g_groups_apts_db.json'
     with open(filename) as f_obj:
         g_groups_db= json.load(f_obj)
 

@@ -1,0 +1,13 @@
+<Map@BoxLayout>
+    StackLayout:
+        orientation: "rl-bt"
+        spacing: "10dp"
+        size_hint: 1, None,
+        height:'140dp'
+
+        StackButton:
+            text: "APTs"
+            background_color: '#5232a8'
+            on_release:
+                app.root.current ="first"
+                app.root.transition.direction = "right"
