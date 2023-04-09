@@ -1,9 +1,33 @@
+#:kivy 2.1.0
 <Map@BoxLayout>
+
+    MapView_my:
+        id:id__MapView_my
+        size_hint: 10, 1,
+#        lat: 52
+        lon: 11
+        zoom: 4
+
+        on_lat:
+            print(self.lat)
+        on_lon:
+            print(self.lon)
+        MapMarkerPopup:
+            id: test_marker_popup
+            source: "tiles.png"
+            lat: 52
+            lon: 21
+            Button:
+                on_release:
+                    print(self.ids, 'main.py self.ids')
+
+
     StackLayout:
         orientation: "rl-bt"
         spacing: "10dp"
         size_hint: 1, None,
         height:'140dp'
+
 
         StackButton:
             text: "APTs"
@@ -11,3 +35,9 @@
             on_release:
                 app.root.current ="first"
                 app.root.transition.direction = "right"
+
+        StackButton:
+            text: "Show APTs"
+            background_color: '#1232a8'
+            on_release:
+                app.current_g_group_apts(self)

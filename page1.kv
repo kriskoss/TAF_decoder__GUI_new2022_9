@@ -1,3 +1,5 @@
+#:kivy 2.1.0
+
 <Page1@BoxLayout>
     orientation:"vertical"
     spacing:'5dp'
@@ -120,6 +122,8 @@
             app.root.transition.direction = "left"
     Button:
         text: "MAP"
+        size_hint_x: 0.5
+        background_color: '#6242a9'
         on_press:
             app.root.current="map"
             app.root.transition.direction = "left"

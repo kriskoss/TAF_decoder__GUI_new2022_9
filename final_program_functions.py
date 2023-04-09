@@ -239,7 +239,27 @@ def download_airports_database():
     counter__good_apts = 0
 
     for row in reader:
-        # row = ['id', 'airport_ref', 'airport_ident', 'length_ft', 'width_ft', 'surface', 'lighted', 'closed', 'le_ident', 'le_latitude_deg', 'le_longitude_deg', 'le_elevation_ft', 'le_heading_degT', 'le_displaced_threshold_ft', 'he_ident', 'he_latitude_deg', 'he_longitude_deg', 'he_elevation_ft', 'he_heading_degT', 'he_displaced_threshold_ft']
+        """row = [  'id',               [0]
+                    'airport_ref',      [1]
+                    'airport_ident',    [2] 
+                    'length_ft',        [3]
+                    'width_ft',         [4]
+                    'surface',          [5]
+                    'lighted',          [6]          
+                    'closed',           [7]
+                    'le_ident',         [8]
+                    'le_latitude_deg',  [9]
+                    'le_longitude_deg', [10] 
+                    'le_elevation_ft',  [11] 
+                    'le_heading_degT',  [12]
+                    'le_displaced_threshold_ft',    [13] 
+                    'he_ident',         [14]
+                    'he_latitude_deg',  [15]
+                    'he_longitude_deg', [16] 
+                    'he_elevation_ft',  [17]
+                    'he_heading_degT',  [18]
+                    'he_displaced_threshold_ft']    [19]
+                    """
 
         counter__all_apts += 1
         # if counter__good_apts >10:
@@ -354,7 +374,11 @@ def download_airports_database():
         'le_displaced_threshold__meters',
         'he_ident',
         'he_heading_degT',
-        'he_displaced_threshold__meters'
+        'he_displaced_threshold__meters',
+        'le_latitude_deg',
+        'le_longitude_deg',
+        'he_latitude_deg',
+        'he_longitude_deg',
     ])  # storing only selected columns
 
     # Getting columns from sorted data list and conveting units
@@ -371,6 +395,11 @@ def download_airports_database():
         he_heading_degT = round(float(row[18]))
         he_displaced_threshold__meters = round(float(row[19]) * 0.3048)
 
+        le_latitude_deg = float(row[9])
+        le_longitude_deg = float(row[10])
+        he_latitude_deg = float(row[15])
+        he_longitude_deg = float(row[16])
+
         # Writing to csv file only selected columnss
         writer.writerow([
             airport_ident,
@@ -381,7 +410,12 @@ def download_airports_database():
             le_displaced_threshold__meters,
             he_ident,
             he_heading_degT,
-            he_displaced_threshold__meters])
+            he_displaced_threshold__meters,
+            le_latitude_deg,
+            le_longitude_deg,
+            he_latitude_deg,
+            he_longitude_deg
+            ])
 
     # Converting data_sorted into a dictionary
     airports_dict = {
@@ -394,7 +428,11 @@ def download_airports_database():
         'he_ident': [],
         'he_heading_degT': [],
         'he_displaced_threshold__meters': [],
-    }
+        'le_latitude_deg':[],
+        'le_longitude_deg':[],
+        'he_latitude_deg':[],
+        'he_longitude_deg':[],
+        }
     for i in range(len(data__sorted)):
         airports_dict['airport_ident'].append(data__sorted[i][2])
         airports_dict['length__meters'].append(round(float(data__sorted[i][3]) * 0.3048))
@@ -405,6 +443,10 @@ def download_airports_database():
         airports_dict['he_ident'].append(data__sorted[i][14])
         airports_dict['he_heading_degT'].append(round(float(data__sorted[i][18])))
         airports_dict['he_displaced_threshold__meters'].append(round(float(data__sorted[i][19]) * 0.3048))
+        airports_dict['le_latitude_deg'].append(data__sorted[i][9])
+        airports_dict['le_longitude_deg'].append(data__sorted[i][10])
+        airports_dict['he_latitude_deg'].append(data__sorted[i][15])
+        airports_dict['he_longitude_deg'].append(data__sorted[i][16])
 
     # Store tafs_cleanded_dict as json
     # Check this video: https://www.youtube.com/watch?v=pTT7HMqDnJw

@@ -16,18 +16,19 @@ from kivy.core.window import Window
 from dateutil.parser import parse   # check https://stackabuse.com/converting-strings-to-datetime-in-python/
                                     # module which automatically converts time string into the datetime format
 
-
+from kivy_garden.mapview import MapView, MapMarker, MapSource
 
 settings = Settings()
 
 from kivy.lang import Builder
+# Builder.load_file('TheTAF.kv')
 Builder.load_file('page1.kv')
 Builder.load_file('page2.kv')
 Builder.load_file('page3.kv')
 Builder.load_file('page4.kv')
 Builder.load_file('page5.kv')
 Builder.load_file('map.kv')
-# Builder.load_file('TheTAF.kv')
+
 
 ## Kivy modules
 from kivy.app import App
@@ -37,6 +38,17 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.stacklayout import StackLayout
 
+class MapView_my(MapView):
+    """Class for the mapview widget"""
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.lat = 50.5
+        # print(self, 'main.py MapView_my()')
+        # self.mapview = MapView(zoom=5, lat=50.5, lon=19.5)
+        # self.add_widget(self.mapview)
+        #
+        self.add_marker(MapMarker(lat=40.5, lon=19.5))
+        self.add_marker(MapMarker(lat=50.5, lon=9.5))
 class TAF_StackLayout(BoxLayout):
     #### FOR TESTING!!
     def __init__(self,**kwargs):
@@ -89,7 +101,6 @@ class Add_Group(BoxLayout):
 
     # Adds new g-group in to the database
     new_group_str =StringProperty("")
-
     time_now = datetime.datetime.utcnow()
 
     terminal_answer=StringProperty('')
@@ -203,6 +214,8 @@ class TheTAFApp(App):
         # self.call_TAFs_reload()
         self.update_clock() # SIDE EFFECT of this function is the last RELOAD time displayed correctyly
 
+
+
     def build(self):
         # Schedule the self.update_clock function to be called once a second
             # REFERENCE: https://stackoverflow.com/questions/54426193/how-to-have-an-updating-time-in-kivy
@@ -251,6 +264,8 @@ class TheTAFApp(App):
             self.ready_for_colouring_of_single_station_buttons = False
 
             widget = self.root.ids.id__Page1.ids.id__TAF_groups__scroll.ids.id__TAF_groups_Stack
+            # widget = self.root.ids.id__Page1.ids.id__TAF_groups__scroll.ids['id__TAF_groups_Stack']
+
             # Removes all GRAY buttons and replace them with COLOURED ones
             widget.clear_widgets()
             self.create_g_group_buttons(widget)
@@ -973,11 +988,10 @@ class TheTAFApp(App):
                     widget.add_widget(btn)
 
     def on_press_g_group(self, instance):
-        """Defines what happens when any g_group button is being pressed"""
+        """Defines what happens when any g_group button is pressed"""
 
         settings.on_staion_button_press_flag = True
         # Updating app variable - VERY IMPORTANT!
-
 
         app.selected_g_group = instance.text
 
@@ -1271,4 +1285,20 @@ class TheTAFApp(App):
             self.selected_station_index= str(int(self.selected_station_index) - 1)
 
         self.select_station(self.selected_station_index)
+
+    ### MAP page methods
+    def current_g_group_apts(self,widget):
+        """
+        Adds pointes onthe map for current G group
+        """
+        # Getting widget
+        mapView_my = app.root.ids['map'].ids['id__MapView_my']
+
+
+        mapView_my.add_marker(MapMarker(lat=37.5, lon=19.5))
+
+
 TheTAFApp().run()  # RUNS THE KIVY!!
+
+
+

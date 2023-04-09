@@ -638,7 +638,10 @@ def TAF_decoder_function(settings, TAF,TAF_num, start_hour, end_hour):
         station_name =  station_name[0]
         selected_time_info = Tdf.generate_selected_time_info(significant_time, weather_data_copy, colored_station_name, start_hour, end_hour, TAF)
         decoded_TAF = Tdf.generate_decoded_TAF(settings,BECMG_color, error_added, error_found, grayed_area_right, weather_data, gr_data)
-        runways_length = Tdf.avaliable_rwys(apt_code, settings)
+        # runways_length = Tdf.avaliable_rwys(apt_code, settings)
+        airport = Tdf.Airport(apt_code, settings)
+        runways_length = airport.get_runway_info_for_display()
+
         station_threats = Tdf.convert_data_lists_to_single_string(all_lines, settings, TAF_num)
         station_name__coloured = all_lines[0][0]
         appr_data = Tdf.generate_appr_info(TAF, settings)
