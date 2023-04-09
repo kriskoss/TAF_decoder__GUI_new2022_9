@@ -564,7 +564,7 @@ class Runway:
         self.he_heading_degT = _he_heading_degT
         self.he_displaced_threshold__meters = _he_displaced_threshold__meters
         self.he_latitude_deg = _he_latitude_deg
-        self.he_longitude_de = _he_longitude_deg
+        self.he_longitude_deg = _he_longitude_deg
 
 
 class Airport:
@@ -576,6 +576,8 @@ class Airport:
         self.airport_cleaned = self.open_json_file(path = "Data_new/airports_cleaned.json")
         self.runways = self.get_runway_info(self.airport_cleaned)
 
+        self.lat = self.get_apt_coordinates()[0]
+        self.lon = self.get_apt_coordinates()[1]
 
         """ CORE FUNCTION - adds runway idents and runway length to the final data"""
 
@@ -690,6 +692,14 @@ class Airport:
 
         return runways_info_for_display
 
+    def get_apt_coordinates(self):
+        if len(self.runways)>0:
+            lat = (self.runways[0].le_latitude_deg + self.runways[0].he_latitude_deg)/2
+            lon = (self.runways[0].le_longitude_deg + self.runways[0].he_longitude_deg)/2
+            return lat,lon
+        else:
+            print("ERROR: No runways found for this airport", "Taf_decoder.get_apt_coordinates AAAAA")
+            return -99,-99
 ##### END OF CLASSES TEST ###############################
 
 def avaliable_rwys(apt_code, settings):

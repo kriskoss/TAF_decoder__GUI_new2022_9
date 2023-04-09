@@ -640,6 +640,7 @@ def TAF_decoder_function(settings, TAF,TAF_num, start_hour, end_hour):
         decoded_TAF = Tdf.generate_decoded_TAF(settings,BECMG_color, error_added, error_found, grayed_area_right, weather_data, gr_data)
         # runways_length = Tdf.avaliable_rwys(apt_code, settings)
         airport = Tdf.Airport(apt_code, settings)
+        apt_coordinates = airport.get_apt_coordinates()
         runways_length = airport.get_runway_info_for_display()
 
         station_threats = Tdf.convert_data_lists_to_single_string(all_lines, settings, TAF_num)
@@ -662,6 +663,7 @@ def TAF_decoder_function(settings, TAF,TAF_num, start_hour, end_hour):
         selected_time_info = 'errA'
         decoded_TAF = TAF
         runways_length = 'errB'
+        apt_coordinates = 'errC'
         station_threats = station_name[0]
         appr_data = 'errD'
         time_range = time_range
@@ -675,6 +677,7 @@ def TAF_decoder_function(settings, TAF,TAF_num, start_hour, end_hour):
         "selected_time_info": selected_time_info,
         "decoded_TAF": decoded_TAF,
         "runways_length": runways_length,
+        "apt_coordinates": apt_coordinates,
         "station_threats": station_threats,
         "appr_data": appr_data,
         "time_range": time_range,
@@ -683,17 +686,25 @@ def TAF_decoder_function(settings, TAF,TAF_num, start_hour, end_hour):
     }
 
     # Creating INSTANCE
-    singleStation = SingleStation(station_name, station_name__coloured, decoded_TAF, runways_length, appr_data, max_threat_level_at_airport, wind_profile)
+    singleStation = SingleStation(station_name,
+                                  station_name__coloured,
+                                  decoded_TAF,
+                                  runways_length,
+                                  apt_coordinates,
+                                  appr_data,
+                                  max_threat_level_at_airport,
+                                  wind_profile)
 
     return decoded_TAF_dict, singleStation
 
 class SingleStation:
     """Contains data related to the single station"""
-    def __init__(self, station_name, station_name__coloured,decoded_TAF, runways_length, appr_data, max_threat_level_at_airport, wind_profile ):
+    def __init__(self, station_name, station_name__coloured,decoded_TAF, runways_length, apt_coordinates,appr_data, max_threat_level_at_airport, wind_profile ):
         self.station_name = station_name
         self.station_name__coloured = station_name__coloured
         self.decoded_TAF = decoded_TAF
         self.runways_length = runways_length
+        self.apt_coordinates = apt_coordinates
         self.appr_data = appr_data
         self.max_threat_level_at_airport = max_threat_level_at_airport
         self.wind_profile = wind_profile

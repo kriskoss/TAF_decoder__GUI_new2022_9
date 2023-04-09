@@ -42,13 +42,9 @@ class MapView_my(MapView):
     """Class for the mapview widget"""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.lat = 50.5
-        # print(self, 'main.py MapView_my()')
-        # self.mapview = MapView(zoom=5, lat=50.5, lon=19.5)
-        # self.add_widget(self.mapview)
-        #
-        self.add_marker(MapMarker(lat=40.5, lon=19.5))
-        self.add_marker(MapMarker(lat=50.5, lon=9.5))
+        self.lat = 50
+        self.lon = 11
+
 class TAF_StackLayout(BoxLayout):
     #### FOR TESTING!!
     def __init__(self,**kwargs):
@@ -196,7 +192,7 @@ class TheTAFApp(App):
     max_thrts_at_apts = []
     ready_for_colouring_of_single_station_buttons = False
 
-
+    g_group_mapMarkers = []
     def __init__(self, **kwargs):
 
         super().__init__(**kwargs)
@@ -1004,6 +1000,9 @@ class TheTAFApp(App):
 
         self.generate_TAFs_at_page2_and_show()
 
+        # Adding markers to the map
+        self.add_current_g_group_markers(self.requested_stations)
+
 
     def generate_TAFs_at_page2_and_show(self):
         # Updates decoded TAF on press
@@ -1287,16 +1286,29 @@ class TheTAFApp(App):
         self.select_station(self.selected_station_index)
 
     ### MAP page methods
-    def current_g_group_apts(self,widget):
-        """
-        Adds pointes onthe map for current G group
-        """
-        # Getting widget
-        mapView_my = app.root.ids['map'].ids['id__MapView_my']
+    def add_current_g_group_markers(self, widget):
+        """Adds markers to the map for all stations in the current g_group"""
+        # Getting mapView widget
+        mapView_my = self.root.ids['map'].ids['id__MapView_my']
+
+        # Clearing map of the previous g_group markers
+        for mkr in self.g_group_mapMarkers:
+            mapView_my.remove_marker(mkr)
+
+        # This is pre-annotation syntax for type hinting
+        stationObject: SingleStation
+
+        for stationObject in app.stationsList:
+            # Adding marker to the map
+            mkr = MapMarker(lat=stationObject.apt_coordinates[0],
+                            lon=stationObject.apt_coordinates[1])
+            mapView_my.add_marker(mkr)
+
+            # Adding marker to the list of markers - to be able to remove them later
+            self.g_group_mapMarkers.append(mkr)
 
 
-        mapView_my.add_marker(MapMarker(lat=37.5, lon=19.5))
-
+from TAF_decoder import SingleStation
 
 TheTAFApp().run()  # RUNS THE KIVY!!
 

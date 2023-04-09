@@ -5,7 +5,7 @@
         id:id__MapView_my
         size_hint: 10, 1,
 #        lat: 52
-        lon: 11
+#        lon: 11
         zoom: 4
 
         on_lat:
@@ -40,4 +40,4 @@
             text: "Show APTs"
             background_color: '#1232a8'
             on_release:
-                app.current_g_group_apts(self)
+                app.add_current_g_group_markers(self)
