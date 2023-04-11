@@ -10,11 +10,13 @@ import datetime
 import pickle
 import colouring
 
+
 from kivy.clock import Clock
 from kivy.uix.label import Label
 from kivy.core.window import Window
 from dateutil.parser import parse   # check https://stackabuse.com/converting-strings-to-datetime-in-python/
                                     # module which automatically converts time string into the datetime format
+
 
 from kivy_garden.mapview import MapView, MapMarker, MapSource
 
@@ -37,6 +39,77 @@ from kivy.properties import StringProperty, BooleanProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.stacklayout import StackLayout
+
+## TESTING
+from TAF_decoder__functions import Airport
+
+class MapControls:
+    """This class is used to control the map"""
+    def __init__(self):
+        self.g_group_mapMarkers = []
+        self.pts_btwn_apts_mapMarkers = []
+
+
+    def add_current_g_group_markers(self, _app):
+        """Adds markers to the map for all stations in the current g_group"""
+        # Getting mapView widget
+        mapView_my = _app.root.ids['map'].ids['id__MapView_my']
+
+        # Clearing map of the previous g_group markers
+        for mkr in self.g_group_mapMarkers:
+            mapView_my.remove_marker(mkr)
+
+        # This is pre-annotation syntax for type hinting
+        stationObject: SingleStation
+
+        for stationObject in app.stationsList:
+            # Adding marker to the map
+            mkr = MapMarker(lat=stationObject.apt_coordinates[0],
+                            lon=stationObject.apt_coordinates[1])
+            mapView_my.add_marker(mkr)
+
+            # Adding marker to the list of markers - to be able to remove them later
+            self.g_group_mapMarkers.append(mkr)
+
+    def pts_btwn_apts(self, _app):
+        apt1 = Airport()    # Creates empty Airport objrct
+        apt1.get_airport_data_by_apt_code('EPWA')   # Populates Airport object with data
+
+        apt2 = Airport()
+        apt2.get_airport_data_by_apt_code('LEMD')
+
+        # Getting mapView widget
+        mapView_my = _app.root.ids['map'].ids['id__MapView_my']
+
+        # Clearing map of the previous g_group markers
+        for mkr in self.pts_btwn_apts_mapMarkers:
+            mapView_my.remove_marker(mkr)
+
+        # Adding DEP/DEST markers
+        dep_apt = apt1
+        dest_apt = apt2
+        dep_mkr = MapMarker(lat=dep_apt.lat, lon=dep_apt.lon)
+        dest_mkr = MapMarker(lat=dest_apt.lat, lon=dest_apt.lon)
+
+        mapView_my.add_marker(dep_mkr)
+        mapView_my.add_marker(dest_mkr)
+
+        ### Adding markers at interpolated coordinates ###
+
+        steps = 10
+        lat_step = (dest_apt.lat - dep_apt.lat)/steps
+        lon_step = (dest_apt.lon - dep_apt.lon)/steps
+
+        for i in range(10):
+            lat_mkr = dep_apt.lat + i*lat_step  # Calculates the marker coordinates
+            lon_mkr = dep_apt.lon + i*lon_step
+
+            mkr = MapMarker(lat = lat_mkr, lon= lon_mkr)    # Creates marker object
+            mkr.source= "Resources/MapMarkers/inter_mkr.png"
+            mapView_my.add_marker(mkr)  # Adds marker to the map
+            self.pts_btwn_apts_mapMarkers.append(mkr) # Add markers to the list - this enables removal of the markers later
+
+
 
 class MapView_my(MapView):
     """Class for the mapview widget"""
@@ -128,8 +201,11 @@ class Add_Group(BoxLayout):
             self.terminal_answer = "Try format: XXXX XXXX XXXX etc. "
 
 class TheTAFApp(App):
-    ### GLOBAL VARIABLES
 
+    ### OBJECTS ###
+    mapControls = MapControls()
+
+    ### GLOBAL VARIABLES ###
 
     requested_stations ='none'
     # Sets the initial value of the time sliders
@@ -192,7 +268,6 @@ class TheTAFApp(App):
     max_thrts_at_apts = []
     ready_for_colouring_of_single_station_buttons = False
 
-    g_group_mapMarkers = []
     def __init__(self, **kwargs):
 
         super().__init__(**kwargs)
@@ -1001,7 +1076,8 @@ class TheTAFApp(App):
         self.generate_TAFs_at_page2_and_show()
 
         # Adding markers to the map
-        self.add_current_g_group_markers(self.requested_stations)
+        # self.add_current_g_group_markers(self.requested_stations)
+        self.mapControls.add_current_g_group_markers(self)
 
 
     def generate_TAFs_at_page2_and_show(self):
@@ -1286,27 +1362,30 @@ class TheTAFApp(App):
         self.select_station(self.selected_station_index)
 
     ### MAP page methods
-    def add_current_g_group_markers(self, widget):
-        """Adds markers to the map for all stations in the current g_group"""
-        # Getting mapView widget
-        mapView_my = self.root.ids['map'].ids['id__MapView_my']
+    #
 
-        # Clearing map of the previous g_group markers
-        for mkr in self.g_group_mapMarkers:
-            mapView_my.remove_marker(mkr)
 
-        # This is pre-annotation syntax for type hinting
-        stationObject: SingleStation
-
-        for stationObject in app.stationsList:
-            # Adding marker to the map
-            mkr = MapMarker(lat=stationObject.apt_coordinates[0],
-                            lon=stationObject.apt_coordinates[1])
-            mapView_my.add_marker(mkr)
-
-            # Adding marker to the list of markers - to be able to remove them later
-            self.g_group_mapMarkers.append(mkr)
-
+    #
+    # def add_current_g_group_markers(self, widget):
+    #     """Adds markers to the map for all stations in the current g_group"""
+    #     # Getting mapView widget
+    #     mapView_my = self.root.ids['map'].ids['id__MapView_my']
+    #
+    #     # Clearing map of the previous g_group markers
+    #     for mkr in self.g_group_mapMarkers:
+    #         mapView_my.remove_marker(mkr)
+    #
+    #     # This is pre-annotation syntax for type hinting
+    #     stationObject: SingleStation
+    #
+    #     for stationObject in app.stationsList:
+    #         # Adding marker to the map
+    #         mkr = MapMarker(lat=stationObject.apt_coordinates[0],
+    #                         lon=stationObject.apt_coordinates[1])
+    #         mapView_my.add_marker(mkr)
+    #
+    #         # Adding marker to the list of markers - to be able to remove them later
+    #         self.g_group_mapMarkers.append(mkr)
 
 from TAF_decoder import SingleStation
 

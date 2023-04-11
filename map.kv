@@ -1,4 +1,4 @@
-#:kivy 2.1.0
+#:kivy 2.0.0
 <Map@BoxLayout>
 
     MapView_my:
@@ -14,7 +14,7 @@
             print(self.lon)
         MapMarkerPopup:
             id: test_marker_popup
-            source: "tiles.png"
+            source: "Resources/MapMarkers/tiles.png"
             lat: 52
             lon: 21
             Button:
@@ -40,4 +40,10 @@
             text: "Show APTs"
             background_color: '#1232a8'
             on_release:
-                app.add_current_g_group_markers(self)
+                app.mapControls.add_current_g_group_markers(app)
+
+        StackButton:
+            text: "PTS btwn"
+            background_color: '#3212a8'
+            on_release:
+                app.mapControls.pts_btwn_apts(app)
