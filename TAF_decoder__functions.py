@@ -11,6 +11,7 @@ import math
 import TAF_decoder__helper_functions as Td_helpers
 
 from settings import Settings
+from Helpers import Helpers
 settings = Settings()
 
 ########### ADDING CLASSED (2023.04.09) ##############
@@ -66,48 +67,12 @@ class Airport:
         """
         self.__init__()
         self.apt_code = apt_code
-        self.airport_cleaned = self.open_json_file(path="Data_new/airports_cleaned.json")
-        self.runways = self.get_runway_info(self.airport_cleaned)
-        self.get_apt_coordinates()
-        return self.get_runway_info_for_display()
+        self.airport_cleaned = Helpers.open_json_file(self, path="Data_new/airports_cleaned.json")
+        self.runways = self.__get_runway_info(self.airport_cleaned)
+        self.__get_apt_coordinates()
+        return self.__get_runway_info_for_display()
 
-    def open_json_file(self,path):
-        with open(path, 'r') as f_obj:
-            airport_cleaned = json.load(f_obj)
-        return airport_cleaned
-
-        # path = "Data_new/airports_cleaned.json"
-        # with open(path, 'r') as f_obj:
-        #     airport_cleaned = json.load(f_obj)
-
-        # Collecting all runway info in one list - each runway is in separate file in json file
-
-    def get_runway_info(self,airport_cleaned):
-        rwys= []
-        for i in range(len(airport_cleaned["airport_ident"])):
-            # Searching for selected airport identification
-            if airport_cleaned["airport_ident"][i] == self.apt_code:
-
-                # Creating runway object
-                rwy = Runway(
-                    airport_cleaned["length__meters"][i] - airport_cleaned["le_displaced_threshold__meters"][i],
-                    airport_cleaned["width__meters"][i],
-                    airport_cleaned["le_ident"][i],
-                    airport_cleaned["le_heading_degT"][i],
-                    airport_cleaned["le_displaced_threshold__meters"][i],
-                    airport_cleaned["le_latitude_deg"][i],
-                    airport_cleaned["le_longitude_deg"][i],
-                    airport_cleaned["he_ident"][i],
-                    airport_cleaned["he_heading_degT"][i],
-                    airport_cleaned["he_displaced_threshold__meters"][i],
-                    airport_cleaned["he_latitude_deg"][i],
-                    airport_cleaned["he_longitude_deg"][i]
-                )
-                # Adding runway object to the list
-                rwys.append(rwy)
-        return rwys
-
-    def get_runway_info_for_display(self):
+    def __get_runway_info_for_display(self):
         # Making runway information ready for display
         runway_info_for_display = []
         for runway in self.runways:
@@ -181,7 +146,35 @@ class Airport:
 
         return runways_info_for_display
 
-    def get_apt_coordinates(self):
+
+
+    # PRIVATE (make it if possible)
+    def __get_runway_info(self,airport_cleaned):
+        rwys= []
+        for i in range(len(airport_cleaned["airport_ident"])):
+            # Searching for selected airport identification
+            if airport_cleaned["airport_ident"][i] == self.apt_code:
+
+                # Creating runway object
+                rwy = Runway(
+                    airport_cleaned["length__meters"][i] - airport_cleaned["le_displaced_threshold__meters"][i],
+                    airport_cleaned["width__meters"][i],
+                    airport_cleaned["le_ident"][i],
+                    airport_cleaned["le_heading_degT"][i],
+                    airport_cleaned["le_displaced_threshold__meters"][i],
+                    airport_cleaned["le_latitude_deg"][i],
+                    airport_cleaned["le_longitude_deg"][i],
+                    airport_cleaned["he_ident"][i],
+                    airport_cleaned["he_heading_degT"][i],
+                    airport_cleaned["he_displaced_threshold__meters"][i],
+                    airport_cleaned["he_latitude_deg"][i],
+                    airport_cleaned["he_longitude_deg"][i]
+                )
+                # Adding runway object to the list
+                rwys.append(rwy)
+        return rwys
+
+    def __get_apt_coordinates(self):
         if len(self.runways)>0:
             lat = (self.runways[0].le_latitude_deg + self.runways[0].he_latitude_deg)/2
             lon = (self.runways[0].le_longitude_deg + self.runways[0].he_longitude_deg)/2

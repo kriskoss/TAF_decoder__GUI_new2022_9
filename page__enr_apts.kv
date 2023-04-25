@@ -1,0 +1,70 @@
+<EnrApts@BoxLayout>
+    id: id__EnrApts
+    orientation: "vertical"
+
+    BoxLayout: # 1st row
+        size_hint: 1, None
+        height: '40dp'
+        EnrBtn:
+            text: "APTs"
+            background_color: '#5232a8'
+            on_release:
+                app.root.current ="first"
+                app.root.transition.direction = "right"
+
+        EnrBtn:
+            text: "Show APTs"
+            background_color: '#1232a8'
+            on_release:
+                app.mapControls.add_current_g_group_markers(app)
+
+        EnrBtn:
+            text: "PTS btwn"
+            background_color: '#3212a8'
+            on_release:
+                app.mapControls.pts_btwn_apts(app)
+                app.enrAptsCtrls.removeAllButtons()
+
+    BoxLayout:  # 2nd row  - ROUTE INPUT BOX
+        id: id__route_box
+        size_hint: 1, None
+        height: '40dp'
+
+        TextInput:  #   ROUTE InputText
+            id: id__route_input
+            hint_text: "Enter ROUTE via Airports"
+            multiline: False
+            size_hint: 0.8, None
+            height: '40dp'
+
+        Button:     #   ROUTE Confirm Button
+            id: id_route_confirm_btn
+            text: "Confirm?"
+            size_hint: 0.2, None
+            height: '40dp'
+            on_release:
+                app.enrAptsCtrls.updateRoute()
+                app.enrAptsCtrls.route_confirmed()
+
+
+    BoxLayout:
+        spacing:'5dp'
+        EnrApts__scroll:
+            id:id__EnrApts__scroll
+#            size_hint:1,1
+#            width: '82dp'
+
+<EnrBtn@Button>
+    size_hint: 1, None
+    height: '40dp'
+
+
+<EnrApts__scroll@ScrollView>
+    id: id__EnrApts__scroll
+    Enr_apts_stack:
+        id: Enr_apts_stack
+        size_hint: 1, None
+        height:  self.minimum_height
+
+        orientation: "vertical"
+#

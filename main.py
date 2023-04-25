@@ -1,4 +1,6 @@
 ## General use modules
+import geopy.distance
+
 import TAF_decoder__helper_functions as Td_helpers
 import final_program_functions as fpf
 from settings import Settings
@@ -10,6 +12,21 @@ import datetime
 import pickle
 import colouring
 
+
+# Import geodesic and GeodesicLine modules
+from geographiclib.geodesic import Geodesic
+
+
+ #Import geopy.distance and geographiclib.geodesic modulcdes
+from geopy.distance import geodesic
+
+# Define the coordinates of Paris and Berlin
+paris = (48.8566, 2.3522)
+berlin = (52.5200, 13.4050)
+wgs84 = Geodesic.WGS84
+# Calculate and print the distance using Geographiclib 2.0 as backend
+
+print(geodesic(paris, berlin).km)
 
 from kivy.clock import Clock
 from kivy.uix.label import Label
@@ -30,6 +47,7 @@ Builder.load_file('page3.kv')
 Builder.load_file('page4.kv')
 Builder.load_file('page5.kv')
 Builder.load_file('map.kv')
+Builder.load_file('page__enr_apts.kv')
 
 
 ## Kivy modules
@@ -40,24 +58,269 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.stacklayout import StackLayout
 
+import collections
 ## TESTING
 from TAF_decoder__functions import Airport
+
+class Route:
+    def __init__(self, route_input):
+        self.route_input = route_input
+        self.route_list = self.__parse_route_input(route_input)
+        self.route__corrected_string = self.__generate_corrected_route_string()
+
+    def get_corrected_route_string(self):
+        return self.route__corrected_string
+    def __parse_route_input(self, route_input):
+        route_list = list()
+
+        route__raw = route_input.split(" ")
+        for item in route__raw:
+            if item:
+                if len(item)==4:
+
+                    if self.__validate_apt(item):
+                        route_list.append(item.upper())
+                    else:
+                        route_list.append(item.lower())
+
+                else:
+                    route_list.append('x')
+        return route_list
+
+    def __generate_corrected_route_string(self):
+        route_str__corrected = ''
+        for item in self.route_list:
+            route_str__corrected += " " + item
+
+        return route_str__corrected
+
+
+    def __validate_apt(self,item):
+        pass
+class EnrouteAirportsControls:
+    """This class contain all functionality related to displaying Enroute Airports"""
+    def __init__(self, mapControls, **kwargs):
+        self.mapControls = mapControls
+
+
+    def getEnr_apts_stack__widget(self):
+        enr_apts_stack__widget = app.root.ids['id__enr_apts'].ids['id__EnrApts__scroll'].ids['Enr_apts_stack']
+        return enr_apts_stack__widget
+
+    def removeAllButtons(self):
+        widget = self.getEnr_apts_stack__widget()
+        widget.clear_widgets()
+    def createEnrAptButton(self, apt):
+        # Add Enr apt button to at page_enr_apts.kv Enr_apts_stack
+        widget = self.getEnr_apts_stack__widget()
+
+        btn = Button(
+            text=apt.apt_code,
+            size_hint=(1, None),
+            height=dp(30),
+            # width=dp(100),
+            font_name="Resources/Fonts/JetBrainsMono-Regular.ttf",
+            font_size='20dp',
+            background_color="red",
+            # background_normal=''  # MODIIES HOW COLOR ARE BEING DISPLAYED
+        )
+
+        widget.add_widget(btn)
+
+    def add_enr_btns(self, widget):
+        enroute_airports = self.mapControls.getEnrouteAirports()
+        apt: Airport
+        for apt in enroute_airports:
+            print(apt.apt_code, "main.py EnrApts(BoxLayout): apt.apt_code OOOOOOOOOOOO")
+            btn = Button(
+                text=apt.apt_code,
+                size_hint=(1, None),
+                height=dp(30),
+                # width=dp(100),
+                font_name="Resources/Fonts/JetBrainsMono-Regular.ttf",
+                font_size='20dp',
+                background_color="red",
+                # background_normal=''  # MODIIES HOW COLOR ARE BEING DISPLAYED
+            )
+
+            widget.add_widget(btn)
+
+        for i in range(3):
+            btn = Button(
+                text=f'Enr Apt {i}',
+                size_hint=(1, None),
+                height=dp(30),
+                # width=dp(100),
+                font_name="Resources/Fonts/JetBrainsMono-Regular.ttf",
+                font_size='20dp',
+                background_color="red",
+                # background_normal=''  # MODIIES HOW COLOR ARE BEING DISPLAYED
+            )
+
+            widget.add_widget(btn)
+
+
+
+
+        # btn = Button(
+        #     text="Test Button",
+        #     size_hint=(1, None),
+        #     height=dp(40),
+        #     # width=dp(100),
+        #     font_name="Resources/Fonts/JetBrainsMono-Regular.ttf",
+        #     font_size='20dp',
+        #     background_color="red",
+        #     # background_normal=''  # MODIIES HOW COLOR ARE BEING DISPLAYED
+        # )
+
+        # widget.add_widget(btn)
+
+        # self.mapControls = _mapControls
+        # Getting mapView widget
+
+    def get__route_input(self):
+        """Returns ROUTE INPUT widget"""
+        route_input__widget = app.root.ids['id__enr_apts'].ids["id__route_input"]
+
+        return route_input__widget
+
+    def updateRoute(self):
+        route_input__widget = self.get__route_input()
+        route = Route(route_input__widget.text)     # Converts input route string into Route object which is a list of validated icao codes
+        route_str__corrected = route.get_corrected_route_string()
+        route_input__widget.text = route_str__corrected
+
+
+    def route_confirmed(self):
+        print("ROUTE COFIRMED", "       main.py - def route_confirmed(self): AAAAAAAAAAA")
+
+    #     mapView_my = self.app.root.ids['map'].ids['id__MapView_my']
+    # def create_enr_apts_buttons(self):
+    #     apt: Airport
+    #     for apt in self.mapControls:
+    #
+    #         # SINGLE STATION
+    #         btn = Button(
+    #             text=item.upper(),
+    #             size_hint=(1, None),
+    #             height=dp(40),
+    #             # width=dp(100),
+    #             font_name="Resources/Fonts/JetBrainsMono-Regular.ttf",
+    #             font_size='20dp',
+    #             background_color=last_req_single_station__b_colour,
+    #             background_normal=''  # MODIIES HOW COLOR ARE BEING DISPLAYED
+    #         )
+    #
+    #         widget.ids[item] = btn  # CORRECT WAY based on the above
+    #
+    #         # BINDING event with method - VERY IMPORTANT!
+    #         btn.bind(on_press=self.load_single_TAF)
+    #
+    #         # Adding buttons to the layout
+    #         widget.add_widget(btn)
+    #
+    #     else:
+    #         # g_group
+    #         btn = Button(
+    #             text=f'{item[0].lower() + item[1:].upper()}',
+    #             size_hint=(1, None),
+    #             height=dp(40),
+    #             font_name="Resources/Fonts/JetBrainsMono-Regular.ttf",
+    #             font_size='20dp',
+    #             background_color="#7ca4e6"
+    #         )
+    #
+    #         # ADDING buttons IDs dictionary
+    #         # https://stackoverflow.com/questions/50099151/python-how-to-set-id-of-button
+    #         widget.ids[item] = btn  # CORRECT WAY based on the above
+    #
+    #         # BINDING event with method - VERY IMPORTANT!
+    #         btn.bind(on_press=self.on_press_g_group)
+    #
+    #         # Adding buttons to the layout
+    #         widget.add_widget(btn)
+    # def create_last_requests_buttons(self,widget,settings):
+    #
+    #
+    #
+    #                 ### Colours the LAST REQUESTED AIRPORTS buttons
+    #                 # COLOR_ON
+    #                 if settings.min_num_of_char != 5:
+    #                     last_req_single_station__b_colour = self.change_colour_depending_on_threat_level(single_station__max_threat_level)
+    #                 # COLOR OFF
+    #                 else:
+    #                     last_req_single_station__b_colour ="#312f42"
+    #
+    #
+    #                 # SINGLE STATION
+    #                 btn = Button(
+    #                     text=item.upper(),
+    #                     size_hint=(1, None),
+    #                     height=dp(40),
+    #                     # width=dp(100),
+    #                     font_name="Resources/Fonts/JetBrainsMono-Regular.ttf",
+    #                     font_size='20dp',
+    #                     background_color=last_req_single_station__b_colour,
+    #                     background_normal = ''  # MODIIES HOW COLOR ARE BEING DISPLAYED
+    #                 )
+    #
+    #                 widget.ids[item] = btn  # CORRECT WAY based on the above
+    #
+    #                 # BINDING event with method - VERY IMPORTANT!
+    #                 btn.bind(on_press=self.load_single_TAF)
+    #
+    #                 # Adding buttons to the layout
+    #                 widget.add_widget(btn)
+    #
+    #             else:
+    #                 # g_group
+    #                 btn = Button(
+    #                     text=f'{item[0].lower() + item[1:].upper()}',
+    #                     size_hint=(1, None),
+    #                     height=dp(40),
+    #                     font_name="Resources/Fonts/JetBrainsMono-Regular.ttf",
+    #                     font_size='20dp',
+    #                     background_color = "#7ca4e6"
+    #                 )
+    #
+    #                 # ADDING buttons IDs dictionary
+    #                 # https://stackoverflow.com/questions/50099151/python-how-to-set-id-of-button
+    #                 widget.ids[item] = btn  # CORRECT WAY based on the above
+    #
+    #                 # BINDING event with method - VERY IMPORTANT!
+    #                 btn.bind(on_press=self.on_press_g_group)
+    #
+    #                 # Adding buttons to the layout
+    #                 widget.add_widget(btn)
+    #
 
 class MapControls:
     """This class is used to control the map"""
     def __init__(self):
-        self.g_group_mapMarkers = []
-        self.pts_btwn_apts_mapMarkers = []
+        self.airport_cleaned = None      # Initialization of the varialbe - will store the airport data base
+        self.enr_apts_to_be_added_queue = collections.deque()       # QUEUE: one thread enqueue it with airports which markers are to be put on map, while the other thread dequeue it when MapMarker added for specific airport
+        self.apts_enroute = []      # Stores Airport objects - those are Enroute Airports found enroute
 
+        # Positions/points
+        self.rhumb_line_inter_pts = []    # Markers to indicate positions on the Rhumb Line connecting DEP to DEST
+        self.GC_line_inter_pts = []     # Markers to indicate positions on the Great Circle Line connecting DEP to DEST
+
+        # MapMarkers
+        self.g_group_mapMarkers = []        # Stores MapMarkers indicating g_group airports - used only to REMOVE them when necessary
+        self.pts_btwn_apts_mapMarkers = []      # Stores MapMarkers indicating positions on the Rhumb or Great Circle line
+        self.apts_enroute__mapMarkers = []
+
+    def getEnrouteAirports(self):
+        """This function returns a list of enroute airports"""
+        return self.apts_enroute
 
     def add_current_g_group_markers(self, _app):
         """Adds markers to the map for all stations in the current g_group"""
         # Getting mapView widget
         mapView_my = _app.root.ids['map'].ids['id__MapView_my']
-
-        # Clearing map of the previous g_group markers
-        for mkr in self.g_group_mapMarkers:
-            mapView_my.remove_marker(mkr)
+        # CLEAR PREVIOUS MARKERS
+        self.clear_enroute_markers(mapView_my)
+        self.clear_previous_g_group_markers(mapView_my)
 
         # This is pre-annotation syntax for type hinting
         stationObject: SingleStation
@@ -71,15 +334,29 @@ class MapControls:
             # Adding marker to the list of markers - to be able to remove them later
             self.g_group_mapMarkers.append(mkr)
 
+    def clear_enroute_markers(self, mapView_my):
+        for mkr in self.apts_enroute__mapMarkers:
+            mapView_my.remove_marker(mkr)
+
+    def clear_previous_g_group_markers(self,mapView_my):
+        for mkr in self.g_group_mapMarkers:
+            mapView_my.remove_marker(mkr)
+
+
     def pts_btwn_apts(self, _app):
+        # Getting acces to the MapView widget
+        mapView_my = _app.root.ids['map'].ids['id__MapView_my']
+
+        # Clearing map of the previous g_group markers
+        self.clear_enroute_markers(mapView_my)
+        self.clear_previous_g_group_markers(mapView_my)
+
+        # Adding DEP an DEST apts
         apt1 = Airport()    # Creates empty Airport objrct
-        apt1.get_airport_data_by_apt_code('EPWA')   # Populates Airport object with data
+        apt1.get_airport_data_by_apt_code('EGPD')   # Populates Airport object with data
 
         apt2 = Airport()
-        apt2.get_airport_data_by_apt_code('LEMD')
-
-        # Getting mapView widget
-        mapView_my = _app.root.ids['map'].ids['id__MapView_my']
+        apt2.get_airport_data_by_apt_code('LLBG')
 
         # Clearing map of the previous g_group markers
         for mkr in self.pts_btwn_apts_mapMarkers:
@@ -94,21 +371,138 @@ class MapControls:
         mapView_my.add_marker(dep_mkr)
         mapView_my.add_marker(dest_mkr)
 
+
         ### Adding markers at interpolated coordinates ###
+        # self.drawRhumbLineMarkers(mapView_my, dep_apt,dest_apt)
+        self.drawGreatCircleMarkers(mapView_my, dep_apt,dest_apt, 90)
 
-        steps = 10
-        lat_step = (dest_apt.lat - dep_apt.lat)/steps
-        lon_step = (dest_apt.lon - dep_apt.lon)/steps
+        ### Getting airports that meet the specific coordinates/distance condition ###
 
-        for i in range(10):
-            lat_mkr = dep_apt.lat + i*lat_step  # Calculates the marker coordinates
-            lon_mkr = dep_apt.lon + i*lon_step
+        # Opening the airport data file
+        self.airport_cleaned = self.open_json_file("Data_new/airports_cleaned.json")
 
-            mkr = MapMarker(lat = lat_mkr, lon= lon_mkr)    # Creates marker object
-            mkr.source= "Resources/MapMarkers/inter_mkr.png"
+        # Searching for airports that meet conditions
+        app.ready_for_enroute_markers = True
+        t1 = threading.Thread(name="Add_enroute_markers", target=self.get_enroute_apts, args=[])
+        t1.start()
+
+    def drawRhumbLineMarkers(self, mapView_my, dep_apt,dest_apt):
+        steps = 30
+        lat_step = (dest_apt.lat - dep_apt.lat) / steps
+        lon_step = (dest_apt.lon - dep_apt.lon) / steps
+
+        # CREATING MARKERS
+        for i in range(steps):
+            lat_mkr = dep_apt.lat + i * lat_step  # Calculates the marker coordinates
+            lon_mkr = dep_apt.lon + i * lon_step
+
+            mkr = MapMarker(lat=lat_mkr, lon=lon_mkr)  # Creates marker object
+            mkr.source = "Resources/MapMarkers/inter_mkr.png"
             mapView_my.add_marker(mkr)  # Adds marker to the map
-            self.pts_btwn_apts_mapMarkers.append(mkr) # Add markers to the list - this enables removal of the markers later
+            self.pts_btwn_apts_mapMarkers.append(mkr)  # Add markers to the list - this enables removal of the markers later
 
+    def drawGreatCircleMarkers(self, mapView_my, dep_apt,dest_apt, dist_btwn_markers):
+        # Create a geodesic line between the two points
+        line = Geodesic.WGS84.InverseLine(dep_apt.lat, dep_apt.lon, dest_apt.lat, dest_apt.lon)
+
+        # Set the distance interval to 100 km
+        ds = dist_btwn_markers*1000 # [m]
+
+        # Loop over the distance along the line
+        for s in range(0, int(line.s13) + ds, ds):
+            # Get the position of the point at distance s
+            pos = line.Position(s)
+
+            # Add add markaer to the mapView
+            lat_mkr = pos['lat2']
+            lon_mkr = pos['lon2']
+
+            mkr = MapMarker(lat=lat_mkr, lon=lon_mkr)  # Creates marker object
+            mkr.source = "Resources/MapMarkers/inter_mkr.png"
+
+            mapView_my.add_marker(mkr)  # Adds marker to the map
+            self.pts_btwn_apts_mapMarkers.append(mkr)  # Add markers to the list - this enables removal of the markers later
+
+            # Print the latitude, longitude, and azimuth
+            print("s = {:.3f} km: lat = {:.5f}, lon = {:.5f}, azi = {:.5f}".format(
+                s / 1000, pos['lat2'], pos['lon2'], pos['azi2']))
+
+            # Storing intermediate points
+            self.GC_line_inter_pts.append(pos)
+
+
+    def get_enroute_apts(self):
+        max_dist= 200 # [km]
+        prev_apt_code = ""
+        enroute_apts_code = [] # Stores only apt_codes - used to check if apt was already selected as an enroute_apt
+
+        pos_index=0
+        for pos in self.GC_line_inter_pts:
+            pos_index+= 1
+
+
+            # CALCULATING DELTA LAT
+            delta_lat = 0
+            lat_dist = -1
+            while lat_dist < max_dist / 2:
+                lat_dist = abs(geodesic((pos["lat2"], pos["lon2"]),
+                                    (pos["lat2"] + delta_lat, pos["lon2"]) ))
+                delta_lat += 0.01
+                delta_lat=round(delta_lat,3)
+
+            # CALCULATING DELTA LON
+            delta_lon = 0
+            lon_dist = -1
+            while lon_dist < max_dist / 2:
+                lon_dist = abs(geodesic((pos["lat2"], pos["lon2"]),
+                                    (pos["lat2"], pos["lon2"] + delta_lon)))
+                delta_lon += 0.01
+                delta_lon = round(delta_lon,3)
+
+
+            print("########## POS " + str(pos_index) + " ##################")
+            for i in range(len(self.airport_cleaned["airport_ident"])):
+                apt_lat = self.airport_cleaned["le_latitude_deg"][i]
+                apt_lon = self.airport_cleaned["le_longitude_deg"][i]
+                apt_code = self.airport_cleaned["airport_ident"][i]
+
+                ### SELECTION OF AIRPORTS ENROUTE
+                # INITIAL SELECTION - based on COORDINATES
+                if  apt_code not in enroute_apts_code and\
+                        prev_apt_code != apt_code and \
+                        pos["lat2"]- delta_lat < apt_lat < pos["lat2"]+ delta_lat and \
+                        pos["lon2"] - delta_lon < apt_lon < pos["lon2"]+ delta_lon:
+
+                    # PRECISE SELECTION - based on DISTANCE
+                    pt = (pos["lat2"], pos["lon2"])
+                    ap = (apt_lat, apt_lon)
+                    # wgs84 = Geodesic.WGS84 # NOT requred here
+                    dist = int(geodesic(pt, ap).km)
+
+                    if dist < max_dist:     # Checks if distance to the airport and pont at great_circle line is less than required
+                        apt = Airport()     # Creating empty Airport Object
+                        apt.get_airport_data_by_apt_code(apt_code) # Adding data to the airport object using apt_code
+
+                        print("   Enroute apt:" +   apt_code + ", dist: " + str(dist) + " km,   (main.py => apt_code,str(dist))")
+
+                        self.apts_enroute.append(apt)   # Adds Airport object in the list
+                        self.enr_apts_to_be_added_queue.append(apt)  # ENQUEUE   - probably this queue is used in separate thread to add markers on the map
+
+                        enroute_apts_code.append(apt_code) # airport code stored to be used to detect duplicates
+                        prev_apt_code = apt_code
+
+    def addMarker(self,apt):
+        mapView_my = app.root.ids['map'].ids['id__MapView_my']
+
+        mkr = MapMarker(lat=apt.lat, lon=apt.lon)
+
+        mapView_my.add_marker(mkr)
+        self.apts_enroute__mapMarkers.append(mkr)
+
+    def open_json_file(self,path):
+        with open(path, 'r') as f_obj:
+            airport_cleaned = json.load(f_obj)
+        return airport_cleaned
 
 
 class MapView_my(MapView):
@@ -165,6 +559,12 @@ class Last_requests(StackLayout):
         super(Last_requests, self).__init__(**kwargs)
         app.create_last_requests_buttons(self,settings)
 
+class Enr_apts_stack(BoxLayout):
+    def __init__(self, **kwargs):
+        super(Enr_apts_stack, self).__init__(**kwargs)
+        enrAptsCtrls = EnrouteAirportsControls(app.mapControls)
+        enrAptsCtrls.add_enr_btns(self)
+
 class Add_Group(BoxLayout):
     """ Methods used to Add and Edit new g_group"""
 
@@ -204,6 +604,8 @@ class TheTAFApp(App):
 
     ### OBJECTS ###
     mapControls = MapControls()
+    enrAptsCtrls = EnrouteAirportsControls(mapControls)
+
 
     ### GLOBAL VARIABLES ###
 
@@ -266,7 +668,11 @@ class TheTAFApp(App):
     need_to_update_TAFS = False
     need_to_update_TAFS_for_buttons = False
     max_thrts_at_apts = []
+
+    # THREADS RELATED
     ready_for_colouring_of_single_station_buttons = False
+    ready_for_enroute_markers = False
+
 
     def __init__(self, **kwargs):
 
@@ -321,6 +727,31 @@ class TheTAFApp(App):
             if self.find_thread("Preparing_MaxThreatLevels_THREAD"):
                 self.reload_TAFs_msg  = "LOADING..."
 
+            # All markers frawn in one go
+            # if not self.find_thread("Add_enroute_markers") and self.ready_for_enroute_markers:
+            #     self.ready_for_enroute_markers= False
+            #     mapView_my = self.root.ids['map'].ids['id__MapView_my']
+            #     self.mapControls.add_enr_apts_markers(mapView_my)
+            #
+            queue_enr = self.mapControls.enr_apts_to_be_added_queue
+            while len(queue_enr)>0:
+                # self.ready_for_enroute_markers = False
+
+                apt = self.mapControls.enr_apts_to_be_added_queue.popleft()
+
+                self.mapControls.addMarker(apt)
+
+                # CREATE Enroute Airport Button on the Enroute Apts Page
+                self.enrAptsCtrls.createEnrAptButton(apt)
+
+
+
+
+
+            # # Markers as we draw
+            # if self.find_thread("Add_enroute_markers"):
+            #     mapView_my = self.root.ids['map'].ids['id__MapView_my']
+            #     self.mapControls.add_enr_apts_markers(mapView_my)
         # UPDATES decoded TAFs only when flag true - CASE FOR PAGE2 SLIDER MOVEMENT
         if self.need_to_update_TAFS:
             self.need_to_update_TAFS = False
@@ -363,6 +794,7 @@ class TheTAFApp(App):
         # RECREATING the LAST REQUESTED buttons
         ### BLOCKED to prevent doubling of the LAST REQUESTED BUTTONS list
         app.create_last_requests_buttons(id__Last_requests, settings)
+        # app.enrApts.add_enr_btns(self)
         ### END
 
         decoded_TAFs_data_list, stationsList ,combined_stations_threat_level, METARs_list= \
@@ -1312,6 +1744,7 @@ class TheTAFApp(App):
         self.create_SINGLE_station_buttons(id__TAF_groups_Stack, change_time_range)
 
         self.create_last_requests_buttons(id__Last_requests, settings)
+        # app.enrApts.add_enr_btns(self)
 
 
     def reloading_inprogress(self):
