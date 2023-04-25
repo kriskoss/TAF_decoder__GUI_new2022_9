@@ -12,6 +12,7 @@ settings = Settings()
 # def prGreen(skk):         return ("\033[92m{}\033[00m".format(skk))
 # def colour_Inverse(string):         return "\033[07m{}\033[00m".format(string)
 # def bold_text(string):         return "\033[01m{}\033[00m".format(string)
+def prLightGray(skk):    return f'[color=545454]{skk}[/color]'
 
 def prRed(skk):         return f'[color=d6321c]{skk}[/color]'
 def prYellow(skk):      return f'[color=d9a930]{skk}[/color]'

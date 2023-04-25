@@ -36,16 +36,27 @@
             multiline: False
             size_hint: 0.8, None
             height: '40dp'
+            on_text_validate:
+                app.enrAptsCtrls.updateRoute()
+                app.enrAptsCtrls.route_confirmed()
 
         Button:     #   ROUTE Confirm Button
             id: id_route_confirm_btn
             text: "Confirm?"
+            background_color: "green"
             size_hint: 0.2, None
             height: '40dp'
             on_release:
                 app.enrAptsCtrls.updateRoute()
                 app.enrAptsCtrls.route_confirmed()
-
+        Button:
+            text: "Clear?"
+            size_hint: 0.1, None
+            background_color: "red"
+            height: '40dp'
+            on_release:
+                id__route_input.text = ""
+                id__route_input.hint_text = "Enter ROUTE via Airports"
 
     BoxLayout:
         spacing:'5dp'

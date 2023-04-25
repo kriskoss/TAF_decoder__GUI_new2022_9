@@ -1,7 +1,8 @@
 import json
 class Helpers:
 
-    def open_json_file(self,path):
+    @staticmethod
+    def open_json_file(path):
         with open(path, 'r') as f_obj:
-            airport_cleaned = json.load(f_obj)
-        return airport_cleaned
+            dict_from_json = json.load(f_obj)
+        return dict_from_json

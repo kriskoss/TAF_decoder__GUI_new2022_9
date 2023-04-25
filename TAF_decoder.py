@@ -25,6 +25,8 @@ import TAF_decoder__functions as Tdf
 import final_program_functions
 from TAF_decoder__helper_functions import ref, prBoxed,TEMPO_color,BECMG_color, INTER_color,BECMG_non_significant_color,grayed_area_left,grayed_area_right,error_added,add_to_dict_gr_data,print_dicts,add_to_dict_TIME_gr_data, print_keys, print_all_data, print_list
 import copy
+
+from Airport import Airport
 def TAF_decoder_function(settings, TAF,TAF_num, start_hour, end_hour):
 
     ### IF ERROR DETECTED  -- returns RAW (may need some more work)
@@ -640,7 +642,7 @@ def TAF_decoder_function(settings, TAF,TAF_num, start_hour, end_hour):
         selected_time_info = Tdf.generate_selected_time_info(significant_time, weather_data_copy, colored_station_name, start_hour, end_hour, TAF)
         decoded_TAF = Tdf.generate_decoded_TAF(settings,BECMG_color, error_added, error_found, grayed_area_right, weather_data, gr_data)
 
-        airport = Tdf.Airport()
+        airport = Airport()
         runways_length = airport.get_airport_data_by_apt_code(apt_code)
         apt_coordinates = (airport.lat,airport.lon)
 
