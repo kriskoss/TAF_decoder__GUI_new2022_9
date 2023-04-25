@@ -1,5 +1,5 @@
 import re
-from settings import Settings
+from Classes.settings import Settings
 settings = Settings()
 
 

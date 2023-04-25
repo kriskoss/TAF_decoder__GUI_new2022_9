@@ -22,11 +22,11 @@
 
 
 import TAF_decoder__functions as Tdf
-import final_program_functions
-from TAF_decoder__helper_functions import ref, prBoxed,TEMPO_color,BECMG_color, INTER_color,BECMG_non_significant_color,grayed_area_left,grayed_area_right,error_added,add_to_dict_gr_data,print_dicts,add_to_dict_TIME_gr_data, print_keys, print_all_data, print_list
+from TAF_decoder__helper_functions import ref, prBoxed,TEMPO_color,BECMG_color, INTER_color,BECMG_non_significant_color,grayed_area_left,grayed_area_right,error_added,add_to_dict_gr_data,print_dicts,add_to_dict_TIME_gr_data, print_keys, \
+    print_list
 import copy
 
-from Airport import Airport
+from Classes.Airport import Airport
 def TAF_decoder_function(settings, TAF,TAF_num, start_hour, end_hour):
 
     ### IF ERROR DETECTED  -- returns RAW (may need some more work)

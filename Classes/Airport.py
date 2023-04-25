@@ -1,8 +1,8 @@
 import math
-from settings import Settings
-from Helpers import Helpers
-from Runway import Runway
-from colouring import prGreen, prYellow, prRed, prPurple, prLightGray
+from Classes.settings import Settings
+from Classes.Helpers import Helpers
+from Classes.Runway import Runway
+from colouring import prGreen, prYellow, prRed, prLightGray
 
 
 
@@ -29,7 +29,7 @@ class Airport:
         """
         self.__init__()
         self.apt_code = apt_code
-        self.airport_cleaned = Helpers.open_json_file(path="Data_new/airports_cleaned.json")
+        self.airport_cleaned = Helpers.open_json_file(path="./Data_new/airports_cleaned.json")
         self.runways = self.__get_runway_info(self.airport_cleaned)
         self.__get_apt_coordinates()
         return self.__get_runway_info_for_display()

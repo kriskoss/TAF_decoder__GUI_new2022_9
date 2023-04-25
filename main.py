@@ -1,12 +1,11 @@
 ## General use modules
-import geopy.distance
 
 import TAF_decoder__helper_functions as Td_helpers
 import final_program_functions as fpf
-from settings import Settings
+from Classes.settings import Settings
 
-from EnrouteAirportsControls import EnrouteAirportsControls
-from MapControls import MapControls
+from Classes.EnrouteAirportsControls import EnrouteAirportsControls
+from Classes.MapControls import MapControls
 
 import json
 import math
@@ -15,12 +14,9 @@ import datetime
 import pickle
 import colouring
 
-
 # Import geodesic and GeodesicLine modules
-from geographiclib.geodesic import Geodesic
 
- #Import geopy.distance and geographiclib.geodesic modulcdes
-from geopy.distance import geodesic
+#Import geopy.distance and geographiclib.geodesic modulcdes
 
 # Define the coordinates of Paris and Berlin
 # paris = (48.8566, 2.3522)
@@ -37,19 +33,19 @@ from dateutil.parser import parse   # check https://stackabuse.com/converting-st
                                     # module which automatically converts time string into the datetime format
 
 
-from kivy_garden.mapview import MapView, MapMarker, MapSource
+from kivy_garden.mapview import MapView
 
 settings = Settings()
 
 from kivy.lang import Builder
 # Builder.load_file('TheTAF.kv')
-Builder.load_file('page1.kv')
-Builder.load_file('page2.kv')
-Builder.load_file('page3.kv')
-Builder.load_file('page4.kv')
-Builder.load_file('page5.kv')
-Builder.load_file('map.kv')
-Builder.load_file('page__enr_apts.kv')
+Builder.load_file('KV/page1.kv')
+Builder.load_file('KV/page2.kv')
+Builder.load_file('KV/page3.kv')
+Builder.load_file('KV/page4.kv')
+Builder.load_file('KV/page5.kv')
+Builder.load_file('KV/map.kv')
+Builder.load_file('KV/page__enr_apts.kv')
 
 
 ## Kivy modules
@@ -408,7 +404,7 @@ class TheTAFApp(App):
             ### If g_group exists, BUT all g_group stations are missing in the latest TAFs
             print('No stations available!! - main.py')
             ## UPDATING PAGE 2 label
-            app.display_TOP = colouring.prRed(" STATIONS NOT AVAILABE!" ) \
+            app.display_TOP = colouring.prRed(" STATIONS NOT AVAILABE!") \
                               + "[size=14dp] \n- try to refresh TAFs in a few minutes " \
                                 "\n- check g_group stations[/size]"
 

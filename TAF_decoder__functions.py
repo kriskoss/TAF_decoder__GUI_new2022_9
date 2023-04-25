@@ -1,17 +1,16 @@
 """function which are not required in a core file"""
-import pprint
 
 from colouring import SignificantColouring
 import colouring
 import json
-from colouring import prGreen, prYellow, prRed, prPurple, prLightGray
+from colouring import prGreen, prYellow, prRed, prLightGray
 
 import math
 
 import TAF_decoder__helper_functions as Td_helpers
 
-from settings import Settings
-from Helpers import Helpers
+from Classes.settings import Settings
+
 settings = Settings()
 
 

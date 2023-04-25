@@ -1,16 +1,17 @@
 import collections
 import threading
-from kivy_garden.mapview import MapView, MapMarker, MapSource
+import json
+
 from TAF_decoder import SingleStation
+from Classes.Airport import Airport
+
+from kivy_garden.mapview import MapView, MapMarker, MapSource
 from kivy.app import App    # This imports App class from kivy.app
+
 from geographiclib.geodesic import Geodesic
 from geopy.distance import geodesic
-import json
-# app = App.get_running_app()  # This gets the running app - in this case it is the main.py
 
 
-
-from Airport import Airport
 class MapControls:
     """This class is used to control the map"""
     def __init__(self):
@@ -78,6 +79,10 @@ class MapControls:
             apt1 = Airport()    # Creates empty Airport objrct
             apt1.get_airport_data_by_apt_code('EGPD')   # Populates Airport object with data
 
+            # app: main.TheTAFApp
+            # app.enrAptsCtrls.
+            # apt1.get_airport_data_by_apt_code(app.)   # Populates Airport object with data
+
             apt2 = Airport()
             apt2.get_airport_data_by_apt_code('LLBG')
 
@@ -102,7 +107,7 @@ class MapControls:
             ### Getting airports that meet the specific coordinates/distance condition ###
 
             # Opening the airport data file
-            self.airport_cleaned = self.open_json_file("Data_new/airports_cleaned.json")
+            self.airport_cleaned = self.open_json_file("./Data_new/airports_cleaned.json")
 
 
             # Searching for airports that meet conditions

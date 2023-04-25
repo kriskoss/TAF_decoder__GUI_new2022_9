@@ -1,4 +1,4 @@
-from settings import Settings
+from Classes.settings import Settings
 
 settings = Settings()
 def ref(i=''):

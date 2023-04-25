@@ -2,8 +2,8 @@ from kivy.metrics import dp
 from kivy.uix.button import Button
 from kivy.app import App    # This imports App class from kivy.app
 
-from Route import Route
-from Airport import Airport
+from Classes.Route import Route
+from Classes.Airport import Airport
 class EnrouteAirportsControls:
     """This class contain all functionality related to displaying Enroute Airports"""
     def __init__(self, mapControls, **kwargs):
