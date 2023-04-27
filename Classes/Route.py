@@ -1,10 +1,19 @@
 from Classes.Helpers import Helpers
 class Route:
-    def __init__(self, route_input):
+    def __init__(self):
+        self.route_input = ""
+        self.route_list= []
+        self.only_valid_points= []
+        self.route__corrected_string= ""
+        self.dep= ""
+        self.dest= ""
+    def updateRoute(self, route_input):
         self.route_input = route_input  # Initiazing route input string
-        self.route_list, self.only_valid_points = self.__parse_route_input(route_input) # Parses string into two lists: one contains all input points of the route (upper when apt exists, lower when 4-letter code but not valid, x-if inccorect input, different then length of 4. Second list - contains only valid points(airports) )
-        self.route__corrected_string = self.__generate_corrected_route_string() # Converts route list into the string
+        self.route_list, self.only_valid_points = self.__parse_route_input(
+            route_input)  # Parses string into two lists: one contains all input points of the route (upper when apt exists, lower when 4-letter code but not valid, x-if inccorect input, different then length of 4. Second list - contains only valid points(airports) )
+        self.route__corrected_string = self.__generate_corrected_route_string()  # Converts route list into the string
         self.dep, self.dest = self.get_dest_and_dep_apts()
+
 
     def get_corrected_route_string(self):
         return self.route__corrected_string

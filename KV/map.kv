@@ -35,16 +35,16 @@
             on_release:
                 app.root.current ="first"
                 app.root.transition.direction = "right"
+        StackButton:
+            text: "ENR_A"
+            background_color: '#6242a1'
+            on_press:
+                app.root.current="enr_apts"
+                app.root.transition.direction = "left"
 
         StackButton:
-            text: "Show APTs"
+            text: "Show g_gr."
             background_color: '#1232a8'
             on_release:
                 app.mapControls.add_current_g_group_markers()
 
-        StackButton:
-            text: "PTS btwn"
-            background_color: '#3212a8'
-            on_release:
-                app.mapControls.pts_btwn_apts()
-                app.enrAptsCtrls.removeAllButtons()

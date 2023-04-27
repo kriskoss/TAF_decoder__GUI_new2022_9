@@ -11,6 +11,13 @@
             on_release:
                 app.root.current ="first"
                 app.root.transition.direction = "right"
+        EnrBtn:
+            text: "MAP"
+            height: '40dp'
+            background_color: '#6242a9'
+            on_press:
+                app.root.current="map"
+                app.root.transition.direction = "left"
 
         EnrBtn:
             text: "Show APTs"
@@ -18,12 +25,6 @@
             on_release:
                 app.mapControls.add_current_g_group_markers(app)
 
-        EnrBtn:
-            text: "PTS btwn"
-            background_color: '#3212a8'
-            on_release:
-                app.mapControls.pts_btwn_apts(app)
-                app.enrAptsCtrls.removeAllButtons()
 
     BoxLayout:  # 2nd row  - ROUTE INPUT BOX
         id: id__route_box
@@ -32,13 +33,15 @@
 
         TextInput:  #   ROUTE InputText
             id: id__route_input
+            text: "Eppo epwa"
             hint_text: "Enter ROUTE via Airports"
             multiline: False
             size_hint: 0.8, None
             height: '40dp'
             on_text_validate:
                 app.enrAptsCtrls.updateRoute()
-                app.enrAptsCtrls.route_confirmed()
+                app.mapControls.getValidatedRoute()
+                app.enrAptsCtrls.removeAllButtons()
 
         Button:     #   ROUTE Confirm Button
             id: id_route_confirm_btn
@@ -48,7 +51,11 @@
             height: '40dp'
             on_release:
                 app.enrAptsCtrls.updateRoute()
-                app.enrAptsCtrls.route_confirmed()
+                app.mapControls.getValidatedRoute()
+                app.enrAptsCtrls.removeAllButtons()
+
+                print(len(app.mapControls.apts_enroute), "[page__enr_apts.kv AAAA")
+
         Button:
             text: "Clear?"
             size_hint: 0.1, None
@@ -57,6 +64,7 @@
             on_release:
                 id__route_input.text = ""
                 id__route_input.hint_text = "Enter ROUTE via Airports"
+                app.enrAptsCtrls.removeAllButtons()
 
     BoxLayout:
         spacing:'5dp'

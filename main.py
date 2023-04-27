@@ -280,11 +280,11 @@ class TheTAFApp(App):
             if self.find_thread("Preparing_MaxThreatLevels_THREAD"):
                 self.reload_TAFs_msg  = "LOADING..."
 
-            queue_enr = self.mapControls.enr_apts_to_be_added_queue
+            queue_enr = self.mapControls.enr_apts_to_be_added__queue
             while len(queue_enr)>0:
                 # self.ready_for_enroute_markers = False
 
-                apt = self.mapControls.enr_apts_to_be_added_queue.popleft()
+                apt = self.mapControls.enr_apts_to_be_added__queue.popleft()
 
                 self.mapControls.addMarker(apt)
 
