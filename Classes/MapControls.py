@@ -5,18 +5,22 @@ import json
 from TAF_decoder import SingleStation
 from Classes.Airport import Airport
 
-from kivy_garden.mapview import MapView, MapMarker, MapSource
+from kivy_garden.mapview import MapView, MapMarker, MapSource, MapMarkerPopup
 from kivy.app import App    # This imports App class from kivy.app
+from kivy.uix.label import Label
 
 from geographiclib.geodesic import Geodesic
 from geopy.distance import geodesic
 from kivy.metrics import dp
-from Classes.EnrouteAirportsControls import EnrouteAirportsControls
+from Classes.EnrouteAirportsControls import EnrouteAirportsControls     # Just for autocomplete
+from Classes.Route import Route                                         # Just for autocomplete
 
 
 class MapControls:
     """This class is used to control the map"""
     def __init__(self):
+        self.interpolation_dist = 90 # km?
+        self.max_enr_apt_dist = 200 # km
         self.airport_cleaned = None      # Initialization of the varialbe - will store the airport data base
         self.enr_apts_to_be_added__queue = collections.deque()       # QUEUE: one thread enqueue it with airports which markers are to be put on map, while the other thread dequeue it when MapMarker added for specific airport
         self.apts_enroute = []      # Stores Airport objects - those are Enroute Airports found enroute
@@ -72,19 +76,20 @@ class MapControls:
         for mkr in self.g_group_mapMarkers:
             mapView_my.remove_marker(mkr)
 
-
-    def get_segment_interpolated_points(self, app, segment_start__apt_code, segment_end__apt_code):
-        """This function adds markers to the map at the positions between DEP and DEST airports"""
-
-        # Getting acces to the MapView widget
-        mapView_my = app.root.ids['map'].ids['id__MapView_my']
-
-        ### DELETE PREVIOUS MARKERS ###
+    def clear_map_of_all_mapMarkers(self, mapView_my):
         self.clear_enroute_markers(mapView_my)
         self.clear_previous_g_group_markers(mapView_my)
         self.clear_previous_dep_and_dest_markers(mapView_my)
-        # self.GC_line_inter_pts = []  # check drawGreatCircleMarkers()
-        #### NEW MARKERS ####
+        self.GC_line_inter_pts = []  # check drawGreatCircleMarkers()
+
+        for mkr in self.pts_btwn_apts_mapMarkers:
+            mapView_my.remove_marker(mkr)
+
+    def create_segment_ends_mapMarkers(self, mapView_my, segment_start__apt_code, segment_end__apt_code):
+        """This function find  interpolated Great Circle points between two airports and ads Map Markers.
+        INPUT: start/end of the segment apt_code
+        OUTPUT: start/end Airport object"""
+
         # SEGMENT START AIRPORT
         start_apt = Airport()    # Creates empty Airport objrct
         start_apt.get_airport_data_by_apt_code(segment_start__apt_code)   # Populates Airport object with data
@@ -93,11 +98,7 @@ class MapControls:
         end_apt = Airport()
         end_apt.get_airport_data_by_apt_code(segment_end__apt_code)
 
-        # Clearing map of the previous g_group markers
-        for mkr in self.pts_btwn_apts_mapMarkers:
-            mapView_my.remove_marker(mkr)
-
-        # Crearing DEP and DEST markers
+        # Creating DEP and DEST markers
         dep_mkr = MapMarker(lat=start_apt.lat, lon=start_apt.lon)
         dest_mkr = MapMarker(lat=end_apt.lat, lon=end_apt.lon)
 
@@ -108,7 +109,7 @@ class MapControls:
         dep_mkr.size = (dp(50),dp(50))
         dest_mkr.size = (dp(50),dp(50))
 
-
+        # Stores DEP/DEST markers to enable removal of them
         self.dep_and_dest_markers.append(dep_mkr)
         self.dep_and_dest_markers.append(dest_mkr)
 
@@ -120,23 +121,43 @@ class MapControls:
         ### INTERPOLATED POSITION MARKERS###
 
         # self.drawRhumbLineMarkers(mapView_my, dep_apt,dest_apt)
-        self.drawGreatCircleMarkers(mapView_my, start_apt,end_apt, 90)
 
-        # Flag to signify that the map is ready for adding  enroute apts  markers
-        app.ready_for_enroute_markers = True
-        segment_start__apt_code= start_apt.apt_code
-        segment_end__apt_code = end_apt.apt_code
-        t1 = threading.Thread(name="Add_enroute_markers", target=self.get_enroute_apts, args=[segment_start__apt_code, segment_end__apt_code])
-        t1.start()
-    def getValidatedRoute(self):
+
+
+
+
+        return start_apt , end_apt
+
+    def createValidatedRouteAndMapMarkers(self):
         app = App.get_running_app()
-        # app.enrAptsCtrls: EnrouteAirportsControls
-        dep = app.enrAptsCtrls.current_route.dep
-        dest = app.enrAptsCtrls.current_route.dest
+        mapView_my = app.root.ids['map'].ids['id__MapView_my']
 
-        if dep and dest:
-            self.get_segment_interpolated_points(app, dep, dest)
 
+        app.enrAptsCtrls: EnrouteAirportsControls   # Just for autocomplete
+        app.enrAptsCtrls.current_route: Route       # Just for autocomplete
+
+        current_route = app.enrAptsCtrls.current_route
+        dep = current_route.dep
+        dest = current_route.dest
+        valid_route = current_route.only_valid_points
+
+        if dep and dest: # Works only if route has at least two points
+
+            self.clear_map_of_all_mapMarkers(mapView_my)
+
+            # Traversing the segments of the route
+            for i in range(len(valid_route)-1):
+                start__apt_code = valid_route[i]
+                end__apt_code = valid_route[i+1]
+
+                start_apt, end_apt = self.create_segment_ends_mapMarkers(mapView_my, start__apt_code, end__apt_code)
+
+                self.drawGreatCircleMarkers(mapView_my, start_apt, end_apt, self.interpolation_dist)
+
+            ### ADDING ENROUTE APTS MARKERS ###
+            app.ready_for_enroute_markers = True
+            t1 = threading.Thread(name="Add_enroute_markers", target=self.get_enroute_apts, args=[dep, dest])
+            t1.start()
 
 
     def drawRhumbLineMarkers(self, mapView_my, dep_apt,dest_apt):
@@ -155,7 +176,7 @@ class MapControls:
             self.pts_btwn_apts_mapMarkers.append(mkr)  # Add markers to the list - this enables removal of the markers later
 
     def drawGreatCircleMarkers(self, mapView_my, dep_apt,dest_apt, dist_btwn_markers):
-        self.GC_line_inter_pts = []
+        # self.GC_line_inter_pts = []
         """This function draws markers along the great circle line between DEP and DEST airports"""
         # Create a geodesic line between the two points
         line = Geodesic.WGS84.InverseLine(dep_apt.lat, dep_apt.lon, dest_apt.lat, dest_apt.lon)
@@ -164,11 +185,12 @@ class MapControls:
         ds = dist_btwn_markers*1000 # [m]
 
         # Loop over the distance along the line
-        for s in range(0, int(line.s13) + ds, ds):
+        for s in range(0, int(line.s13) + ds-ds, ds): # ds-ds -> -ds is added to make sure that the last point is NOT added. It will appeaer after the end point without it
+
             # Get the position of the point at distance s
             pos = line.Position(s)
 
-            # Add add markaer to the mapView
+            # Add marker to the mapView
             lat_mkr = pos['lat2']
             lon_mkr = pos['lon2']
 
@@ -187,12 +209,11 @@ class MapControls:
 
     def get_enroute_apts(self, dep_code, dest_code):
 
-        max_dist= 200 # [km]
+        max_dist= self.max_enr_apt_dist # [km]
         prev_apt_code = ""
         enroute_apts_code = [] # Stores only apt_codes - used to check if apt was already selected as an enroute_apt
 
         self.apts_enroute.clear()
-        print( len(self.apts_enroute), "    MapControls.py  len(self.apts_enroute) RRRRR BEFORE" )
 
         pos_index=0
         for pos in self.GC_line_inter_pts:
@@ -217,7 +238,7 @@ class MapControls:
                 delta_lon = round(delta_lon,3)
 
 
-            print("########## POS " + str(pos_index) + " ##################")
+            # print("########## POS " + str(pos_index) + " ##################")
             for i in range(len(self.airport_cleaned["airport_ident"])):
                 apt_lat = self.airport_cleaned["le_latitude_deg"][i]
                 apt_lon = self.airport_cleaned["le_longitude_deg"][i]
@@ -247,7 +268,7 @@ class MapControls:
                         apt = Airport()     # Creating empty Airport Object
                         apt.get_airport_data_by_apt_code(apt_code) # Adding data to the airport object using apt_code
 
-                        print("   Enroute apt:" +   apt_code + ", dist: " + str(dist) + " km,   (main.py => apt_code,str(dist))")
+                        # print("   Enroute apt:" +   apt_code + ", dist: " + str(dist) + " km,   (main.py => apt_code,str(dist))")
 
                         self.apts_enroute.append(apt)   # Adds Airport object in the list
                         self.enr_apts_to_be_added__queue.append(apt)  # ENQUEUE   - probably this queue is used in separate thread to add markers on the map
@@ -255,16 +276,24 @@ class MapControls:
                         enroute_apts_code.append(apt_code) # airport code stored to be used to detect duplicates
                         prev_apt_code = apt_code
 
-        print(len(self.apts_enroute), " MapControls.py  len(self.apts_enroute) RRRRR AFTER")
 
     def addMarker(self,apt):
         app = App.get_running_app()
         mapView_my = app.root.ids['map'].ids['id__MapView_my']
 
-        mkr = MapMarker(lat=apt.lat, lon=apt.lon)
+        mkr = MapMarkerPopup(lat=apt.lat, lon=apt.lon, popup_size=(100, 40))
+        popup = Label(text=apt.apt_code, size_hint=(1, 1), color=(0.4, 0.2, 0.8))
 
+        mkr.add_widget(popup)
+        mkr.is_open = True
         mapView_my.add_marker(mkr)
+
         self.apts_enroute__mapMarkers.append(mkr)
+
+        # mkr = MapMarker(lat=apt.lat, lon=apt.lon, popup_size=(100, 40))
+        #
+        # mapView_my.add_marker(mkr)
+        # self.apts_enroute__mapMarkers.append(mkr)
 
     def open_json_file(self,path):
         with open(path, 'r') as f_obj:

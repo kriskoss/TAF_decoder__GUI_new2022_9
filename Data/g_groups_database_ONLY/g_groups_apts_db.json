@@ -355,5 +355,20 @@
     "LICB",
     "LIRN",
     "LIRF"
+  ],
+  "gLICA": [
+    "LICA",
+    "LICC",
+    "LIBR",
+    "LIRN",
+    "LIBD",
+    "LICJ"
+  ],
+  "gLIMC": [
+    "LIMC",
+    "LIML",
+    "LIME",
+    "LIMF",
+    "LIPX"
   ]
 }

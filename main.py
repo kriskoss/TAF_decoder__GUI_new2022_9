@@ -63,7 +63,18 @@ class MapView_my(MapView):
         super().__init__(**kwargs)
         self.lat = 50
         self.lon = 11
+        self.zoom = 5
+    # def on_zoom(self, instance, zoom):
+    #     print("Zoom changed: ", zoom)
 
+    # def on_zoom(self, instance, value):
+    #     # value is the current zoom level of the mapview
+    #     if value > 10:
+    #         # show the label if zoom is greater than 10
+    #         popup.opacity = 1
+    #     else:
+    #         # hide the label otherwise
+    #         popup.opacity = 0
 class TAF_StackLayout(BoxLayout):
     #### FOR TESTING!!
     def __init__(self,**kwargs):

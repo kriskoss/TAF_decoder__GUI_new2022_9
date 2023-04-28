@@ -15,6 +15,7 @@ class EnrouteAirportsControls:
         app = App.get_running_app() # This gets the running app - in this case it is the main.py
 
         enr_apts_stack__widget = app.root.ids['id__enr_apts'].ids['id__EnrApts__scroll'].ids['Enr_apts_stack']
+
         return enr_apts_stack__widget
 
     def removeAllButtons(self):
@@ -31,11 +32,13 @@ class EnrouteAirportsControls:
             # width=dp(100),
             font_name="Resources/Fonts/JetBrainsMono-Regular.ttf",
             font_size='20dp',
-            background_color="red",
+            background_color="lightgray",
             # background_normal=''  # MODIIES HOW COLOR ARE BEING DISPLAYED
         )
-
+        widget.ids["btnID_"+apt.apt_code] = btn  # CORRECT WAY based on the above
         widget.add_widget(btn)
+
+
 
     def add_enr_btns(self, widget):
         enroute_airports = self.mapControls.getEnrouteAirports()
@@ -103,5 +106,3 @@ class EnrouteAirportsControls:
         route_input__widget.text = route_str__corrected
 
 
-    def route_confirmed(self):
-        print("ROUTE COFIRMED", "       main.py - def route_confirmed(self): AAAAAAAAAAA")

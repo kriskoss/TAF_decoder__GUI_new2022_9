@@ -29,49 +29,82 @@
     BoxLayout:  # 2nd row  - ROUTE INPUT BOX
         id: id__route_box
         size_hint: 1, None
-        height: '40dp'
+        height: '100dp'
+        orientation:"vertical"
 
         TextInput:  #   ROUTE InputText
             id: id__route_input
-            text: "Eppo epwa"
+            text: "Epwa eddb lirf lfmn"
             hint_text: "Enter ROUTE via Airports"
-            multiline: False
-            size_hint: 0.8, None
-            height: '40dp'
+            multiline: True
+            size_hint: 1, 1
+#            height: '80dp'
             on_text_validate:
                 app.enrAptsCtrls.updateRoute()
-                app.mapControls.getValidatedRoute()
+                app.mapControls.createValidatedRouteAndMapMarkers()
                 app.enrAptsCtrls.removeAllButtons()
-
-        Button:     #   ROUTE Confirm Button
-            id: id_route_confirm_btn
-            text: "Confirm?"
-            background_color: "green"
-            size_hint: 0.2, None
+        BoxLayout:
+            size_hint: 1, None
             height: '40dp'
-            on_release:
-                app.enrAptsCtrls.updateRoute()
-                app.mapControls.getValidatedRoute()
-                app.enrAptsCtrls.removeAllButtons()
+            Button:     #   ROUTE Confirm Button
+                id: id_route_confirm_btn
+                text: "Confirm?"
+                background_color: "green"
+                size_hint: 0.6, 1
 
-                print(len(app.mapControls.apts_enroute), "[page__enr_apts.kv AAAA")
+                on_release:
+                    app.enrAptsCtrls.updateRoute()
+                    app.mapControls.createValidatedRouteAndMapMarkers()
+                    app.enrAptsCtrls.removeAllButtons()
 
-        Button:
-            text: "Clear?"
-            size_hint: 0.1, None
-            background_color: "red"
-            height: '40dp'
-            on_release:
-                id__route_input.text = ""
-                id__route_input.hint_text = "Enter ROUTE via Airports"
-                app.enrAptsCtrls.removeAllButtons()
+                    print(len(app.mapControls.apts_enroute), "[page__enr_apts.kv AAAA")
+
+            Button:
+                text: "Clear?"
+                size_hint: 0.4, 1
+                background_color: "red"
+
+                on_release:
+                    id__route_input.text = ""
+                    id__route_input.hint_text = "Enter ROUTE via Airports"
+                    app.enrAptsCtrls.removeAllButtons()
 
     BoxLayout:
         spacing:'5dp'
+        orientation: "horizontal"
+
         EnrApts__scroll:
             id:id__EnrApts__scroll
 #            size_hint:1,1
 #            width: '82dp'
+
+        BoxLayout:
+            size_hint:None,1
+            width:'60dp'
+            orientation: "vertical"
+            Button:
+                text: "All"
+                on_release: app.next_nh_PAGE1(72)
+
+            Button:
+                text: "16"
+                on_release: app.next_nh_PAGE1(16)
+            Button:
+                text: "12h"
+                on_release: app.next_nh_PAGE1(12)
+
+            Button:
+                text: "8h"
+                on_release: app.next_nh_PAGE1(8)
+
+            Button:
+                text: "4h"
+                on_release: app.next_nh_PAGE1(4)
+                background_color:"#5672f5"
+
+            Button:
+                text: "2h"
+                on_release: app.next_nh_PAGE1(2)
 
 <EnrBtn@Button>
     size_hint: 1, None
@@ -84,6 +117,6 @@
         id: Enr_apts_stack
         size_hint: 1, None
         height:  self.minimum_height
-
+        spacing:'3dp'
         orientation: "vertical"
 #
