@@ -135,8 +135,8 @@ class MapControls:
         mapView_my = app.root.ids['map'].ids['id__MapView_my']
 
 
-        app.enrAptsCtrls: EnrouteAirportsControls   # Just for autocomplete
-        app.enrAptsCtrls.current_route: Route       # Just for autocomplete
+        # app.enrAptsCtrls: EnrouteAirportsControls   # Just for autocomplete
+        # app.enrAptsCtrls.current_route: Route       # Just for autocomplete
 
         current_route = app.enrAptsCtrls.current_route
         dep = current_route.dep
@@ -279,6 +279,9 @@ class MapControls:
                         enroute_apts_code.append(apt_code) # airport code stored to be used to detect duplicates
                         prev_apt_code = apt_code
         self.ready_for_enroute_markers = False
+
+        # COLOURING THE ENROUTE APTS (4 hours) WHEN ALL ENR BUTTONS ARE READY
+        App.get_running_app().enrAptsCtrls.next_nh__enr_apts_page(4)
 
     def addMarker(self,apt):
         app = App.get_running_app()

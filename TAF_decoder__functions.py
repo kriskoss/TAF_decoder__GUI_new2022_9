@@ -467,7 +467,6 @@ def convert_data_lists_to_single_string(data_list,settings, TAF_num):
     :return: STRING - ready to display string containing any threat condition or wind
     """
     final_string =''
-
     ### PRINTING THREATS NOT active
     if not settings.show_threats:
         # Begin sign
@@ -475,8 +474,6 @@ def convert_data_lists_to_single_string(data_list,settings, TAF_num):
         count = 0
         for l in data_list:
             # ADDING BREAK SYMBOL - skiping the STAION CODE and EMPTY LISTS
-
-
             if count == 1:
                 break
 

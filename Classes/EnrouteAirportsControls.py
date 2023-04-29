@@ -10,8 +10,12 @@ from TAF_decoder import TAF_decoder_function
 import threading
 import collections
 
+
+
 # from main import TheTAFApp # just for syntax
 settings = Settings()
+
+
 class EnrouteAirportsControls:
     """This class contain all functionality related to displaying Enroute Airports"""
     def __init__(self, mapControls, **kwargs):
@@ -26,6 +30,16 @@ class EnrouteAirportsControls:
         self.rout_input__widget__STATE = None
         self.colour_change_finished = False
         self.creating_enr_apts_buttons_finished = False
+        self.update_period_in_MessageBox = False
+
+        self.current_threats_period = None
+
+
+    def show_current_period(self,app):
+        if self.update_period_in_MessageBox and not app.find_thread("Enr_apts__TAF_decoding__THREAD"):
+            self.update_period_in_MessageBox = False
+            widget = self.get_MessageBox__widget()
+            widget.text = f'Threats valid from: {app.value__start_slider}:00 UTC (+ {self.current_threats_period} hours)'
 
     def create_enr_btns_and_mapMarkers(self, app):
         """This function creates the buttons for the Enroute Apts page and the map markers for the map"""
@@ -41,16 +55,17 @@ class EnrouteAirportsControls:
 
                 # CREATE Enroute Airport Button on the Enroute Apts Page
                 self.createEnrAptButton(apt)
-                self.get_EnrApt_messageBox__widget().text = f'FINDING ENROUTE APTS...'
+                self.get_MessageBox__widget().text = f'FINDING ENROUTE APTS...'
                 self.creating_enr_apts_buttons_finished = True
 
         # Clearing ENROUTE APTS MESSAGE BOX
         if self.creating_enr_apts_buttons_finished and not self.mapControls.ready_for_enroute_markers:
             self.creating_enr_apts_buttons_finished = False
-            self.get_EnrApt_messageBox__widget().text = ""
+            self.get_MessageBox__widget().text = ""
 
     def update_btns_for_threat_level(self,app):
-        """This function updates the buttons for the Enroute Apts page with the threat level"""
+        """FUNCTION CALLED app.update_clock:
+        This function updates the buttons for the Enroute Apts page with the threat level"""
 
         # UPDATING ENROUTE APTS BUTTONS COLOR
         if (self.ready_for_enr_apts_btns_change_of_color and app.find_thread("Enr_apts__TAF_decoding__THREAD")) or app.enrAptsCtrls.colour_change_finished == True:
@@ -58,7 +73,7 @@ class EnrouteAirportsControls:
             enr_apts__queue = self.analyzed_enr_apts__ready_for_btn_update__QUEUE
             enr_apts_stack__widget = app.enrAptsCtrls.getEnr_apts_stack__widget()
 
-            self.get_EnrApt_messageBox__widget().text = f'LOADING THREAT LEVELS....'
+            self.get_MessageBox__widget().text = f'LOADING THREAT LEVELS....'
             while len(enr_apts__queue) > 0:
                 apt = enr_apts__queue.popleft()
                 self.changeEnrAptButtonColor(apt, enr_apts_stack__widget)
@@ -68,7 +83,7 @@ class EnrouteAirportsControls:
         # CLEARES ENROUTE APTS MESSAGE BOX once the colour change is finished
         if self.colour_change_finished and not self.ready_for_enr_apts_btns_change_of_color:
             self.colour_change_finished = False
-            self.get_EnrApt_messageBox__widget().text = ""
+            self.get_MessageBox__widget().text = ""
 
     def getEnr_apts_stack__widget(self):
         app = App.get_running_app() # This gets the running app - in this case it is the main.py
@@ -76,7 +91,7 @@ class EnrouteAirportsControls:
         return app.root.ids['id__enr_apts'].ids['id__EnrApts__scroll'].ids['Enr_apts_stack']
 
 
-    def get_EnrApt_messageBox__widget(self):
+    def get_MessageBox__widget(self):
 
         app = App.get_running_app()  # This gets the running app - in this case it is the main.py
 
@@ -97,18 +112,39 @@ class EnrouteAirportsControls:
             font_name="Resources/Fonts/JetBrainsMono-Regular.ttf",
             font_size='20dp',
             background_color="lightgray",
+            on_press=lambda *args: self.display_enr_apt_info(apt),
             # background_normal=''  # MODIIES HOW COLOR ARE BEING DISPLAYED
         )
         widget.ids[self.enr_apt__btn__identifier + apt.apt_code] = btn  # CORRECT WAY based on the above
         widget.add_widget(btn)
 
+    def get_enrDetails__DisplayLabel(self):
+        app = App.get_running_app()
 
+        return app.root.ids['id__enrDetails'].ids['EnrDetails__DisplayLabel']
+    def display_enr_apt_info(self,apt):
+        ### CORE FUCNTION ### for EnrDisplay Screen
+        """Function responsible for DISPLAYING TAFs for ENR APTS
+        * Called when ENR APT button pressed *"""
+        app = App.get_running_app()  # This gets the running app - in this case it is the main.py
+        widget = self.get_enrDetails__DisplayLabel()
+
+        # Switches Screen
+        app.root.current = "EnrDetails__Screen"
+        app.root.transition.direction = "left"
+
+        apt: Airport
+
+        ### UPDATING THE ENR APT TAF DISPLAY FOR APT
+        widget.text = f'{apt.decoded_TAF} \n ' \
+                      f'\n\n[size=14]*****************APPR INFO ******************' \
+                      f'{apt.appr_data}[size/]'
+        print(apt.appr_data, "ENC.py apt.appr_data JFFFFFFFFFFFFF")
 
     def add_enr_btns(self, widget):
         enroute_airports = self.mapControls.getEnrouteAirports()
         apt: Airport
         for apt in enroute_airports:
-            print(apt.apt_code, "main.py EnrApts(BoxLayout): apt.apt_code OOOOOOOOOOOO")
             btn = Button(
                 text=apt.apt_code,
                 size_hint=(1, None),
@@ -136,25 +172,6 @@ class EnrouteAirportsControls:
 
             widget.add_widget(btn)
 
-
-
-
-        # btn = Button(
-        #     text="Test Button",
-        #     size_hint=(1, None),
-        #     height=dp(40),
-        #     # width=dp(100),
-        #     font_name="Resources/Fonts/JetBrainsMono-Regular.ttf",
-        #     font_size='20dp',
-        #     background_color="red",
-        #     # background_normal=''  # MODIIES HOW COLOR ARE BEING DISPLAYED
-        # )
-
-        # widget.add_widget(btn)
-
-        # self.mapControls = _mapControls
-        # Getting mapView widget
-
     def get__route_input(self):
         """Returns ROUTE INPUT widget"""
         app = App.get_running_app()
@@ -180,8 +197,9 @@ class EnrouteAirportsControls:
             # Updating slider values
             app.value__start_slider = str(int(app.time_now.strftime("%H"))+1) # + 1 to start counting from the next full hour
             app.value__end_slider = str(int(app.value__start_slider) + n)
-            print(app.value__start_slider, app.value__end_slider, "app.value__start_slider, app.value__end_slider ENC.py  MMMMMMMMMM")
 
+            self.current_threats_period = n
+            self.update_period_in_MessageBox = True
             self.refresh_enroute_apts_buttons(app)
 
     def refresh_enroute_apts_buttons(self, app):
@@ -196,28 +214,30 @@ class EnrouteAirportsControls:
 
 
     def recreate_enr_btns_with_threat_colour(self,app,widget):
+        """Changes the ENR APTS buttons backgroud depeding on the threat level. Contains a THREAD"""
+
         apt: Airport
         enr_apts_obj: list[Airport]
-
         enr_apts_objs  = app.mapControls.apts_enroute # List of Airport instances
 
         # Extracting apt_codes from Airport objects
         enroute_apts__apt_codes=[]
-        TAF_num = 0
+        TAF_num = 0 # Enumerates the decoded TAFs
         for apt in enr_apts_objs:
             enroute_apts__apt_codes.append(apt.apt_code)
+
+            ## CORE FUNCTION###
             self.analyze_enr_apt(app, apt, TAF_num)
+
+            # SENDS APT TO THE QUEUE - main.py to update as THREAD goes
             self.analyzed_enr_apts__ready_for_btn_update__QUEUE.append(apt)
-            print(apt.apt_code, " ANALYZED EAC.py")
+
             TAF_num+=1
 
-        self.ready_for_enr_apts_btns_change_of_color = False # Thread completed its job.
-            # thr_name = "Enr_apts__decodingTAFs:" + apt.apt_code
-            # t = threading.Thread(name=thr_name, target=self.analyze_enr_apt, args =[app])
-            # t.start()
+        # Thread completed its job - sends this data to main.py update_clock funcion.
+        self.ready_for_enr_apts_btns_change_of_color = False
 
-        # t1 = threading.Thread(name="Preparing_MaxThreatLevels_THREAD",target=self.get_max_threat_level_for_selected_stations, args =[app])
-        # t1.start()
+
 
     def analyze_enr_apt(self,app, apt:Airport, TAF_num):
         # app: TheTAFApp
@@ -232,21 +252,41 @@ class EnrouteAirportsControls:
 
 
             # DECODING TAF for the selected station
-            decoded_TAF_dict, stationObject = TAF_decoder_function(settings, apt.TAF__raw, TAF_num, int(app.value__start_slider), int(app.value__end_slider))
+            decoded_TAF_dict, apt.stationObject = TAF_decoder_function(settings, apt.TAF__raw, TAF_num, int(app.value__start_slider), int(app.value__end_slider))
+
+            # Data transfer to apt object
+            self.transfer_data_from__decoded_TAF_dict__to__apt_object(decoded_TAF_dict, apt)
 
             max_thrts_at_apt = app.get_max_threat_level_for_selected_airports(settings, [apt.apt_code], int(app.value__start_slider),
                                                                                  int(app.value__end_slider))
-
             apt.max_thr_lvl_in_sel_period = max_thrts_at_apt[0][1][0]
 
-            apt.combined_station_data = fpf.combine_data(settings,
-                                                        decoded_TAF_dict["station_threats"],
-                                                        decoded_TAF_dict["wind_profile"],
-                                                        decoded_TAF_dict["runways_length"],
-                                                        decoded_TAF_dict["appr_data"])
+            # apt.combined_station_data = fpf.combine_data(settings,
+            #                                             decoded_TAF_dict["station_threats"],
+            #                                             decoded_TAF_dict["wind_profile"],
+            #                                             decoded_TAF_dict["runways_length"],
+            #                                             decoded_TAF_dict["appr_data"])
+
 
             return apt.apt_code,apt.max_thr_lvl_in_sel_period
 
+    def transfer_data_from__decoded_TAF_dict__to__apt_object(self,decoded_TAF_dict, apt):
+        apt.station_name = decoded_TAF_dict["station_name"]
+        apt.selected_time_info = decoded_TAF_dict["selected_time_info"]
+
+        apt.decoded_TAF = decoded_TAF_dict["decoded_TAF"].replace('space.Tdf', '   ').replace("newlinee.Tdf", '\n')
+
+        apt.runways_length = decoded_TAF_dict["runways_length"]
+        apt.apt_coordinates = decoded_TAF_dict["apt_coordinates"]
+        apt.station_threats = decoded_TAF_dict["station_threats"]
+
+        apt.appr_data = decoded_TAF_dict["appr_data"]
+        apt.appr_data.replace('space.Tdf', '   ')  # Replacing SPACE marker in String
+        apt.appr_data.replace("newlinee.Tdf", '\n')  # Replacing NEWLINEE marker in String
+
+        apt.time_range = decoded_TAF_dict["time_range"]
+        apt.max_threat_level_at_airport = decoded_TAF_dict["max_threat_level_at_airport"]
+        apt.wind_profile = decoded_TAF_dict["wind_profile"]
     def changeEnrAptButtonColor(self,apt, widget):
         apt: Airport
 
@@ -264,5 +304,4 @@ class EnrouteAirportsControls:
             btn.background_color = "purple"
         else:
             btn.background_color = "grey"
-
 

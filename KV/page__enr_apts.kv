@@ -57,7 +57,6 @@
                     app.mapControls.createValidatedRouteAndMapMarkers()
                     app.enrAptsCtrls.removeAllButtons()
 
-                    print(len(app.mapControls.apts_enroute), "[page__enr_apts.kv AAAA")
 
             Button:
                 text: "Clear?"
@@ -87,39 +86,11 @@
 #            size_hint:1,1
 #            width: '82dp'
 
-        BoxLayout:
+        HoursSelection
             size_hint:None,1
             width:'60dp'
             orientation: "vertical"
-            Button:
-                text: "All"
-                on_release: app.enrAptsCtrls.next_nh__enr_apts_page(72)
 
-            Button:
-                text: "16"
-                on_release: app.enrAptsCtrls.next_nh__enr_apts_page(16)
-            Button:
-                text: "12h"
-                on_release: app.enrAptsCtrls.next_nh__enr_apts_page(12)
-
-            Button:
-                text: "8h"
-                on_release: app.enrAptsCtrls.next_nh__enr_apts_page(8)
-
-            Button:
-                text: "4h"
-                on_release: app.enrAptsCtrls.next_nh__enr_apts_page(4)
-                background_color:"#5672f5"
-
-            Button:
-                text: "2h"
-                on_release: app.enrAptsCtrls.next_nh__enr_apts_page(2)
-            Button:
-                text: "Details"
-                background_color: '#2252a1'
-                on_release:
-                    app.root.current ="EnrDetails__Screen"
-                    app.root.transition.direction = "right"
 <EnrBtn@Button>
     size_hint: 1, None
     height: '40dp'
@@ -134,3 +105,33 @@
         spacing:'3dp'
         orientation: "vertical"
 #
+<HoursSelection@BoxLayout>
+    Button:
+        text: "All"
+        on_release: app.enrAptsCtrls.next_nh__enr_apts_page(72)
+
+    Button:
+        text: "16"
+        on_release: app.enrAptsCtrls.next_nh__enr_apts_page(16)
+    Button:
+        text: "12h"
+        on_release: app.enrAptsCtrls.next_nh__enr_apts_page(12)
+
+    Button:
+        text: "8h"
+        on_release: app.enrAptsCtrls.next_nh__enr_apts_page(8)
+
+    Button:
+        text: "4h"
+        on_release: app.enrAptsCtrls.next_nh__enr_apts_page(4)
+        background_color:"#5672f5"
+
+    Button:
+        text: "2h"
+        on_release: app.enrAptsCtrls.next_nh__enr_apts_page(2)
+    Button:
+        text: "Details"
+        background_color: '#2252a1'
+        on_release:
+            app.root.current ="EnrDetails__Screen"
+            app.root.transition.direction = "right"

@@ -15,6 +15,8 @@ class MainPage:
         # self.reload_status="#935999"
         # self.reload_button_msg = "Reload TAFs"
 
+
+
     def call_TAFs_reload(self, app):
         """Method called when TAFs reload button is pressed"""
 

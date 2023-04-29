@@ -1,5 +1,9 @@
 <EnrDetails@BoxLayout>
     orientation: "vertical"
+
+    Time_slider__label:
+        text: app.current_time_str + ": " + app.start_ddhh + ' + ' + app.current_difference_str+'h '
+
     Button:
         size_hint: 1, None
         height: "40dp"
@@ -8,14 +12,72 @@
             app.root.current ="EnrApts__Screen"
             app.root.transition.direction = "left"
 
-    Label:
-        id: EnrDetails__Label
-        markup: True
-        font_name: "Resources/Fonts/JetBrainsMono-Regular.ttf"
+    MyLabel__scroll:
+        Final_DISPLAY:
+            size_hint_y: None
+            height: self.minimum_height # sets height based on the children size!!
+            halign: 'left'
+            MyLabel:
+                id: EnrDetails__DisplayLabel
+#                text:app.display_TOP
+    HoursSelection:
+        size_hint:1,None
+        height:'40dp'
 
-        size_hint_y: None
-    #    text: app.label__decoded_TAFs
-        font_size:  app.TAF_display_font_size
-        height: self.texture_size[1]
-        text_size: self.width, None
-        halign: 'left'
+# 1st Line - TIME DISPLAY
+<Time_slider__label@Label>:
+    size_hint: 1,None
+    height: "25dp"
+    markup: True
+    font_size: "18dp"
+
+
+# TAF display
+<MyLabel__scroll@ScrollView>:
+    do_scroll_y: True
+
+<MyLabel@Label>:
+
+    markup: True
+    font_name: "Resources/Fonts/JetBrainsMono-Regular.ttf"
+
+    size_hint_y: None
+#    text: app.label__decoded_TAFs
+    font_size:  app.TAF_display_font_size
+    height: self.texture_size[1]
+    text_size: self.width, None
+    halign: 'left'
+
+<Final_DISPLAY@StackLayout>:
+    do_scroll_y: True
+
+<HoursSelection@BoxLayout>
+    Button:
+        text: "All"
+        on_release: app.enrAptsCtrls.next_nh__enr_apts_page(72)
+
+    Button:
+        text: "16"
+        on_release: app.enrAptsCtrls.next_nh__enr_apts_page(16)
+    Button:
+        text: "12h"
+        on_release: app.enrAptsCtrls.next_nh__enr_apts_page(12)
+
+    Button:
+        text: "8h"
+        on_release: app.enrAptsCtrls.next_nh__enr_apts_page(8)
+
+    Button:
+        text: "4h"
+        on_release: app.enrAptsCtrls.next_nh__enr_apts_page(4)
+        background_color:"#5672f5"
+
+    Button:
+        text: "2h"
+        on_release: app.enrAptsCtrls.next_nh__enr_apts_page(2)
+    Button:
+        text: "Details"
+        background_color: '#2252a1'
+        on_release:
+            app.root.current ="EnrDetails__Screen"
+            app.root.transition.direction = "right"

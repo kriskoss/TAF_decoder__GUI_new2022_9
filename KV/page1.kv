@@ -96,7 +96,7 @@
     orientation:'vertical'
     Button:
         text: app.reload_button_msg
-        on_press: app.reloading_inprogress()
+        on_press: app.mainPage.reloading_inprogress(app)
         on_release: app.call_TAFs_reload_THREAD()
         background_color: app.reload_status
         font_size:"20dp"

@@ -25,6 +25,22 @@ class Airport:
         self.lon = -99
 
 
+        # From TAF_decode_function
+
+
+        self.station_name= None
+        self.selected_time_info= None
+        self.decoded_TAF= None
+        self.runways_length= None
+        self.apt_coordinates= None
+        self.station_threats= None
+        self.appr_data= None
+        self.time_range= None
+        self.max_threat_level_at_airport= None
+        self.wind_profile= None
+        self.stationObject =None
+
+
     def get_airport_data_by_apt_code(self, apt_code):
         """
         Fills the Airport object with data using JSON file

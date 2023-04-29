@@ -280,8 +280,6 @@ class TheTAFApp(App):
     ready_for_colouring_of_single_station_buttons = False
 
 
-
-
     def __init__(self, **kwargs):
 
         super().__init__(**kwargs)
@@ -320,14 +318,15 @@ class TheTAFApp(App):
         self.reload_TAFs_msg = self.mainPage.update_last_TAFs_reload_time(self, self.utc_now)
 
 
-
-
         # Updating the time label on PAGE 1
         if self.find_thread("Preparing_MaxThreatLevels_THREAD"):
             self.reload_TAFs_msg  = "LOADING..."
 
         self.enrAptsCtrls.create_enr_btns_and_mapMarkers(self)
         self.enrAptsCtrls.update_btns_for_threat_level(self)
+
+        self.enrAptsCtrls.show_current_period(self)
+
 
 
         ########################################################
@@ -704,38 +703,43 @@ class TheTAFApp(App):
 
     """Methodes related to TOP BAR"""
 
-    def call_TAFs_reload(self):
-        """Method called when TAFs reload button is pressed"""
+    # def reloading_inprogress(self):
+    #     self.reload_status = "#7b9fba"
+    #     self.reload_button_msg ="Reloading"
 
-        try:
-            # TRIES TO DOWNLOAD TAFs and METARs
-            self.num_TAFs_downloaded = str(fpf.download_taf_database(parse))
-            fpf.download_metars_database(parse)
-        # UPDATE FAILED
-        except:
-            # set FLAG to TRUE
-            self.num_TAFs_downloaded = '--'
-            self.last_reload_failed = True
-            self.reload_status = "#ff0015"
-            self.reload_button_msg = "TAFs Reload - FAILED!"
-
-        # UPDATE SUCCESSFUL
-        else:
-            # set FLAG to FALSE
-            self.last_reload_failed = False
-
-            # create STRING from DATETIME object using the following format
-            reload_time = datetime.datetime.utcnow().strftime("%H:%M'%S UTC  %d-%m-%Y")
-
-            # Saving last update time
-            path = "Data_new/last_reload_time.json"
-            with open(path, "w") as f_obj:
-                json.dump(reload_time, f_obj)
-
-            # Updating button and label
-            self.reload_status = "#00ff59"
-            self.reload_button_msg = "TAFs Reload - SUCCESSFUL"
-            print("MAIN.py -- RELAOD COMPLETE")
+    #
+    # def call_TAFs_reload(self):
+    #     """Method called when TAFs reload button is pressed"""
+    #
+    #     try:
+    #         # TRIES TO DOWNLOAD TAFs and METARs
+    #         self.num_TAFs_downloaded = str(fpf.download_taf_database(parse))
+    #         fpf.download_metars_database(parse)
+    #     # UPDATE FAILED
+    #     except:
+    #         # set FLAG to TRUE
+    #         self.num_TAFs_downloaded = '--'
+    #         self.last_reload_failed = True
+    #         self.reload_status = "#ff0015"
+    #         self.reload_button_msg = "TAFs Reload - FAILED!"
+    #
+    #     # UPDATE SUCCESSFUL
+    #     else:
+    #         # set FLAG to FALSE
+    #         self.last_reload_failed = False
+    #
+    #         # create STRING from DATETIME object using the following format
+    #         reload_time = datetime.datetime.utcnow().strftime("%H:%M'%S UTC  %d-%m-%Y")
+    #
+    #         # Saving last update time
+    #         path = "Data_new/last_reload_time.json"
+    #         with open(path, "w") as f_obj:
+    #             json.dump(reload_time, f_obj)
+    #
+    #         # Updating button and label
+    #         self.reload_status = "#00ff59"
+    #         self.reload_button_msg = "TAFs Reload - SUCCESSFUL"
+    #         print("MAIN.py -- RELAOD COMPLETE")
 
     def call_TAFs_reload_THREAD(self): ## INITIATED FROM PAGE1.kv
         """Runs RELOAD in separate thread """
@@ -1320,9 +1324,6 @@ class TheTAFApp(App):
         self.create_last_requests_buttons(id__Last_requests, settings)
         # app.enrApts.add_enr_btns(self)
 
-    def reloading_inprogress(self):
-        self.reload_status = "#7b9fba"
-        self.reload_button_msg ="Reloading"
 
     stationsList =[]
     METARs_list=[]
