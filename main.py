@@ -1,11 +1,15 @@
 ## General use modules
+import kivy.uix.textinput
 
 import TAF_decoder__helper_functions as Td_helpers
 import final_program_functions as fpf
 from Classes.settings import Settings
 
+from Classes.MainPage import MainPage
 from Classes.EnrouteAirportsControls import EnrouteAirportsControls
 from Classes.MapControls import MapControls
+
+
 
 import json
 import math
@@ -46,6 +50,7 @@ Builder.load_file('KV/page4.kv')
 Builder.load_file('KV/page5.kv')
 Builder.load_file('KV/map.kv')
 Builder.load_file('KV/page__enr_apts.kv')
+Builder.load_file('KV/page__ebr_apt_WX.kv')
 
 
 ## Kivy modules
@@ -63,7 +68,45 @@ class MapView_my(MapView):
         super().__init__(**kwargs)
         self.lat = 50
         self.lon = 11
-        self.zoom = 5
+        self.zoom = 6
+
+    # def __init__(self, **kwargs):
+    #     super(MapView, self).__init__(**kwargs)
+    #     self.lat = 50
+    #     self.lon = 11
+    #     self.zoom = 5
+    #
+    #     # create a box layout to hold the buttons
+    #     box = BoxLayout(orientation="vertical", size_hint=(None, None), width=100)
+    #     # create a zoom in button and bind it to the zoom_in method
+    #     zoom_in_button = Button(text="+", size_hint_y=None, height=50)
+    #     zoom_in_button.bind(on_release=self.zoom_in)
+    #     # create a zoom out button and bind it to the zoom_out method
+    #     zoom_out_button = Button(text="-", size_hint_y=None, height=50)
+    #     zoom_out_button.bind(on_release=self.zoom_out)
+    #     # add the buttons to the box layout
+    #     box.add_widget(zoom_in_button)
+    #     box.add_widget(zoom_out_button)
+    #     # add the box layout as a child of the mapview
+    #     self.add_widget(box)
+
+    # def zoom_in(self, *args):
+    #     # increase the zoom level by 1
+    #     self.zoom += 1
+    #
+    # def zoom_out(self, *args):
+    #     # decrease the zoom level by 1
+    #     self.zoom -= 1
+    def on_touch_down(self, touch):
+        # check if the touch is a pinch gesture
+        if "multitouch_sim" in touch.profile:
+            # ignore the touch
+            return True
+        # otherwise, call the super class method
+        return super(MapView, self).on_touch_down(touch)
+
+
+
     # def on_zoom(self, instance, zoom):
     #     print("Zoom changed: ", zoom)
 
@@ -166,6 +209,7 @@ class Add_Group(BoxLayout):
 class TheTAFApp(App):
 
     ### OBJECTS ###
+    mainPage = MainPage()
     mapControls = MapControls()
     enrAptsCtrls = EnrouteAirportsControls(mapControls)
 
@@ -234,7 +278,8 @@ class TheTAFApp(App):
 
     # THREADS RELATED
     ready_for_colouring_of_single_station_buttons = False
-    ready_for_enroute_markers = False
+
+
 
 
     def __init__(self, **kwargs):
@@ -243,6 +288,7 @@ class TheTAFApp(App):
 
         # YouTube reference:  https://stackoverflow.com/questions/73079260/kivy-how-to-access-global-variables-in-kv-file
         # Initializing global variables --- (__init__ above required!!)
+        self.utc_now = None
         self.selected_g_group = ''  # Just to avoid pycharm caution display
 
         # Renaming self to app to enable direct the Main App object in other classes
@@ -264,44 +310,27 @@ class TheTAFApp(App):
     # Initializig
     time_delta_minutes = StringProperty('-1')
     reload_TAFs_msg = StringProperty('reload_TAFs_msg')
-    last_reload_failed = False
+
 
     def update_clock(self, *args):
-        if (self.find_thread("Add_enroute_markers")):
-            print ("RUNNING"      , "                main.py HHHHHHHHHH")
         # Called once a second using the kivy.clock module
         self.utc_now = datetime.datetime.utcnow()
         self.current_time_str = self.utc_now.strftime('%H:%M:%S')
 
-        # Loading LAST UPDATE TIME
-        path = "Data_new/last_reload_time.json"
-        with open(path) as f_obj:
-            last_update_time = json.load(f_obj)
-            # create DATETIME object from STRING of the following format
-            last_update__object = datetime.datetime.strptime(last_update_time, "%H:%M'%S UTC  %d-%m-%Y")
+        self.reload_TAFs_msg = self.mainPage.update_last_TAFs_reload_time(self, self.utc_now)
 
-            time_delta__object = self.utc_now - last_update__object
 
-            self.time_delta_minutes = str(math.floor(time_delta__object.total_seconds() / 60))
 
-            self.reload_TAFs_msg = f'Last reload  {last_update__object.strftime("%H:%M UTC ,%d-%m-%Y ")},  {fpf.min_to_hours_and_days(self.time_delta_minutes)} ago, {self.num_TAFs_downloaded} TAFs'
-            if self.last_reload_failed:
-                self.reload_TAFs_msg  = f'Reload FAILED. Last reload {fpf.min_to_hours_and_days(self.time_delta_minutes)} ago. {self.num_TAFs_downloaded} TAFs'
 
-            if self.find_thread("Preparing_MaxThreatLevels_THREAD"):
-                self.reload_TAFs_msg  = "LOADING..."
+        # Updating the time label on PAGE 1
+        if self.find_thread("Preparing_MaxThreatLevels_THREAD"):
+            self.reload_TAFs_msg  = "LOADING..."
 
-            queue_enr = self.mapControls.enr_apts_to_be_added__queue
-            while len(queue_enr)>0:
-                # self.ready_for_enroute_markers = False
+        self.enrAptsCtrls.create_enr_btns_and_mapMarkers(self)
+        self.enrAptsCtrls.update_btns_for_threat_level(self)
 
-                apt = self.mapControls.enr_apts_to_be_added__queue.popleft()
 
-                self.mapControls.addMarker(apt)
-
-                # CREATE Enroute Airport Button on the Enroute Apts Page
-                self.enrAptsCtrls.createEnrAptButton(apt)
-
+        ########################################################
         # UPDATES decoded TAFs only when flag true - CASE FOR PAGE2 SLIDER MOVEMENT
         if self.need_to_update_TAFS:
             self.need_to_update_TAFS = False
@@ -676,19 +705,17 @@ class TheTAFApp(App):
     """Methodes related to TOP BAR"""
 
     def call_TAFs_reload(self):
-        def reload_TAFsMETARS():
+        """Method called when TAFs reload button is pressed"""
+
+        try:
+            # TRIES TO DOWNLOAD TAFs and METARs
             self.num_TAFs_downloaded = str(fpf.download_taf_database(parse))
             fpf.download_metars_database(parse)
-
-        # TRYING to UPDATE TAFs
-        try:
-            reload_TAFsMETARS()
         # UPDATE FAILED
         except:
             # set FLAG to TRUE
             self.num_TAFs_downloaded = '--'
             self.last_reload_failed = True
-            print(" ########## UPDATE FAILED ############")
             self.reload_status = "#ff0015"
             self.reload_button_msg = "TAFs Reload - FAILED!"
 
@@ -710,12 +737,9 @@ class TheTAFApp(App):
             self.reload_button_msg = "TAFs Reload - SUCCESSFUL"
             print("MAIN.py -- RELAOD COMPLETE")
 
-    def call_TAFs_reload_THREAD(self):
-        """This funciton first defines function that then will be run in the THREAD
-        --->>may need to be refactored """
-
+    def call_TAFs_reload_THREAD(self): ## INITIATED FROM PAGE1.kv
         """Runs RELOAD in separate thread """
-        t1 = threading.Thread(target=self.call_TAFs_reload, args=[])
+        t1 = threading.Thread(target=self.mainPage.call_TAFs_reload, args=[self])
         t1.start()
 
 
@@ -1295,7 +1319,6 @@ class TheTAFApp(App):
 
         self.create_last_requests_buttons(id__Last_requests, settings)
         # app.enrApts.add_enr_btns(self)
-
 
     def reloading_inprogress(self):
         self.reload_status = "#7b9fba"

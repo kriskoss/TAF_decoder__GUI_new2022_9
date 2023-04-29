@@ -611,6 +611,16 @@ def extract_stations_from_g_group(selected_g_group):
                 stations.append(i)
 
     return stations
+def check_if_station_is_valid(TAF, invalid_stations):
+    if type(TAF) == list:  # if it is a LIST then it is not valid, so it can be processed as INVALID STATION
+        valid_station = TAF[0]
+        station_id = TAF[1]
+        if not valid_station:
+            # NOT VALID station is added to the INVALID STATION list
+            print(Td_helpers.prYellow(station_id + " - invalid station"), 'ref.yyy')
+            invalid_stations.append(station_id)
+            return True
+    return False
 
 def analise_stations(settings, requested_stations, start_time, end_time):
 
@@ -622,9 +632,6 @@ def analise_stations(settings, requested_stations, start_time, end_time):
     # if settings.on_staion_button_press_flag:
     METARs_list = get_METARS_for_requested_stations(settings,requested_stations)
         # settings.on_staion_button_press_flag= False
-
-
-
     # Core of the app - TAF is being coloured
 
     invalid_stations =[]
@@ -635,14 +642,8 @@ def analise_stations(settings, requested_stations, start_time, end_time):
     TAF_num =0
     for TAF in TAFs:
         # Checking if station is valid
-        if type(TAF) == list: # if it is a LIST then it is not valid, so it can be processed as INVALID STATION
-            valid_station = TAF[0]
-            station_id = TAF[1]
-            if not valid_station:
-                # NOT VALID station is added to the INVALID STATION list
-                print(Td_helpers.prYellow(station_id + " - invalid station"), 'ref.yyy')
-                invalid_stations.append(station_id)
-                continue
+        if check_if_station_is_valid(TAF, invalid_stations): # If NOT valid we CONTINUE
+            continue
 
         # DECODING TAF
         decoded_TAF_dict, stationObject = TAF_decoder_function(settings, TAF,TAF_num,start_time,end_time)
@@ -673,6 +674,25 @@ def analise_stations(settings, requested_stations, start_time, end_time):
 
 
     return [decoded_TAFs_data_list,stationsList, combined_stations_threat_level, METARs_list]
+
+
+def analise_ENR_APT_stations(settings, apt, start_time, end_time):
+
+    TAF_num =-1
+
+    # DECODING TAF
+    decoded_TAF_dict, stationObject = TAF_decoder_function(settings, apt.TAF__raw,TAF_num,start_time,end_time)
+
+    # # Combining station data depending on the settings
+    # combined_station_data = combine_data(
+    #     settings,
+    #     decoded_TAF_dict["station_threats"],
+    #     decoded_TAF_dict["wind_profile"],
+    #     decoded_TAF_dict["runways_length"],
+    #     decoded_TAF_dict["appr_data"])
+
+
+    # return combined_station_data
 
 
 

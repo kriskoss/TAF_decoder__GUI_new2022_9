@@ -1,5 +1,5 @@
 <EnrApts@BoxLayout>
-    id: id__EnrApts
+
     orientation: "vertical"
 
     BoxLayout: # 1st row
@@ -34,7 +34,7 @@
 
         TextInput:  #   ROUTE InputText
             id: id__route_input
-            text: "Epwa eddb lirf lfmn"
+            text: "Epwa eppo"
             hint_text: "Enter ROUTE via Airports"
             multiline: True
             size_hint: 1, 1
@@ -68,6 +68,15 @@
                     id__route_input.text = ""
                     id__route_input.hint_text = "Enter ROUTE via Airports"
                     app.enrAptsCtrls.removeAllButtons()
+    Label:
+        id: messageBox
+        text: ""
+        size_hint: 1, None
+        height: '30dp'
+        color: 'yellow'
+        font_size: '16dp'
+        font_name: 'Roboto-Bold.ttf'
+        bold: True
 
     BoxLayout:
         spacing:'5dp'
@@ -84,28 +93,33 @@
             orientation: "vertical"
             Button:
                 text: "All"
-                on_release: app.next_nh_PAGE1(72)
+                on_release: app.enrAptsCtrls.next_nh__enr_apts_page(72)
 
             Button:
                 text: "16"
-                on_release: app.next_nh_PAGE1(16)
+                on_release: app.enrAptsCtrls.next_nh__enr_apts_page(16)
             Button:
                 text: "12h"
-                on_release: app.next_nh_PAGE1(12)
+                on_release: app.enrAptsCtrls.next_nh__enr_apts_page(12)
 
             Button:
                 text: "8h"
-                on_release: app.next_nh_PAGE1(8)
+                on_release: app.enrAptsCtrls.next_nh__enr_apts_page(8)
 
             Button:
                 text: "4h"
-                on_release: app.next_nh_PAGE1(4)
+                on_release: app.enrAptsCtrls.next_nh__enr_apts_page(4)
                 background_color:"#5672f5"
 
             Button:
                 text: "2h"
-                on_release: app.next_nh_PAGE1(2)
-
+                on_release: app.enrAptsCtrls.next_nh__enr_apts_page(2)
+            Button:
+                text: "Details"
+                background_color: '#2252a1'
+                on_release:
+                    app.root.current ="EnrDetails__Screen"
+                    app.root.transition.direction = "right"
 <EnrBtn@Button>
     size_hint: 1, None
     height: '40dp'

@@ -1,0 +1,21 @@
+<EnrDetails@BoxLayout>
+    orientation: "vertical"
+    Button:
+        size_hint: 1, None
+        height: "40dp"
+        text: "Back"
+        on_release:
+            app.root.current ="EnrApts__Screen"
+            app.root.transition.direction = "left"
+
+    Label:
+        id: EnrDetails__Label
+        markup: True
+        font_name: "Resources/Fonts/JetBrainsMono-Regular.ttf"
+
+        size_hint_y: None
+    #    text: app.label__decoded_TAFs
+        font_size:  app.TAF_display_font_size
+        height: self.texture_size[1]
+        text_size: self.width, None
+        halign: 'left'

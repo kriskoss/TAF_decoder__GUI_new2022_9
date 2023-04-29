@@ -27,6 +27,18 @@ from TAF_decoder__helper_functions import ref, prBoxed,TEMPO_color,BECMG_color, 
 import copy
 
 from Classes.Airport import Airport
+
+class SingleStation:
+    """Contains data related to the single station"""
+    def __init__(self, station_name, station_name__coloured,decoded_TAF, runways_length, apt_coordinates,appr_data, max_threat_level_at_airport, wind_profile ):
+        self.station_name = station_name
+        self.station_name__coloured = station_name__coloured
+        self.decoded_TAF = decoded_TAF
+        self.runways_length = runways_length
+        self.apt_coordinates = apt_coordinates
+        self.appr_data = appr_data
+        self.max_threat_level_at_airport = max_threat_level_at_airport
+        self.wind_profile = wind_profile
 def TAF_decoder_function(settings, TAF,TAF_num, start_hour, end_hour):
 
     ### IF ERROR DETECTED  -- returns RAW (may need some more work)
@@ -700,14 +712,3 @@ def TAF_decoder_function(settings, TAF,TAF_num, start_hour, end_hour):
 
     return decoded_TAF_dict, singleStation
 
-class SingleStation:
-    """Contains data related to the single station"""
-    def __init__(self, station_name, station_name__coloured,decoded_TAF, runways_length, apt_coordinates,appr_data, max_threat_level_at_airport, wind_profile ):
-        self.station_name = station_name
-        self.station_name__coloured = station_name__coloured
-        self.decoded_TAF = decoded_TAF
-        self.runways_length = runways_length
-        self.apt_coordinates = apt_coordinates
-        self.appr_data = appr_data
-        self.max_threat_level_at_airport = max_threat_level_at_airport
-        self.wind_profile = wind_profile

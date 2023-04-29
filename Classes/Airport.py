@@ -16,6 +16,10 @@ class Airport:
         self.apt_code = None
         self.airport_cleaned = None
         self.runways = []
+        self.TAF__raw = None
+        self.METAR_raw =None
+        self.max_thr_lvl_in_sel_period = None
+        self.combined_station_data = None
 
         self.lat =-99
         self.lon = -99
@@ -32,6 +36,7 @@ class Airport:
         self.airport_cleaned = Helpers.open_json_file(path="./Data_new/airports_cleaned.json")
         self.runways = self.__get_runway_info(self.airport_cleaned)
         self.__get_apt_coordinates()
+
         return self.__get_runway_info_for_display()
 
     def __get_runway_info_for_display(self):

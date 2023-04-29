@@ -9,6 +9,7 @@ from kivy_garden.mapview import MapView, MapMarker, MapSource, MapMarkerPopup
 from kivy.app import App    # This imports App class from kivy.app
 from kivy.uix.label import Label
 
+
 from geographiclib.geodesic import Geodesic
 from geopy.distance import geodesic
 from kivy.metrics import dp
@@ -19,6 +20,7 @@ from Classes.Route import Route                                         # Just f
 class MapControls:
     """This class is used to control the map"""
     def __init__(self):
+
         self.interpolation_dist = 90 # km?
         self.max_enr_apt_dist = 200 # km
         self.airport_cleaned = None      # Initialization of the varialbe - will store the airport data base
@@ -37,7 +39,7 @@ class MapControls:
         # Uploading the airport data dictionary into MapControls class
         self.airport_cleaned = self.open_json_file("./Data_new/airports_cleaned.json")
 
-
+        self.ready_for_enroute_markers = False
     def getEnrouteAirports(self):
         """This function returns a list of enroute airports"""
         return self.apts_enroute
@@ -155,8 +157,8 @@ class MapControls:
                 self.drawGreatCircleMarkers(mapView_my, start_apt, end_apt, self.interpolation_dist)
 
             ### ADDING ENROUTE APTS MARKERS ###
-            app.ready_for_enroute_markers = True
-            t1 = threading.Thread(name="Add_enroute_markers", target=self.get_enroute_apts, args=[dep, dest])
+            self.ready_for_enroute_markers = True
+            t1 = threading.Thread(name="Add_enroute_markers__THREAD", target=self.get_enroute_apts, args=[dep, dest])
             t1.start()
 
 
@@ -270,12 +272,13 @@ class MapControls:
 
                         # print("   Enroute apt:" +   apt_code + ", dist: " + str(dist) + " km,   (main.py => apt_code,str(dist))")
 
-                        self.apts_enroute.append(apt)   # Adds Airport object in the list
+                        self.apts_enroute.append(apt)
+                        # Adds Airport object in the list
                         self.enr_apts_to_be_added__queue.append(apt)  # ENQUEUE   - probably this queue is used in separate thread to add markers on the map
 
                         enroute_apts_code.append(apt_code) # airport code stored to be used to detect duplicates
                         prev_apt_code = apt_code
-
+        self.ready_for_enroute_markers = False
 
     def addMarker(self,apt):
         app = App.get_running_app()
