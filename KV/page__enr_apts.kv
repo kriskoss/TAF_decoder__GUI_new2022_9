@@ -34,8 +34,8 @@
 
         TextInput:  #   ROUTE InputText
             id: id__route_input
-            text: "Epwa eppo"
-            hint_text: "Enter ROUTE via Airports"
+            text: ""
+            hint_text: "Enter ROUTE via Airports OR press 'Restore?'"
             multiline: True
             size_hint: 1, 1
 #            height: '80dp'
@@ -56,6 +56,16 @@
                     app.enrAptsCtrls.updateRoute()
                     app.mapControls.createValidatedRouteAndMapMarkers()
                     app.enrAptsCtrls.removeAllButtons()
+                    app.enrAptsCtrls.save_last_route()
+
+
+            Button:
+                text: "Restore?"
+                size_hint: 0.4, 1
+                background_color: "navy"
+                on_release:
+                    app.enrAptsCtrls.load_last_route()
+
 
 
             Button:

@@ -52,7 +52,7 @@ Builder.load_file('KV/map.kv')
 Builder.load_file('KV/page__enr_apts.kv')
 Builder.load_file('KV/page__ebr_apt_WX.kv')
 
-
+from kivy_garden.mapview import MapView, MapMarker, MapSource, MapMarkerPopup
 ## Kivy modules
 from kivy.app import App
 from kivy.metrics import dp
@@ -68,56 +68,17 @@ class MapView_my(MapView):
         super().__init__(**kwargs)
         self.lat = 50
         self.lon = 11
-        self.zoom = 6
-
-    # def __init__(self, **kwargs):
-    #     super(MapView, self).__init__(**kwargs)
-    #     self.lat = 50
-    #     self.lon = 11
-    #     self.zoom = 5
-    #
-    #     # create a box layout to hold the buttons
-    #     box = BoxLayout(orientation="vertical", size_hint=(None, None), width=100)
-    #     # create a zoom in button and bind it to the zoom_in method
-    #     zoom_in_button = Button(text="+", size_hint_y=None, height=50)
-    #     zoom_in_button.bind(on_release=self.zoom_in)
-    #     # create a zoom out button and bind it to the zoom_out method
-    #     zoom_out_button = Button(text="-", size_hint_y=None, height=50)
-    #     zoom_out_button.bind(on_release=self.zoom_out)
-    #     # add the buttons to the box layout
-    #     box.add_widget(zoom_in_button)
-    #     box.add_widget(zoom_out_button)
-    #     # add the box layout as a child of the mapview
-    #     self.add_widget(box)
-
-    # def zoom_in(self, *args):
-    #     # increase the zoom level by 1
-    #     self.zoom += 1
-    #
-    # def zoom_out(self, *args):
-    #     # decrease the zoom level by 1
-    #     self.zoom -= 1
-    def on_touch_down(self, touch):
-        # check if the touch is a pinch gesture
-        if "multitouch_sim" in touch.profile:
-            # ignore the touch
-            return True
-        # otherwise, call the super class method
-        return super(MapView, self).on_touch_down(touch)
+        self.zoom = 5
 
 
+        self.map_source = MapSource(min_zoom=5, max_zoom=7)
 
-    # def on_zoom(self, instance, zoom):
-    #     print("Zoom changed: ", zoom)
-
-    # def on_zoom(self, instance, value):
-    #     # value is the current zoom level of the mapview
-    #     if value > 10:
-    #         # show the label if zoom is greater than 10
-    #         popup.opacity = 1
-    #     else:
-    #         # hide the label otherwise
-    #         popup.opacity = 0
+    def on_touch_move(self, touch):
+        # only handle single touch events
+        if self._touch_count == 1:
+            # do something with touch
+            print(touch)
+        return super(MapView_my, self).on_touch_move(touch)
 class TAF_StackLayout(BoxLayout):
     #### FOR TESTING!!
     def __init__(self,**kwargs):
@@ -500,6 +461,7 @@ class TheTAFApp(App):
 
     initial_difference_str = StringProperty("0")
     current_difference_str = StringProperty("993")
+    temp_current_difference_str = StringProperty("993t")
 
     def update_FINAL_DISPLAY(self,combined_stations_threat_level,decoded_TAFs, METARs_list,settings):
         """ FINAL DISPLAY STRUCTURE

@@ -6,10 +6,11 @@ import final_program_functions as fpf
 from Classes.Route import Route
 from Classes.Airport import Airport
 from Classes.settings import Settings
+from Classes.Helpers import Helpers
 from TAF_decoder import TAF_decoder_function
 import threading
 import collections
-
+import copy
 
 
 # from main import TheTAFApp # just for syntax
@@ -19,6 +20,8 @@ settings = Settings()
 class EnrouteAirportsControls:
     """This class contain all functionality related to displaying Enroute Airports"""
     def __init__(self, mapControls, **kwargs):
+
+        self.appr_data_font_size = 13
 
         self.mapControls = mapControls
         self.current_route = Route()
@@ -33,6 +36,9 @@ class EnrouteAirportsControls:
         self.update_period_in_MessageBox = False
 
         self.current_threats_period = None
+
+        self.current_enr_apt_DISPALYED = None
+
 
 
     def show_current_period(self,app):
@@ -122,24 +128,8 @@ class EnrouteAirportsControls:
         app = App.get_running_app()
 
         return app.root.ids['id__enrDetails'].ids['EnrDetails__DisplayLabel']
-    def display_enr_apt_info(self,apt):
-        ### CORE FUCNTION ### for EnrDisplay Screen
-        """Function responsible for DISPLAYING TAFs for ENR APTS
-        * Called when ENR APT button pressed *"""
-        app = App.get_running_app()  # This gets the running app - in this case it is the main.py
-        widget = self.get_enrDetails__DisplayLabel()
 
-        # Switches Screen
-        app.root.current = "EnrDetails__Screen"
-        app.root.transition.direction = "left"
 
-        apt: Airport
-
-        ### UPDATING THE ENR APT TAF DISPLAY FOR APT
-        widget.text = f'{apt.decoded_TAF} \n ' \
-                      f'\n\n[size=14]*****************APPR INFO ******************' \
-                      f'{apt.appr_data}[size/]'
-        print(apt.appr_data, "ENC.py apt.appr_data JFFFFFFFFFFFFF")
 
     def add_enr_btns(self, widget):
         enroute_airports = self.mapControls.getEnrouteAirports()
@@ -201,6 +191,63 @@ class EnrouteAirportsControls:
             self.current_threats_period = n
             self.update_period_in_MessageBox = True
             self.refresh_enroute_apts_buttons(app)
+
+
+
+    def next_nh__enrDetails_page(self,n):
+        #3h,6h,12h,
+        app = App.get_running_app()
+
+        # Updating slider values
+        app.value__start_slider = str(int(app.time_now.strftime("%H"))+1) # + 1 to start counting from the next full hour
+        temp_end_time = str(int(app.value__start_slider) + n)
+
+        # app: TheTAFApp
+        apt_copy = copy.deepcopy(self.current_enr_apt_DISPALYED)
+
+        # DECODING TAF for the selected station
+        print(int(app.value__start_slider), int(temp_end_time), "         DDDDDDDDDDDDD EAC.py")
+        decoded_TAF_dict, apt_copy.stationObject = TAF_decoder_function(settings, apt_copy.TAF__raw, -1, int(app.value__start_slider), int(temp_end_time))
+        apt = self.transfer_data_from__decoded_TAF_dict__to__apt_object(decoded_TAF_dict,apt_copy)
+        app.current_difference = n
+        widget = self.get_enrDetails__DisplayLabel()
+        widget.text = self.enrDisplay__format_final_string(apt)
+        print("SHOUD CHANGE", n , "EAC.py YYYYYYYYY")
+        app.temp_current_difference_str = app.current_difference_str
+        app.current_difference_str = str(n)
+
+
+    def restore_current_difference_str(self):
+        app = App.get_running_app()
+        app.current_difference_str = app.temp_current_difference_str
+
+    def display_enr_apt_info(self,apt):
+        ### CORE FUCNTION ### for EnrDisplay Screen
+        """Function responsible for DISPLAYING TAFs for ENR APTS
+        * Called when ENR APT button pressed *"""
+        self.current_enr_apt_DISPALYED = apt
+        app = App.get_running_app()  # This gets the running app - in this case it is the main.py
+        widget = self.get_enrDetails__DisplayLabel()
+
+        # Switches Screen
+        app.root.current = "EnrDetails__Screen"
+        app.root.transition.direction = "left"
+
+        apt: Airport
+
+        ### UPDATING THE ENR APT TAF DISPLAY FOR APT
+        widget.text = self.enrDisplay__format_final_string(apt)
+
+    def enrDisplay__format_final_string(self,apt):
+        if apt.appr_data:
+            s = f'{apt.decoded_TAF} \n ' \
+            f'\n\n[size={self.appr_data_font_size}dp]****** APPR INFO *******' \
+            f'\n{apt.appr_data.replace("       ","")}'
+        else:
+            s = f'{apt.decoded_TAF} \n ' \
+                f'\n\n[size={self.appr_data_font_size}dp]****** APPR INFO *******' \
+                f'\n{apt.appr_data}'
+        return s
 
     def refresh_enroute_apts_buttons(self, app):
         enr_apts_stack__widget =self.getEnr_apts_stack__widget()
@@ -271,6 +318,7 @@ class EnrouteAirportsControls:
             return apt.apt_code,apt.max_thr_lvl_in_sel_period
 
     def transfer_data_from__decoded_TAF_dict__to__apt_object(self,decoded_TAF_dict, apt):
+
         apt.station_name = decoded_TAF_dict["station_name"]
         apt.selected_time_info = decoded_TAF_dict["selected_time_info"]
 
@@ -287,11 +335,14 @@ class EnrouteAirportsControls:
         apt.time_range = decoded_TAF_dict["time_range"]
         apt.max_threat_level_at_airport = decoded_TAF_dict["max_threat_level_at_airport"]
         apt.wind_profile = decoded_TAF_dict["wind_profile"]
+
+        return apt
     def changeEnrAptButtonColor(self,apt, widget):
         apt: Airport
 
         btn =  widget.ids[self.enr_apt__btn__identifier + apt.apt_code]
 
+        btn.opacity = 1
         if apt.max_thr_lvl_in_sel_period == "green":
             btn.background_color = "green"
         elif apt.max_thr_lvl_in_sel_period == "caution":
@@ -303,5 +354,20 @@ class EnrouteAirportsControls:
         elif apt.max_thr_lvl_in_sel_period == "severe":
             btn.background_color = "purple"
         else:
-            btn.background_color = "grey"
+            btn: Button
 
+            btn.opacity = 0
+
+
+    def save_last_route(self):
+        """Saves the last route to the file"""
+        path = "Data_new/last_route.json"
+        widget = self.get__route_input()
+        if widget.text != "":
+            Helpers.dump_json_file(path, widget.text)
+
+    def load_last_route(self):
+        """Loads the last route from the file"""
+        path = "Data_new/last_route.json"
+        widget = self.get__route_input()
+        widget.text = Helpers.open_json_file(path)
