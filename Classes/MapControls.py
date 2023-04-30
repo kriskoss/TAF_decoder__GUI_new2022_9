@@ -22,7 +22,7 @@ class MapControls:
     def __init__(self):
 
         self.interpolation_dist = 90 # km?
-        self.max_enr_apt_dist = 200 # km
+        self.max_enr_apt_dist = 1.852*150 # km
         self.airport_cleaned = None      # Initialization of the varialbe - will store the airport data base
         self.enr_apts_to_be_added__queue = collections.deque()       # QUEUE: one thread enqueue it with airports which markers are to be put on map, while the other thread dequeue it when MapMarker added for specific airport
         self.apts_enroute = []      # Stores Airport objects - those are Enroute Airports found enroute

@@ -144,6 +144,9 @@ class Settings:
                         # 0 = no rwy data
                         # 1 = simple rwy data
                         # 2 = all rwy data
+
+        ## 2023.04.28
+        self.remove_enr_apt_which_has_no_valid_wx = True
     def reset_type_and_time_group(self):
         self.print_type = False
         self.print_time_group = False

@@ -1205,6 +1205,12 @@ class TheTAFApp(App):
             # DOWN
             settings.update_TAFs_in_real_time_when_slider_moved = True
 
+    def remove_not_valid_ENR_APT_from_list(self,widget):
+        if widget.state == "normal":
+            settings.remove_enr_apt_which_has_no_valid_wx  = True
+        else:
+            # DOWN
+            settings.remove_enr_apt_which_has_no_valid_wx  = False
     def oneline_threats__toggle(self, widget):
         if widget.state == "normal":
             settings.print_in_one_line = True

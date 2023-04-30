@@ -35,9 +35,10 @@ class EnrouteAirportsControls:
         self.creating_enr_apts_buttons_finished = False
         self.update_period_in_MessageBox = False
 
-        self.current_threats_period = None
+        self.current_threats_period = None  # This variable stores the current threats period (in hours) displayed on the enrDisplay page
 
-        self.current_enr_apt_DISPALYED = None
+        self.single_current_enr_apt_DISPALYED = None    # Stores the current Enroute Airport displayed on enrDisplay page
+        self.all_current_enr_apts_BUTTONS = []      # This list contains all buttons for Enroute Airports for the current PERIOD. Enables to restore deleted buttons
 
 
 
@@ -106,6 +107,7 @@ class EnrouteAirportsControls:
     def removeAllButtons(self):
         widget = self.getEnr_apts_stack__widget()
         widget.clear_widgets()
+
     def createEnrAptButton(self, apt):
         # Add Enr apt button to at page_enr_apts.kv Enr_apts_stack
         widget = self.getEnr_apts_stack__widget()
@@ -123,6 +125,7 @@ class EnrouteAirportsControls:
         )
         widget.ids[self.enr_apt__btn__identifier + apt.apt_code] = btn  # CORRECT WAY based on the above
         widget.add_widget(btn)
+        self.all_current_enr_apts_BUTTONS.append(btn) # Stores the button for later use - it is cleared when the period is changed
 
     def get_enrDetails__DisplayLabel(self):
         app = App.get_running_app()
@@ -181,6 +184,7 @@ class EnrouteAirportsControls:
         if not self.ready_for_enr_apts_btns_change_of_color:
             app = App.get_running_app()
 
+
             settings.SINGLE_station_time_range = n
             app.color_on__t_range= str(settings.SINGLE_station_time_range)
 
@@ -190,6 +194,8 @@ class EnrouteAirportsControls:
 
             self.current_threats_period = n
             self.update_period_in_MessageBox = True
+
+
             self.refresh_enroute_apts_buttons(app)
 
 
@@ -203,7 +209,7 @@ class EnrouteAirportsControls:
         temp_end_time = str(int(app.value__start_slider) + n)
 
         # app: TheTAFApp
-        apt_copy = copy.deepcopy(self.current_enr_apt_DISPALYED)
+        apt_copy = copy.deepcopy(self.single_current_enr_apt_DISPALYED)
 
         # DECODING TAF for the selected station
         print(int(app.value__start_slider), int(temp_end_time), "         DDDDDDDDDDDDD EAC.py")
@@ -225,7 +231,7 @@ class EnrouteAirportsControls:
         ### CORE FUCNTION ### for EnrDisplay Screen
         """Function responsible for DISPLAYING TAFs for ENR APTS
         * Called when ENR APT button pressed *"""
-        self.current_enr_apt_DISPALYED = apt
+        self.single_current_enr_apt_DISPALYED = apt
         app = App.get_running_app()  # This gets the running app - in this case it is the main.py
         widget = self.get_enrDetails__DisplayLabel()
 
@@ -338,11 +344,14 @@ class EnrouteAirportsControls:
 
         return apt
     def changeEnrAptButtonColor(self,apt, widget):
+
+
         apt: Airport
+
 
         btn =  widget.ids[self.enr_apt__btn__identifier + apt.apt_code]
 
-        btn.opacity = 1
+        btn.opacity = 1.0
         if apt.max_thr_lvl_in_sel_period == "green":
             btn.background_color = "green"
         elif apt.max_thr_lvl_in_sel_period == "caution":
@@ -354,9 +363,11 @@ class EnrouteAirportsControls:
         elif apt.max_thr_lvl_in_sel_period == "severe":
             btn.background_color = "purple"
         else:
-            btn: Button
+            btn.background_color = "gray"
+            btn.opacity = 0.25
+            # if settings.remove_enr_apt_which_has_no_valid_wx:
+            #     widget.remove_widget(btn)
 
-            btn.opacity = 0
 
 
     def save_last_route(self):
