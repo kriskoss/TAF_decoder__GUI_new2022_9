@@ -10,12 +10,54 @@ class Threats:
         self.caut =[]
         self.warn=[]
         self.sev = []
+
+    def reset_lists(self):
+        self.sev.clear()
+        self.warn.clear()
+        self.caut.clear()
 class Apt_threats:
     def __init__(self):
         self.winds = Threats()
         self.vises =Threats()
         self.wxs = Threats()
         self.clds = Threats()
+
+        self.max_lvl__winds = None
+        self.max_lvl__vises = None
+        self.max_lvl__wxs = None
+        self.max_lvl__clds = None
+
+    def reset_all_lists(self):
+        self.winds.reset_lists()
+        self.vises.reset_lists()
+        self.wxs.reset_lists()
+        self.clds.reset_lists()
+
+    def sort_groups_according_to_max_threat_in_group(self):
+        """This function sorts the groups according to the max threat level in the group"""
+
+        # Simplyfing the names
+        wind = self.max_lvl__winds
+        vis =self.max_lvl__vises
+        wx = self.max_lvl__wxs
+        cld = self.max_lvl__clds
+
+        # List of tuples (threat_name, threat_level) - the DEFAULT ORDER
+        threats_order = [('wind', wind),
+                         ('vis', vis),
+                         ('wx', wx),
+                         ('cld', cld)]
+
+        new_order = []
+
+        # sort the threats according to the max threat level in the group
+        temp_list = sorted(threats_order, key=lambda x: x[1], reverse=True)
+
+        # Convert the list of tuples to a list of threat names
+        for i in range(len(temp_list)):
+            new_order.append(temp_list[i][0])
+
+        return new_order
 
 
 class Airport:
@@ -55,6 +97,7 @@ class Airport:
         self.wind_profile= None
         self.stationObject =None
 
+        self.station_name_color_coded=self.apt_code
 
     def get_airport_data_by_apt_code(self, apt_code):
         """

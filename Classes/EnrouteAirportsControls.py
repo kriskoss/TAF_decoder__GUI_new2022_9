@@ -76,6 +76,8 @@ class EnrouteAirportsControls:
         """FUNCTION CALLED app.update_clock:
         This function updates the buttons for the Enroute Apts page with the threat level"""
 
+
+
         # UPDATING ENROUTE APTS BUTTONS COLOR
         if (self.ready_for_enr_apts_btns_change_of_color and app.find_thread("Enr_apts__TAF_decoding__THREAD")) or app.enrAptsCtrls.colour_change_finished == True:
 
@@ -85,10 +87,13 @@ class EnrouteAirportsControls:
             self.get_MessageBox__widget().text = f'LOADING THREAT LEVELS....'
             while len(enr_apts__queue) > 0:
                 apt = enr_apts__queue.popleft()
+
+                # Change btn background colour depending on the apt MAX threat level
                 self.changeEnrAptButtonColor(apt, enr_apts_stack__widget)
 
-                if apt.thr_lvl_data: ### RUNS ONLY IF THERE IS ANY THREAT AT THE APT
-                    line = self.get_main_threats_for_enr_apt(apt)
+                ### RUNS ONLY IF THERE IS ANY THREAT AT THE APT
+                if apt.thr_lvl_data:
+                    line = self.get_main_threats_for_enr_apt(apt) # CORE function !! checks threats at specific group (wx,wind,vis and cld) and creates the string to be added to the button text
                     self.changeEnrAptText(apt, enr_apts_stack__widget, line)
 
             self.colour_change_finished = True  # This enables a LAST PASS
@@ -103,18 +108,21 @@ class EnrouteAirportsControls:
         """Gets the threats from the data to be displayed next to the ENR APT button"""
         apt:Airport
 
+        apt.threats.reset_all_lists()
         winds = apt.threats.winds
         vises = apt.threats.vises
         clds = apt.threats.clds
         wxs = apt.threats.wxs
-        station_name_color_coded = None
+        apt.station_name_color_coded = None
+
+        # CLEAR DATA
 
         for n in range(len(apt.thr_lvl_data)):
 
             # GETTING APT CODE
             if n == 0:
                 if len(apt.thr_lvl_data[n]['wind']) > 1:
-                    station_name_color_coded = apt.thr_lvl_data[n]['wind'][1]
+                    apt.station_name_color_coded = apt.thr_lvl_data[n]['wind'][1]
 
             # GETTING WEATHER
             elif n > 0:
@@ -141,11 +149,36 @@ class EnrouteAirportsControls:
                                 if k == 'clouds':
                                     self.clasifing_threats_for_key(i,clds, k)
 
-        line ="  " # Initial gap
-        line = self.update_threats_line_WINDS(winds, line)
-        line = self.update_threats_line_VIS(vises, line)
-        line = self.update_threats_line_WX(wxs, line)
-        line = self.update_threats_line_CLDS(clds, line)
+        # UPDATING THREATS
+        wind_line = self.get_WIND_line__and_max_lvl(winds, "", apt)
+        vis_line = self.get__VIS_line_and_max_lvl(vises, "", apt)
+        clds_line = self.get_CLDS_line_and_max_lvl(clds, "", apt)
+        wx_line = self.get_WX_line_and_max_lvl(wxs, "", apt)
+
+        threats_order = apt.threats.sort_groups_according_to_max_threat_in_group()
+
+        # CREATING STRING LINE
+        line = ""
+        for i in range(len(threats_order)):
+            if threats_order[i] == 'wind':
+                line+=wind_line
+
+            elif threats_order[i] == 'vis':
+                line+=vis_line
+
+            elif threats_order[i] == 'cld':
+                line+=clds_line
+
+            elif threats_order[i] == 'wx':
+                line+=wx_line
+
+
+
+        # line =""
+        #
+        # line = self.update_threats_line_VIS(vises, line,apt)
+        # line = self.update_threats_line_WX(wxs, line,apt)
+        # line = self.update_threats_line_CLDS(clds, line,apt)
 
 
         return line
@@ -161,10 +194,14 @@ class EnrouteAirportsControls:
             group.sev.append(i[1])
 
     @staticmethod
-    def update_threats_line_WX(wxs,line):
+    def get_WX_line_and_max_lvl(wxs, line, apt):
         """Updates the line with the WX threats"""
+        max_lvl = 0 # Initializing max level in the group - 0 means GREEN
         ### SEVERE WX
         if wxs.sev:
+            if max_lvl < 3: # SEVERE WX detected and becomes the highest threat
+                max_lvl = 3
+
             wx_only = True
             FG_in = False # FOG in any form in the wxs.sev list
             TS_in = False # THUNDERSTORM in any form in the wxs.sev list
@@ -194,6 +231,9 @@ class EnrouteAirportsControls:
 
         ### WARNING WX
         elif wxs.warn:
+            if max_lvl < 2: # WARNING WX detected and becomes the highest threat if there is no SEVERE WX
+                max_lvl = 2
+
             wx_only = True
             FG_in = False # FOG in any form in the wxs.warn list
             TS_in = False # THUNDERSTORM in the wxs.warn list
@@ -224,6 +264,9 @@ class EnrouteAirportsControls:
 
         ### CAUTION WX
         elif wxs.caut:
+            if max_lvl < 1: # CAUTION WX detected and becomes the highest threat if there is no SEVERE or WARNING WX
+                max_lvl = 1
+
             wx_only = True
             MIFG_in = False # FOG in any form in the wxs.warn list
             BR_in = False
@@ -259,34 +302,59 @@ class EnrouteAirportsControls:
                 line += f"{colouring.prYellow('WX ')}"
 
         else:
+            apt.threats.max_lvl__wxs = max_lvl
             return line
+        apt.threats.max_lvl__wxs = max_lvl
         return line + " "
 
     @staticmethod
-    def update_threats_line_WINDS(winds,line):
+    def get_WIND_line__and_max_lvl(winds, line, apt):
+        max_lvl = 0
+
         if winds.sev:
             line += f"{colouring.prPurple('WIND')}"
+            if max_lvl <3:
+                max_lvl=3
         elif winds.warn:
             line += f"{colouring.prRed('WIND')}"
+            if max_lvl<2:
+                max_lvl=2
         elif winds.caut:
             line += f"{colouring.prYellow('WIND')}"
+            if max_lvl<1:
+                max_lvl=1
         else:
+            apt.threats.max_lvl__winds= max_lvl
             return line
-        return line + " "
-    @staticmethod
-    def update_threats_line_CLDS(clds,line):
-        if clds.sev:
-            line += f"{colouring.prPurple('CLD')}"
-        elif clds.warn:
-            line += f"{colouring.prRed('CLD')}"
-        elif clds.caut:
-            line += f"{colouring.prYellow('CLD')}"
-        else:
-            return line
+        apt.threats.max_lvl__winds = max_lvl
         return line + " "
 
-    def update_threats_line_VIS(self, vis, line):
+    @staticmethod
+    def get_CLDS_line_and_max_lvl(clds, line, apt):
+        max_lvl = 0
+        if clds.sev:
+            line += f"{colouring.prPurple('CLD')}"
+            if max_lvl <3:
+                max_lvl=3
+        elif clds.warn:
+            line += f"{colouring.prRed('CLD')}"
+            if max_lvl<2:
+                max_lvl=2
+        elif clds.caut:
+            line += f"{colouring.prYellow('CLD')}"
+            if max_lvl<1:
+                max_lvl=1
+        else:
+            apt.threats.max_lvl__clds = max_lvl
+            return line
+
+        apt.threats.max_lvl__clds = max_lvl
+        return line + " "
+
+    def get__VIS_line_and_max_lvl(self, vis, line, apt):
+        max_lvl = 0
         if vis.sev:
+            max_lvl = 0
             min_vis = 9999
             vis_active = False
             for vi in vis.sev:
@@ -294,6 +362,9 @@ class EnrouteAirportsControls:
                 if int(vi) < min_vis:
                     min_vis = int(vi)
                     vis_active = True
+                    if max_lvl < 3:
+                        max_lvl = 3
+
 
             if vis_active:
                 line += f"{colouring.prPurple(str(min_vis))}"
@@ -308,7 +379,8 @@ class EnrouteAirportsControls:
                 if int(vi) < min_vis:
                     min_vis = int(vi)
                     vis_active = True
-
+                    if max_lvl < 2:
+                        max_lvl = 2
             if vis_active:
                 line += f"{colouring.prRed(str(min_vis))}"
             else:
@@ -323,6 +395,8 @@ class EnrouteAirportsControls:
                 if int(vi) < min_vis:
                     min_vis = int(vi)
                     vis_active = True
+                    if max_lvl < 1:
+                        max_lvl = 1
 
             if vis_active:
                 line += f"{colouring.prYellow(str(min_vis))}"
@@ -330,7 +404,9 @@ class EnrouteAirportsControls:
                 line += f"{colouring.prYellow('VIS')}"
 
         else:
+            apt.threats.max_lvl__vises = max_lvl
             return line
+        apt.threats.max_lvl__vises = max_lvl
         return line + " "
 
     @staticmethod
@@ -608,10 +684,7 @@ class EnrouteAirportsControls:
 
         return apt
     def changeEnrAptButtonColor(self,apt, widget):
-
-
         apt: Airport
-
 
         btn =  widget.ids[self.enr_apt__btn__identifier + apt.apt_code]
 
@@ -638,7 +711,7 @@ class EnrouteAirportsControls:
         btn:Button
         btn =  widget.ids[self.enr_apt__btn__identifier + apt.apt_code]
 
-        btn.text = f"   {apt.apt_code}[size=14dp]{text}[/size]"
+        btn.text = f"   {apt.station_name_color_coded}     [size=14dp]{text}[/size]"
         btn.text_size = btn.size
 
 
