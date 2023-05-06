@@ -1363,7 +1363,6 @@ class TheTAFApp(App):
     #         self.g_group_mapMarkers.append(mkr)
 
 
-
 TheTAFApp().run()  # RUNS THE KIVY!!
 
 
