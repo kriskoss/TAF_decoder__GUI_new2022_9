@@ -248,14 +248,20 @@ class MapControls:
 
                 ### SELECTION OF AIRPORTS ENROUTE
                 # INITIAL SELECTION - based on COORDINATES
-                if  apt_code not in enroute_apts_code and\
-                        apt_code != dep_code and apt_code !=dest_code and\
+                # if apt_code not in enroute_apts_code and \
+                #         apt_code != dep_code and apt_code != dest_code and \
+                #         prev_apt_code != apt_code and \
+                #         pos["lat2"] - delta_lat < apt_lat < pos["lat2"] + delta_lat and \
+                #         pos["lon2"] - delta_lon < apt_lon < pos["lon2"] + delta_lon:
+
+                if apt_code not in enroute_apts_code and \
+                        apt_code != dep_code and \
                         prev_apt_code != apt_code and \
-                        pos["lat2"]- delta_lat < apt_lat < pos["lat2"]+ delta_lat and \
-                        pos["lon2"] - delta_lon < apt_lon < pos["lon2"]+ delta_lon:
+                        pos["lat2"] - delta_lat < apt_lat < pos["lat2"] + delta_lat and \
+                        pos["lon2"] - delta_lon < apt_lon < pos["lon2"] + delta_lon:
                     """Adds only markers that are not:
                              -  in the list of enroute airports - so not selected on previous interpolate positions
-                             -  not the departure or destination airport
+                             -  not the departure 
                              -  not the same as the previous airport - to avoid adding the same airport twice
                              -  within the range of delta_lat and delta_lon from the interpolated position - that is within lat and lon square
                              """

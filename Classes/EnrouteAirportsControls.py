@@ -8,10 +8,12 @@ from Classes.Airport import Airport
 from Classes.settings import Settings
 from Classes.Helpers import Helpers
 from TAF_decoder import TAF_decoder_function
+from kivy.utils import escape_markup
 import threading
 import collections
 import copy
 
+import colouring
 
 # from main import TheTAFApp # just for syntax
 settings = Settings()
@@ -85,12 +87,283 @@ class EnrouteAirportsControls:
                 apt = enr_apts__queue.popleft()
                 self.changeEnrAptButtonColor(apt, enr_apts_stack__widget)
 
+                if apt.thr_lvl_data: ### RUNS ONLY IF THERE IS ANY THREAT AT THE APT
+                    line = self.get_main_threats_for_enr_apt(apt)
+                    self.changeEnrAptText(apt, enr_apts_stack__widget, line)
+
             self.colour_change_finished = True  # This enables a LAST PASS
 
         # CLEARES ENROUTE APTS MESSAGE BOX once the colour change is finished
         if self.colour_change_finished and not self.ready_for_enr_apts_btns_change_of_color:
             self.colour_change_finished = False
             self.get_MessageBox__widget().text = ""
+
+    ################### THREATS IN ENROUTE APTS PAGE #############################
+    def get_main_threats_for_enr_apt(self,apt):
+        """Gets the threats from the data to be displayed next to the ENR APT button"""
+        apt:Airport
+
+        winds = apt.threats.winds
+        vises = apt.threats.vises
+        clds = apt.threats.clds
+        wxs = apt.threats.wxs
+        station_name_color_coded = None
+
+        for n in range(len(apt.thr_lvl_data)):
+
+            # GETTING APT CODE
+            if n == 0:
+                if len(apt.thr_lvl_data[n]['wind']) > 1:
+                    station_name_color_coded = apt.thr_lvl_data[n]['wind'][1]
+
+            # GETTING WEATHER
+            elif n > 0:
+                # CHECKING EACH KEY
+                for k in apt.thr_lvl_data[n].keys():
+
+                    # ADDING WEATHER DATA to the different threat lists
+                    data_for_key = apt.thr_lvl_data[n][k]
+                    if data_for_key:
+                        # WIND
+                        for i in data_for_key:
+                            # Continues when item is in valid period
+                            if i[3] != 'not-relevant TEMPO' and i[3] != 'not-relevant BECMG' and i[3] != 'not-relevant INTER':
+
+                                if k == 'wind' :
+                                    self.clasifing_threats_for_key(i, winds, k)
+
+                                if k == 'vis':
+                                    self.clasifing_threats_for_key(i, vises, k)
+
+                                if k == 'weather':
+                                    self.clasifing_threats_for_key(i, wxs, k)
+
+                                if k == 'clouds':
+                                    self.clasifing_threats_for_key(i,clds, k)
+
+        line ="  " # Initial gap
+        line = self.update_threats_line_WINDS(winds, line)
+        line = self.update_threats_line_VIS(vises, line)
+        line = self.update_threats_line_WX(wxs, line)
+        line = self.update_threats_line_CLDS(clds, line)
+
+
+        return line
+    @staticmethod
+    def clasifing_threats_for_key(i, group, name):
+        """Places wx,cld, vis or wind in propper threat bucket"""
+        group.name = name
+        if i[0] == 'caution':
+            group.caut.append(i[1])
+        if i[0] == 'warning':
+            group.warn.append(i[1])
+        if i[0] == 'severe':
+            group.sev.append(i[1])
+
+    @staticmethod
+    def update_threats_line_WX(wxs,line):
+        """Updates the line with the WX threats"""
+        ### SEVERE WX
+        if wxs.sev:
+            wx_only = True
+            FG_in = False # FOG in any form in the wxs.sev list
+            TS_in = False # THUNDERSTORM in any form in the wxs.sev list
+            SN_in = False # SNOW in any form in the wxs.sev list
+            for wx in wxs.sev:
+                if "FG" in wx:
+                    wx_only = False
+                    FG_in = True
+                if "TS" in wx:
+                    TS_in = True
+                    wx_only = False
+                if "SN" in wx:
+                    SN_in = True
+                    wx_only = False
+
+            if FG_in:
+                line += f"{colouring.prPurple('FG ')}"
+            if SN_in:
+                line += f"{colouring.prPurple('SN ')}"
+            if TS_in:
+                line += f"{colouring.prPurple('TS ')}"
+
+            # NO FOG, SNOW OR TS IN SEVERE WX
+            if wx_only:
+                line += f"{colouring.prPurple('WX ')}"
+
+
+        ### WARNING WX
+        elif wxs.warn:
+            wx_only = True
+            FG_in = False # FOG in any form in the wxs.warn list
+            TS_in = False # THUNDERSTORM in the wxs.warn list
+            SN_in = False # SNOW in any form in the wxs.warn list
+            for wx in wxs.warn:
+                if "FG" in wx:
+                    wx_only = False
+                    FG_in = True
+                if "TS" in wx:
+                    TS_in = True
+                    wx_only = False
+                if "SN" in wx:
+                    SN_in = True
+                    wx_only = False
+
+
+            if FG_in:
+                line += f"{colouring.prRed('FG ')}"
+            if SN_in:
+                line += f"{colouring.prRed('SN ')}"
+            if TS_in:
+                line += f"{colouring.prRed('TS ')}"
+
+            # NO FOG, SNOW OR TS IN WARNING WX
+            if wx_only:
+                line += f"{colouring.prRed('WX ')}"
+
+
+        ### CAUTION WX
+        elif wxs.caut:
+            wx_only = True
+            MIFG_in = False # FOG in any form in the wxs.warn list
+            BR_in = False
+            SN_in = False
+            RA_in = False
+            for wx in wxs.caut:
+                if "MIFG" in wx:
+                    wx_only = False
+                    MIFG_in = True
+                if "BR" in wx:
+                    BR_in = True
+                    wx_only = False
+                if "SN" in wx:
+                    SN_in = True
+                    wx_only = False
+                if "RA" in wx:
+                    RA_in = True
+                    wx_only = False
+
+
+            if MIFG_in:
+                line += f"{colouring.prYellow('MIFG ')}"
+
+            if SN_in:
+                line += f"{colouring.prYellow('SN ')}"
+            if RA_in:
+                line += f"{colouring.prYellow('RA ')}"
+            if BR_in:
+                line += f"{colouring.prYellow('BR ')}"
+
+            # NO SNOW, RAIN, BR OR MIFG IN CAUTION WX
+            if wx_only:
+                line += f"{colouring.prYellow('WX ')}"
+
+        else:
+            return line
+        return line + " "
+
+    @staticmethod
+    def update_threats_line_WINDS(winds,line):
+        if winds.sev:
+            line += f"{colouring.prPurple('WIND')}"
+        elif winds.warn:
+            line += f"{colouring.prRed('WIND')}"
+        elif winds.caut:
+            line += f"{colouring.prYellow('WIND')}"
+        else:
+            return line
+        return line + " "
+    @staticmethod
+    def update_threats_line_CLDS(clds,line):
+        if clds.sev:
+            line += f"{colouring.prPurple('CLD')}"
+        elif clds.warn:
+            line += f"{colouring.prRed('CLD')}"
+        elif clds.caut:
+            line += f"{colouring.prYellow('CLD')}"
+        else:
+            return line
+        return line + " "
+
+    def update_threats_line_VIS(self, vis, line):
+        if vis.sev:
+            min_vis = 9999
+            vis_active = False
+            for vi in vis.sev:
+                vi =self.remove_markup_from_vis(vi)
+                if int(vi) < min_vis:
+                    min_vis = int(vi)
+                    vis_active = True
+
+            if vis_active:
+                line += f"{colouring.prPurple(str(min_vis))}"
+            else:
+                line += f"{colouring.prPurple('VIS')}"
+
+        elif vis.warn:
+            min_vis = 9999
+            vis_active = False
+            for vi in vis.warn:
+                vi = self.remove_markup_from_vis(vi)
+                if int(vi) < min_vis:
+                    min_vis = int(vi)
+                    vis_active = True
+
+            if vis_active:
+                line += f"{colouring.prRed(str(min_vis))}"
+            else:
+                line += f"{colouring.prRed('VIS')}"
+
+
+        elif vis.caut:
+            min_vis = 9999
+            vis_active = False
+            for vi in vis.caut:
+                vi = self.remove_markup_from_vis(vi)
+                if int(vi) < min_vis:
+                    min_vis = int(vi)
+                    vis_active = True
+
+            if vis_active:
+                line += f"{colouring.prYellow(str(min_vis))}"
+            else:
+                line += f"{colouring.prYellow('VIS')}"
+
+        else:
+            return line
+        return line + " "
+
+    @staticmethod
+    def remove_markup_from_vis(vis):
+        """Removes markup from vis"""
+        vis: str
+        prev_ch = ""
+
+        i = -1
+        for ch in vis:  # checking each character in the marked up vis string
+            i += 1
+            if prev_ch == "]" and ch != "[":  # if the previous character was a ] and the current is not a [ then we have reached the end of the markup
+                break
+            prev_ch = ch
+
+        try:
+            int(vis[i:i + 4])  # checking if the vis is in the format of four digits
+        except(ValueError):
+            print("ERRORO IN CONVERTION OF VIS - EAC.py")
+            return -99
+        return int(vis[i:i + 4])
+
+    ####################### END OF THREATS IN ENR-APT #######################
+    def add_wind(self,thr_lvl_data, n, data_for_key, wind_line, k):
+        """TO SIMPLYFY CODE - ADDs wimd only if it is NOT not-relevant"""
+        if thr_lvl_data[n]['wind']:
+            if not "not-relevant" in thr_lvl_data[n]['wind'][0][3]:
+
+                if k == 'time_group':
+                    # IF TIME GROUP then start new line after
+                    wind_line.append(data_for_key[1] + ' newlinee.Tdf')
+                else:
+                    wind_line.append(data_for_key[1])
 
     def getEnr_apts_stack__widget(self):
         app = App.get_running_app() # This gets the running app - in this case it is the main.py
@@ -114,6 +387,7 @@ class EnrouteAirportsControls:
 
         btn = Button(
             text=apt.apt_code,
+            markup = True,
             size_hint=(1, None),
             height=dp(30),
             # width=dp(100),
@@ -123,6 +397,7 @@ class EnrouteAirportsControls:
             on_press=lambda *args: self.display_enr_apt_info(apt),
             # background_normal=''  # MODIIES HOW COLOR ARE BEING DISPLAYED
         )
+
         widget.ids[self.enr_apt__btn__identifier + apt.apt_code] = btn  # CORRECT WAY based on the above
         widget.add_widget(btn)
         self.all_current_enr_apts_BUTTONS.append(btn) # Stores the button for later use - it is cleared when the period is changed
@@ -139,6 +414,8 @@ class EnrouteAirportsControls:
         apt: Airport
         for apt in enroute_airports:
             btn = Button(
+                markup=True,
+                halign='left',
                 text=apt.apt_code,
                 size_hint=(1, None),
                 height=dp(30),
@@ -148,22 +425,8 @@ class EnrouteAirportsControls:
                 background_color="red",
                 # background_normal=''  # MODIIES HOW COLOR ARE BEING DISPLAYED
             )
-
             widget.add_widget(btn)
 
-        for i in range(3):
-            btn = Button(
-                text=f'Enr Apt {i}',
-                size_hint=(1, None),
-                height=dp(30),
-                # width=dp(100),
-                font_name="Resources/Fonts/JetBrainsMono-Regular.ttf",
-                font_size='20dp',
-                background_color="red",
-                # background_normal=''  # MODIIES HOW COLOR ARE BEING DISPLAYED
-            )
-
-            widget.add_widget(btn)
 
     def get__route_input(self):
         """Returns ROUTE INPUT widget"""
@@ -212,13 +475,13 @@ class EnrouteAirportsControls:
         apt_copy = copy.deepcopy(self.single_current_enr_apt_DISPALYED)
 
         # DECODING TAF for the selected station
-        print(int(app.value__start_slider), int(temp_end_time), "         DDDDDDDDDDDDD EAC.py")
+
         decoded_TAF_dict, apt_copy.stationObject = TAF_decoder_function(settings, apt_copy.TAF__raw, -1, int(app.value__start_slider), int(temp_end_time))
         apt = self.transfer_data_from__decoded_TAF_dict__to__apt_object(decoded_TAF_dict,apt_copy)
         app.current_difference = n
         widget = self.get_enrDetails__DisplayLabel()
         widget.text = self.enrDisplay__format_final_string(apt)
-        print("SHOUD CHANGE", n , "EAC.py YYYYYYYYY")
+
         app.temp_current_difference_str = app.current_difference_str
         app.current_difference_str = str(n)
 
@@ -297,7 +560,6 @@ class EnrouteAirportsControls:
         apt.METAR_raw = fpf.load_single_METAR(apt.apt_code)
         return_data = fpf.get_single_stations_TAF(settings, apt.apt_code)
         if type(return_data)==list:
-            print(apt.apt_code, " -- INVALID station -  KKKKK ENC.py - same call as in: fpf.get_single_stations_TAF() above ")
             return [apt.apt_code, "error"]
 
         else:
@@ -334,6 +596,8 @@ class EnrouteAirportsControls:
         apt.apt_coordinates = decoded_TAF_dict["apt_coordinates"]
         apt.station_threats = decoded_TAF_dict["station_threats"]
 
+        apt.thr_lvl_data = decoded_TAF_dict["thr_lvl_data"]
+
         apt.appr_data = decoded_TAF_dict["appr_data"]
         apt.appr_data.replace('space.Tdf', '   ')  # Replacing SPACE marker in String
         apt.appr_data.replace("newlinee.Tdf", '\n')  # Replacing NEWLINEE marker in String
@@ -365,8 +629,17 @@ class EnrouteAirportsControls:
         else:
             btn.background_color = "gray"
             btn.opacity = 0.25
-            # if settings.remove_enr_apt_which_has_no_valid_wx:
-            #     widget.remove_widget(btn)
+            if settings.remove_enr_apt_which_has_no_valid_wx:
+                widget.remove_widget(btn)
+
+    def changeEnrAptText(self,apt, widget, text):
+        """Changes the text of the button depending on the threat level at the airport"""
+        apt: Airport
+        btn:Button
+        btn =  widget.ids[self.enr_apt__btn__identifier + apt.apt_code]
+
+        btn.text = f"   {apt.apt_code}[size=14dp]{text}[/size]"
+        btn.text_size = btn.size
 
 
 

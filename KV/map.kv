@@ -1,9 +1,9 @@
 #:kivy 2.0.0
 <Map@BoxLayout>
-
+    orientation: "vertical"
     MapView_my:
         id:id__MapView_my
-        size_hint: 10, 1,
+#        size_hint: 10, 1,
         snap_to_zoom: False
 #        lat: 52
 #        lon: 11
@@ -24,28 +24,34 @@
 
 
     StackLayout:
+        size_hint: 1, None
+
         orientation: "rl-bt"
         spacing: "10dp"
-        size_hint: 1, None,
-        height:'140dp'
+        height:'40dp'
 
 
-        StackButton:
+        StackButton1:
             text: "APTs"
             background_color: '#5232a8'
             on_release:
                 app.root.current ="first"
                 app.root.transition.direction = "right"
-        StackButton:
+        StackButton1:
             text: "ENR_A"
             background_color: '#6242a1'
             on_press:
                 app.root.current="EnrApts__Screen"
                 app.root.transition.direction = "left"
 
-        StackButton:
+        StackButton1:
             text: "Show g_gr."
             background_color: '#1232a8'
             on_release:
                 app.mapControls.add_current_g_group_markers()
+            disabled: True
+
+<StackButton1@Button>:
+    size_hint:None,1
+    width: '70dp'
 

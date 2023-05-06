@@ -1148,7 +1148,7 @@ class TheTAFApp(App):
 
 
         self.value__start_slider = str(int(self.time_now.strftime("%H"))+1)
-        # + 1 to start counting from the next full hour
+        # + 1 to start counting from the next full hourdi
 
         self.value__end_slider = str(int(self.value__start_slider) + n)
         self.period_counter = int(self.time_now.strftime("%H"))

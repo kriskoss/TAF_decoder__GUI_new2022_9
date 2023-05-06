@@ -1,31 +1,6 @@
 <EnrApts@BoxLayout>
 
     orientation: "vertical"
-
-    BoxLayout: # 1st row
-        size_hint: 1, None
-        height: '40dp'
-        EnrBtn:
-            text: "APTs"
-            background_color: '#5232a8'
-            on_release:
-                app.root.current ="first"
-                app.root.transition.direction = "right"
-        EnrBtn:
-            text: "MAP"
-            height: '40dp'
-            background_color: '#6242a9'
-            on_press:
-                app.root.current="map"
-                app.root.transition.direction = "left"
-
-        EnrBtn:
-            text: "Show APTs"
-            background_color: '#1232a8'
-            on_release:
-                app.mapControls.add_current_g_group_markers(app)
-
-
     BoxLayout:  # 2nd row  - ROUTE INPUT BOX
         id: id__route_box
         size_hint: 1, None
@@ -46,6 +21,15 @@
         BoxLayout:
             size_hint: 1, None
             height: '40dp'
+            Button:
+                text: "Clear?"
+                size_hint: 0.4, 1
+                background_color: "red"
+
+                on_release:
+                    id__route_input.text = ""
+                    id__route_input.hint_text = "Enter ROUTE via Airports"
+                    app.enrAptsCtrls.removeAllButtons()
             Button:     #   ROUTE Confirm Button
                 id: id_route_confirm_btn
                 text: "Confirm?"
@@ -69,15 +53,9 @@
 
 
 
-            Button:
-                text: "Clear?"
-                size_hint: 0.4, 1
-                background_color: "red"
 
-                on_release:
-                    id__route_input.text = ""
-                    id__route_input.hint_text = "Enter ROUTE via Airports"
-                    app.enrAptsCtrls.removeAllButtons()
+
+
     Label:
         id: messageBox
         text: ""
@@ -99,9 +77,34 @@
 
         HoursSelection
             size_hint:None,1
-            width:'60dp'
+            width:'40dp'
             orientation: "vertical"
 
+
+
+
+    BoxLayout: # 1st row
+        size_hint: 1, None
+        height: '40dp'
+        EnrBtn:
+            text: "APTs"
+            background_color: '#5232a8'
+            on_release:
+                app.root.current ="first"
+                app.root.transition.direction = "right"
+        EnrBtn:
+            text: "MAP"
+            height: '40dp'
+            background_color: '#6242a9'
+            on_press:
+                app.root.current="map"
+                app.root.transition.direction = "left"
+
+        EnrBtn:
+            text: "Show APTs"
+            background_color: '#1232a8'
+            on_release:
+                app.mapControls.add_current_g_group_markers(app)
 <EnrBtn@Button>
     size_hint: 1, None
     height: '40dp'

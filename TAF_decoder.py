@@ -659,6 +659,7 @@ def TAF_decoder_function(settings, TAF,TAF_num, start_hour, end_hour):
         apt_coordinates = (airport.lat,airport.lon)
 
         station_threats = Tdf.convert_data_lists_to_single_string(all_lines, settings, TAF_num)
+        thr_lvl_data = thr_lvl_data # jsut to indicate the this is exported
         station_name__coloured = all_lines[0][0]
         appr_data = Tdf.generate_appr_info(TAF, settings)
         time_range =  time_range
@@ -680,6 +681,7 @@ def TAF_decoder_function(settings, TAF,TAF_num, start_hour, end_hour):
         runways_length = 'errB'
         apt_coordinates = 'errC'
         station_threats = station_name[0]
+        thr_lvl_data = "errTLD"
         appr_data = 'errD'
         time_range = time_range
         max_threat_level_at_airport = ['not-relevant']
@@ -694,6 +696,7 @@ def TAF_decoder_function(settings, TAF,TAF_num, start_hour, end_hour):
         "runways_length": runways_length,
         "apt_coordinates": apt_coordinates,
         "station_threats": station_threats,
+        "thr_lvl_data": thr_lvl_data,
         "appr_data": appr_data,
         "time_range": time_range,
         "max_threat_level_at_airport": max_threat_level_at_airport,

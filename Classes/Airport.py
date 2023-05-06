@@ -4,6 +4,18 @@ from Classes.Helpers import Helpers
 from Classes.Runway import Runway
 from colouring import prGreen, prYellow, prRed, prLightGray
 
+class Threats:
+    def __init__(self):
+        self.name =None
+        self.caut =[]
+        self.warn=[]
+        self.sev = []
+class Apt_threats:
+    def __init__(self):
+        self.winds = Threats()
+        self.vises =Threats()
+        self.wxs = Threats()
+        self.clds = Threats()
 
 
 class Airport:
@@ -21,8 +33,10 @@ class Airport:
         self.max_thr_lvl_in_sel_period = None
         self.combined_station_data = None
 
+        self.threats = Apt_threats()
         self.lat =-99
         self.lon = -99
+
 
 
         # From TAF_decode_function
@@ -34,6 +48,7 @@ class Airport:
         self.runways_length= None
         self.apt_coordinates= None
         self.station_threats= None
+        self.thr_lvl_data=None
         self.appr_data= None
         self.time_range= None
         self.max_threat_level_at_airport= None

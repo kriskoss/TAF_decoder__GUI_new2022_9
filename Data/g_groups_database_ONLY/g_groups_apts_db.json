@@ -370,5 +370,20 @@
     "LIME",
     "LIMF",
     "LIPX"
+  ],
+  "gEGNM": [
+    "EGNM",
+    "EGGP",
+    "EGNX",
+    "EGBB"
+  ],
+  "gLIPE": [
+    "LIPE",
+    "LIPX",
+    "LIPZ",
+    "LIRP",
+    "LIPH",
+    "LIME",
+    "LIRF"
   ]
 }
