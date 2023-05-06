@@ -711,7 +711,7 @@ class EnrouteAirportsControls:
         btn:Button
         btn =  widget.ids[self.enr_apt__btn__identifier + apt.apt_code]
 
-        btn.text = f"   {apt.station_name_color_coded}     [size=14dp]{text}[/size]"
+        btn.text = f"{apt.station_name_color_coded} [size=14dp]{text}[/size]"
         btn.text_size = btn.size
 
 

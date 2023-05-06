@@ -43,9 +43,9 @@ class Apt_threats:
         cld = self.max_lvl__clds
 
         # List of tuples (threat_name, threat_level) - the DEFAULT ORDER
-        threats_order = [('wind', wind),
+        threats_order = [('wx', wx),
+                         ('wind', wind),
                          ('vis', vis),
-                         ('wx', wx),
                          ('cld', cld)]
 
         new_order = []
