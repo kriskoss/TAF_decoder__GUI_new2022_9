@@ -17,7 +17,7 @@ class MainPage:
         # self.reload_status="#935999"
         # self.reload_button_msg = "Reload TAFs"
 
-        self.last_reload_bacground_color = "white"
+
 
 
 
@@ -69,21 +69,16 @@ class MainPage:
         time_delta__object = utc_now - last_update__object
 
         self.time_delta_minutes = str(math.floor(time_delta__object.total_seconds() / 60))
-        if int(self.time_delta_minutes) >120:
-            reload_TAFs_msg= f"    >>>>> O B S O L E T E    D A T A ! ! ! ! ! <<<<<<  ({fpf.min_to_hours_and_days(self.time_delta_minutes)} old!!!)"
+
+        if int(self.time_delta_minutes) >30:
+            reload_TAFs_msg= f"   >>> O B S O L E T E    D A T A ! ! !!<<<  ({fpf.min_to_hours_and_days(self.time_delta_minutes)} old!!!)"
+            app.last_reload_bacground_color = 'red'
+
         else:
-            reload_TAFs_msg = f'Last reload  {last_update__object.strftime("%H:%M UTC ,%d-%m-%Y ")},  {fpf.min_to_hours_and_days(self.time_delta_minutes)} ago, {self.num_TAFs_downloaded} TAFs'
-        self.obsolete_data_warning()
+            # reload_TAFs_msg = f'Last reload  {last_update__object.strftime("%H:%M UTC ,%d-%m-%Y ")},  {fpf.min_to_hours_and_days(self.time_delta_minutes)} ago, {self.num_TAFs_downloaded} TAFs'
+            reload_TAFs_msg = f'{fpf.min_to_hours_and_days(self.time_delta_minutes)} old, {self.num_TAFs_downloaded} TAFs'
+            app.last_reload_bacground_color = "green"
         if self.last_reload_failed:
             reload_TAFs_msg  = f'Reload FAILED. Last reload {fpf.min_to_hours_and_days(self.time_delta_minutes)} ago. {self.num_TAFs_downloaded} TAFs'
+
         return reload_TAFs_msg
-
-    def obsolete_data_warning(self):
-
-
-        if int(self.time_delta_minutes) < 60:
-            self.last_reload_bacground_color = "green"
-        elif int(self.time_delta_minutes) < 120:
-            self.last_reload_bacground_color = "yellow"
-        else:
-            self.last_reload_bacground_color = "red"

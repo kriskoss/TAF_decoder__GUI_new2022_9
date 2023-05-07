@@ -239,6 +239,7 @@ class TheTAFApp(App):
 
     # THREADS RELATED
     ready_for_colouring_of_single_station_buttons = False
+    last_reload_bacground_color = StringProperty("pink")
 
 
     def __init__(self, **kwargs):

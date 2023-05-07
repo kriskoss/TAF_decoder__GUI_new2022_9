@@ -25,7 +25,7 @@ import TAF_decoder__functions as Tdf
 from TAF_decoder__helper_functions import ref, prBoxed,TEMPO_color,BECMG_color, INTER_color,BECMG_non_significant_color,grayed_area_left,grayed_area_right,error_added,add_to_dict_gr_data,print_dicts,add_to_dict_TIME_gr_data, print_keys, \
     print_list
 import copy
-
+import datetime
 from Classes.Airport import Airport
 
 class SingleStation:
@@ -40,6 +40,7 @@ class SingleStation:
         self.max_threat_level_at_airport = max_threat_level_at_airport
         self.wind_profile = wind_profile
 def TAF_decoder_function(settings, TAF,TAF_num, start_hour, end_hour):
+
 
     ### IF ERROR DETECTED  -- returns RAW (may need some more work)
     global max_threat_level_at_airport
@@ -300,9 +301,10 @@ def TAF_decoder_function(settings, TAF,TAF_num, start_hour, end_hour):
     # creating time taf slices time ranges
     time_range = [['x',
                    'x']]  # adding none item to match time_gr_data len to weather_data len
+    ref_date = time_gr_data[0]['hours_list'][0]
     for n in range(len(time_gr_data)):
         tg_hl = time_gr_data[n]['hours_list']
-        ref_date = time_gr_data[0]['hours_list'][0]
+
         next_day = [(ref_date + 1), 1]
         range_start = 0  # this is to avoid yellow mark, range_start is only defined below as if statement, so without this line it is cause of caution message
         if tg_hl[0] == ref_date:
@@ -403,6 +405,9 @@ def TAF_decoder_function(settings, TAF,TAF_num, start_hour, end_hour):
 #############
     initial_start = weather_data[1]['time_range'][0]
     initial_end = weather_data[1]['time_range'][1] - 1
+
+    # CORRECT start_hour and end_hour for the today and the start of the TAF date
+    start_hour, end_hour = Tdf.correct_start_and_end_hours(ref_date, start_hour, end_hour)
 
     ### FUNCTION CALL ###
     significant_time_range_data = Tdf.getting_significant_time_range(initial_end, initial_start,

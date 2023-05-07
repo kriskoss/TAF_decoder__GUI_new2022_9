@@ -4,7 +4,7 @@ from colouring import SignificantColouring
 import colouring
 import json
 from colouring import prGreen, prYellow, prRed, prLightGray
-
+import datetime
 import math
 
 import TAF_decoder__helper_functions as Td_helpers
@@ -916,6 +916,7 @@ def creating_start_end_times_dates(settings,time_group_list, Tdf, time_gr_data):
                 end_hour = end
 
                 hours = [start_date, start_hour, end_date, end_hour, diff]
+
                 hours_list.append(hours)
         else:
             print('search THTHTHTHT in code')
@@ -1727,3 +1728,16 @@ def generate_selected_time_info(significant_time, weather_data_copy, colored_sta
 
         pass
     return selected_period
+
+def correct_start_and_end_hours(ref_date, start_hour, end_hour):
+    """Corrects the start and end hour for the difference between today and the day of the TAF validity start"""
+
+    date_str = (datetime.datetime.utcnow().strftime("%D"))
+    current_day = int(date_str[3:5])
+    days_difference = current_day - ref_date
+    hours_correction = days_difference * 24
+
+    start_hour += hours_correction
+    end_hour += hours_correction
+
+    return start_hour, end_hour
