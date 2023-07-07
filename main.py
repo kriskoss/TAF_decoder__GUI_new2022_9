@@ -659,7 +659,11 @@ class TheTAFApp(App):
         fpf.download_airports_database()
 
     def load_g_groups_db(self):
-        filename = 'Data/g_groups_database_ONLY/g_groups_apts_db.json'
+
+        # filename = 'Data/g_groups_database_ONLY/g_groups_apts_db.json'
+        # filename ='C:/Users/krzys/Dropbox/_DATABASE/TAF_app/g_groups_apts_db.json'  # REMOTE STORAGE
+        filename = settings.g_groups_apts_db_path()
+
         with open(filename) as f_obj:
             g_groups_db = json.load(f_obj)
         return g_groups_db

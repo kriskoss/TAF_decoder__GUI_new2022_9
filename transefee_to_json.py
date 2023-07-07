@@ -1,5 +1,8 @@
 import json
-filename = 'Data/g_groups_database_ONLY/g_groups_apts_db.json'
+from Classes.settings import Settings
+
+filename = Settings.g_groups_apts_db_path()
+# filename ='C:/Users/krzys/Dropbox/_DATABASE/TAF_app/g_groups_apts_db.json'  # REMOTE STORAGE
 with open(filename) as f:
     apts = json.load(f)
 

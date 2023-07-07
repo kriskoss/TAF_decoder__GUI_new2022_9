@@ -29,7 +29,8 @@ def select_airports__use_apts_in_code():
     requested_airports_taf = 'gEPWAb LEBL'  # NO COMMAs !! - just SPACE
     print(requested_airports_taf)
     return requested_airports_taf
-def load_and_dump_g_groups_apts_data_from_taf_database_program_functions():
-    filename = 'data/g_groups_database_ONLY/g_groups_apts_db.json'
-    with open(filename, 'w') as f_obj:
-        json.dump(apt_groups, f_obj, indent=2)
+
+# def load_and_dump_g_groups_apts_data_from_taf_database_program_functions():
+#     filename ='C:/Users/krzys/Dropbox/_DATABASE/TAF_app/g_groups_apts_db.json'  # REMOTE STORAGE
+#     with open(filename, 'w') as f_obj:
+#         json.dump(apt_groups, f_obj, indent=2)

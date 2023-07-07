@@ -17,6 +17,7 @@ from Classes.EnrouteAirportsControls import EnrouteAirportsControls     # Just f
 from Classes.Route import Route                                         # Just for autocomplete
 
 
+
 class MapControls:
     """This class is used to control the map"""
     def __init__(self):

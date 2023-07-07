@@ -86,7 +86,7 @@ class Settings:
 
         ### COLOURING THRESHOLDS
         # WX colouring thresholds
-        self.severe_wx =  ['+TSGR', '+SN', 'GR', 'FG', 'FC', 'SQ']
+        self.severe_wx =  ['+TSGR', '+SN', 'GR', 'FG', 'FC', 'SQ','+TS']
 
         self.warning_wx = ['+SHSN', 'SHSN', 'SN', 'TS', '-TS', 'GR', 'FZ',
                            'BLSN', 'IC', 'GS', 'VA', 'SS', 'DS', ]
@@ -168,6 +168,10 @@ class Settings:
         self.print_type = True
         self.print_time_group = True
 
+    @staticmethod
+    def g_groups_apts_db_path():
+        filename = 'Data/g_groups_database_ONLY/g_groups_apts_db.json'
 
+        return filename
 
 

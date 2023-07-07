@@ -6,6 +6,7 @@ import json
 import requests
 import gzip
 import csv
+from Classes.settings import Settings
 
 no_station_msg = '- no such station'
 #prompt at the beginning of a program
@@ -433,20 +434,27 @@ def download_airports_database():
         'he_latitude_deg':[],
         'he_longitude_deg':[],
         }
-    for i in range(len(data__sorted)):
-        airports_dict['airport_ident'].append(data__sorted[i][2])
-        airports_dict['length__meters'].append(round(float(data__sorted[i][3]) * 0.3048))
-        airports_dict['width__meters'].append(round(float(data__sorted[i][4]) * 0.3048))
-        airports_dict['le_ident'].append(data__sorted[i][8])
-        airports_dict['le_heading_degT'].append(round(float(data__sorted[i][12])))
-        airports_dict['le_displaced_threshold__meters'].append(round(float(data__sorted[i][13]) * 0.3048))
-        airports_dict['he_ident'].append(data__sorted[i][14])
-        airports_dict['he_heading_degT'].append(round(float(data__sorted[i][18])))
-        airports_dict['he_displaced_threshold__meters'].append(round(float(data__sorted[i][19]) * 0.3048))
-        airports_dict['le_latitude_deg'].append(data__sorted[i][9])
-        airports_dict['le_longitude_deg'].append(data__sorted[i][10])
-        airports_dict['he_latitude_deg'].append(data__sorted[i][15])
-        airports_dict['he_longitude_deg'].append(data__sorted[i][16])
+    # Downloads list of airports where scheduled service is present
+    only_schedule = get_only_scheduled_service_apts()
+
+    # Only airports where sheduled service is present will be stored in the aiports_cleaned.json
+    for ident in only_schedule:
+        for i in range(len(data__sorted)):
+            apt_ident = data__sorted[i][2]
+            if ident == apt_ident:
+                airports_dict['airport_ident'].append(apt_ident)
+                airports_dict['length__meters'].append(round(float(data__sorted[i][3]) * 0.3048))
+                airports_dict['width__meters'].append(round(float(data__sorted[i][4]) * 0.3048))
+                airports_dict['le_ident'].append(data__sorted[i][8])
+                airports_dict['le_heading_degT'].append(round(float(data__sorted[i][12])))
+                airports_dict['le_displaced_threshold__meters'].append(round(float(data__sorted[i][13]) * 0.3048))
+                airports_dict['he_ident'].append(data__sorted[i][14])
+                airports_dict['he_heading_degT'].append(round(float(data__sorted[i][18])))
+                airports_dict['he_displaced_threshold__meters'].append(round(float(data__sorted[i][19]) * 0.3048))
+                airports_dict['le_latitude_deg'].append(data__sorted[i][9])
+                airports_dict['le_longitude_deg'].append(data__sorted[i][10])
+                airports_dict['he_latitude_deg'].append(data__sorted[i][15])
+                airports_dict['he_longitude_deg'].append(data__sorted[i][16])
 
     # Store tafs_cleanded_dict as json
     # Check this video: https://www.youtube.com/watch?v=pTT7HMqDnJw
@@ -456,12 +464,19 @@ def download_airports_database():
     with open(path, "w") as f_obj:
         json.dump(airports_dict, f_obj)
 
+def get_only_scheduled_service_apts():
+    with open('Data_new/only_scheduled.json', "r") as file:
+        data = json.load(file)
+    return data
+
 # Button function - Add new group
 def add_new_group(answer_split):
     """Adding new g_group or updating existing one in JSON database"""
 
     import copy
-    filename = 'Data/g_groups_database_ONLY/g_groups_apts_db.json'
+    # filename = 'Data/g_groups_database_ONLY/g_groups_apts_db.json'
+    # filename = 'C:/Users/krzys/Dropbox/_DATABASE/TAF_app/g_groups_apts_db.json'   # REMOTE STORAGE
+    filename = Settings.g_groups_apts_db_path()
     with open(filename) as f_obj:
         g_groups_db = json.load(f_obj)
 
@@ -597,7 +612,7 @@ def extract_stations_from_g_group(selected_g_group):
     """Returns list of stations stored in to selected g_group"""
 
     # Loading g_group database
-    filename = 'Data/g_groups_database_ONLY/g_groups_apts_db.json'
+    filename = Settings.g_groups_apts_db_path()
     with open(filename) as f_obj:
         g_groups_db= json.load(f_obj)
 
